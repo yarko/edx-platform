@@ -405,6 +405,12 @@ div.video {
             text-decoration: none;
           }
 
+          &.selected {
+            background-color: #C0C0C0;
+            color: #fff;
+            text-decoration: none;
+          }
+
           &.off {
             opacity: .7;
           }

@@ -1,5 +1,8 @@
 class @VideoCaption extends Subview
   initialize: ->
+    @disableMouseLeave = false
+    @captionsOpenWithClick = false
+    @captionsOpenWithMouse = false
     @loaded = false
 
   bind: ->
@@ -131,15 +134,32 @@ class @VideoCaption extends Subview
   toggle: (event) =>
     event.preventDefault()
     if @el.hasClass('closed') # Captions are "closed" e.g. turned off
+      @captionsOpenWithClick = true
+      @disableMouseLeave = true
       @hideCaptions(false)
     else # Captions are on
+      if @captionsOpenWithClick is false
+        @captionsOpenWithClick = true
+        @captionsOpenWithMouse = false
+        @disableMouseLeave = true
+        @el.parent().find('.hide-subtitles').addClass("selected")
+        return
+
+      @captionsOpenWithClick = false
+      @disableMouseLeave = false
       @hideCaptions(true)
 
   hideCaptions: (hide_captions) =>
     if hide_captions
+      @el.parent().find('.hide-subtitles').removeClass("selected")
       @$('.hide-subtitles').attr('title', 'Turn on captions')
       @el.addClass('closed')
     else
+      if @captionsOpenWithMouse is false
+          @disableMouseLeave = true
+          @captionsOpenWithClick = true
+          @el.parent().find('.hide-subtitles').addClass("selected")
+
       @$('.hide-subtitles').attr('title', 'Turn off captions')
       @el.removeClass('closed')
       @scrollCaption()

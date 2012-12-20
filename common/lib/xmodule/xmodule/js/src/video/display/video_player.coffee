@@ -7,6 +7,8 @@ class @VideoPlayer extends Subview
     @el = $("#video_#{@video.id}")
 
   bind: ->
+    _this = this
+
     $(@control).bind('play', @play)
       .bind('pause', @pause)
     $(@qualityControl).bind('changeQuality', @handlePlaybackQualityChange)
@@ -16,6 +18,19 @@ class @VideoPlayer extends Subview
     if @volumeControl
       $(@volumeControl).bind('volumeChange', @onVolumeChange)
     $(document).keyup @bindExitFullScreen
+
+    @el.find(".video-player").mouseenter (event) ->
+      return  if (event.offsetX < _this.el.width() - 200) or (event.offsetY > _this.el.height() - 180)
+      if _this.caption.el.hasClass("closed")
+        _this.caption.captionsOpenWithMouse = true
+        _this.caption.hideCaptions false
+
+    @el.find(".subtitles").mouseleave (event) ->
+      return  if (event.offsetX < 100)
+
+      if (_this.caption.disableMouseLeave is false) and (_this.caption.el.hasClass("closed") is false)
+        _this.caption.captionsOpenWithMouse = false
+        _this.caption.hideCaptions true
 
     @$('.add-fullscreen').click @toggleFullScreen
     @addToolTip() unless onTouchBasedDevice()
