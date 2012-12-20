@@ -19,18 +19,28 @@ class @VideoPlayer extends Subview
       $(@volumeControl).bind('volumeChange', @onVolumeChange)
     $(document).keyup @bindExitFullScreen
 
-    @el.find(".video-player").mouseenter (event) ->
-      return  if (event.offsetX < _this.el.width() - 200) or (event.offsetY > _this.el.height() - 180)
-      if _this.caption.el.hasClass("closed")
-        _this.caption.captionsOpenWithMouse = true
-        _this.caption.hideCaptions false
+    if @video.show_captions is true
+      @el.find(".video-player").mouseenter (event) ->
+        unless event.offsetX
+          event.offsetX = (event.pageX - $(event.target).offset().left)
+          event.offsetY = (event.pageY - $(event.target).offset().top)
 
-    @el.find(".subtitles").mouseleave (event) ->
-      return  if (event.offsetX < 100)
+        return  if (event.offsetX < _this.el.width() - 200) or (event.offsetY > _this.el.height() - 180)
 
-      if (_this.caption.disableMouseLeave is false) and (_this.caption.el.hasClass("closed") is false)
-        _this.caption.captionsOpenWithMouse = false
-        _this.caption.hideCaptions true
+        if _this.caption.el.hasClass("closed") is true
+          _this.caption.captionsOpenWithMouse = true
+          _this.caption.hideCaptions false
+
+      @el.find(".subtitles").mouseleave (event) ->
+        unless event.offsetX
+          event.offsetX = (event.pageX - $(event.target).offset().left)
+          event.offsetY = (event.pageY - $(event.target).offset().top)
+
+        return  if (event.offsetX < 100)
+
+        if (_this.caption.disableMouseLeave is false) and (_this.caption.el.hasClass("closed") is false)
+          _this.caption.captionsOpenWithMouse = false
+          _this.caption.hideCaptions true
 
     @$('.add-fullscreen').click @toggleFullScreen
     @addToolTip() unless onTouchBasedDevice()
@@ -42,6 +52,7 @@ class @VideoPlayer extends Subview
   render: ->
     @control = new VideoControl el: @$('.video-controls')
     @qualityControl = new VideoQualityControl el: @$('.secondary-controls')
+
     @caption = new VideoCaption
         el: @el
         youtubeId: @video.youtubeId('1.0')
@@ -72,6 +83,9 @@ class @VideoPlayer extends Subview
         onStateChange: @onStateChange
         onPlaybackQualityChange: @onPlaybackQualityChange
     @caption.hideCaptions(@['video'].hide_captions)
+
+    if @video.show_captions is false
+      @el.find('.hide-subtitles').remove();
 
   addToolTip: ->
     @$('.add-fullscreen, .hide-subtitles').qtip

@@ -5,7 +5,7 @@ class @Video
     @start = @el.data('start')
     @end = @el.data('end')
     @caption_data_dir = @el.data('caption-data-dir')
-    @show_captions = @el.data('show-captions') == "true"
+    @show_captions = @el.data('show-captions')
     window.player = null
     @el = $("#video_#{@id}")
     @parseVideos @el.data('streams')
@@ -14,6 +14,9 @@ class @Video
     $("#video_#{@id}").data('video', this).addClass('video-load-complete')
 
     @hide_captions = $.cookie('hide_captions') == 'true'
+
+    if @show_captions is false
+      @hide_captions = true
 
     if YT.Player
       @embed()
