@@ -151,10 +151,22 @@ class @VideoCaption extends Subview
 
   hideCaptions: (hide_captions) =>
     if hide_captions
-      @el.parent().find('.hide-subtitles').removeClass("selected")
+      @el.find('.hide-subtitles').removeClass("selected")
       @$('.hide-subtitles').attr('title', 'Turn on captions')
       @el.addClass('closed')
+      @el.find('.video_caption_vert_bar').each (index, value) ->
+        $(value).show()
+
+        $(value).find('.cvb_image').each (index, value) ->
+          if $(value).attr('first_time_show') is undefined
+            return
+          $(value).css('margin-left', '0px')
+          $(value).animate
+            'margin-left': '8'
+          , 1000
+
     else
+      @el.find('.video_caption_vert_bar').hide();
       if @captionsOpenWithMouse is false
           @disableMouseLeave = true
           @captionsOpenWithClick = true

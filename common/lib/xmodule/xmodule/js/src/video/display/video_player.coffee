@@ -53,6 +53,9 @@ class @VideoPlayer extends Subview
     @control = new VideoControl el: @$('.video-controls')
     @qualityControl = new VideoQualityControl el: @$('.secondary-controls')
 
+    if @video.show_captions is true
+      @captionVertBar = new VideoCaptionVertBar el: @el
+
     @caption = new VideoCaption
         el: @el
         youtubeId: @video.youtubeId('1.0')

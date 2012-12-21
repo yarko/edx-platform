@@ -558,4 +558,25 @@ div.video {
       }
     }
   }
+
+    div.video_caption_vert_bar {
+      position: absolute;
+      display: inline;
+      float: right;
+      clear: none;
+      width: 21px;
+      height: 142px;
+      margin-left: 797px;
+      margin-top: 160px;
+      overflow: hidden;
+    }
+    div.cvb_image {
+      background: url('../images/captions_vert_bar.png');
+      width: 21px;
+      height: 142px;
+      border: none;
+      margin: 0px;
+      padding: 0px;
+      outline: none;
+    }
 }
