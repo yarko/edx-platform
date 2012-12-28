@@ -164,9 +164,11 @@ class @VideoCaption extends Subview
           $(value).animate
             'margin-left': '8'
           , 1000
+      @el.find('.cvb_mouseenter_area').show()
 
     else
       @el.find('.video_caption_vert_bar').hide();
+      @el.find('.cvb_mouseenter_area').hide();
       if @captionsOpenWithMouse is false
           @disableMouseLeave = true
           @captionsOpenWithClick = true

@@ -20,23 +20,10 @@ class @VideoPlayer extends Subview
     $(document).keyup @bindExitFullScreen
 
     if @video.show_captions is true
-      @el.find(".video-player").mouseenter (event) ->
-        unless event.offsetX
-          event.offsetX = (event.pageX - $(event.target).offset().left)
-          event.offsetY = (event.pageY - $(event.target).offset().top)
-
-        return  if (event.offsetX < _this.el.width() - 200) or (event.offsetY > _this.el.height() - 180)
-
-        if _this.caption.el.hasClass("closed") is true
-          _this.caption.captionsOpenWithMouse = true
-          _this.caption.hideCaptions false
-
       @el.find(".subtitles").mouseleave (event) ->
         unless event.offsetX
           event.offsetX = (event.pageX - $(event.target).offset().left)
           event.offsetY = (event.pageY - $(event.target).offset().top)
-
-        return  if (event.offsetX < 100)
 
         if (_this.caption.disableMouseLeave is false) and (_this.caption.el.hasClass("closed") is false)
           _this.caption.captionsOpenWithMouse = false
@@ -54,7 +41,7 @@ class @VideoPlayer extends Subview
     @qualityControl = new VideoQualityControl el: @$('.secondary-controls')
 
     if @video.show_captions is true
-      @captionVertBar = new VideoCaptionVertBar el: @el
+      @captionVertBar = new VideoCaptionVertBar el: @el, videoPlayer: this
 
     @caption = new VideoCaption
         el: @el
