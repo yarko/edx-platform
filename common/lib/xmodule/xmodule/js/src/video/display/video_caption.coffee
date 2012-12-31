@@ -1,8 +1,13 @@
 class @VideoCaption extends Subview
   initialize: ->
+    # Properties which will control the automatic hiding/showing of captions.
+    # We need to remember how captions were opened - by a mouse click on the
+    # CC icon, or by a mouse enter event. Then we can determine whether to
+    # allow automatic hiding of captions by mouse leave event or not.
     @disableMouseLeave = false
     @captionsOpenWithClick = false
     @captionsOpenWithMouse = false
+
     @loaded = false
 
   bind: ->
@@ -134,19 +139,31 @@ class @VideoCaption extends Subview
   toggle: (event) =>
     event.preventDefault()
     if @el.hasClass('closed') # Captions are "closed" e.g. turned off
+      # We can reach this point only when the user clicks the CC button. This
+      # means that we must disable mouse enter/mouse leave caption show/hide
+      # until the user clicks the CC button again (to hide captions).
       @captionsOpenWithClick = true
       @disableMouseLeave = true
+
       @hideCaptions(false)
     else # Captions are on
       if @captionsOpenWithClick is false
+        # If we were called, and reached this point, then this means that
+        # initially the captions were requested to be open (setting set in
+        # cookies). We must simulate a user click on the CC button, so that the
+        # rest of the mouse enter/mouse leave caption show/hide code works next
+        # time.
         @captionsOpenWithClick = true
         @captionsOpenWithMouse = false
         @disableMouseLeave = true
         @el.parent().find('.hide-subtitles').addClass("selected")
         return
 
+      # A request to hide captions was made. Enable showing of captions with a
+      # mouse enter event.
       @captionsOpenWithClick = false
       @disableMouseLeave = false
+
       @hideCaptions(true)
 
   hideCaptions: (hide_captions) =>
@@ -154,21 +171,36 @@ class @VideoCaption extends Subview
       @el.find('.hide-subtitles').removeClass("selected")
       @$('.hide-subtitles').attr('title', 'Turn on captions')
       @el.addClass('closed')
+
+      # When the captions are being hidden, we will show the right vertical bar
+      # with the arrow, and the area which triggers the showing of captions on
+      # mouse enter event.
       @el.find('.video_caption_vert_bar').each (index, value) ->
         $(value).show()
 
+        # A smooth animation for the arrow - slide it, and hide it partially
+        # from the user's view.
         $(value).find('.cvb_image').each (index, value) ->
+          # The first time the animation takes a bit longer, so we will skip if
+          # the first time has not completed yet.
           if $(value).attr('first_time_show') is undefined
             return
+
           $(value).css('margin-left', '0px')
           $(value).animate
             'margin-left': '8'
           , 1000
+
       @el.find('.cvb_mouseenter_area').show()
 
     else
+      # Hide the right vertical bar with arrow, and disable the area that
+      # triggers the showing of captions on mouse enter.
       @el.find('.video_caption_vert_bar').hide();
       @el.find('.cvb_mouseenter_area').hide();
+
+      # If we were called from a click on the CC button, lets disable the mouse
+      # enter/mouse leave caption show/hide functionality.
       if @captionsOpenWithMouse is false
           @disableMouseLeave = true
           @captionsOpenWithClick = true

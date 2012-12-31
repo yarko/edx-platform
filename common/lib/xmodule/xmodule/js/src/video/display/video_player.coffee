@@ -19,6 +19,9 @@ class @VideoPlayer extends Subview
       $(@volumeControl).bind('volumeChange', @onVolumeChange)
     $(document).keyup @bindExitFullScreen
 
+    # If captions are enabled, attach a mouse leave event to the captions DIV.
+    # It will check whether the captions were opened by a mouse enter event,
+    # and hide them if this is so.
     if @video.show_captions is true
       @el.find(".subtitles").mouseleave (event) ->
         unless event.offsetX
@@ -40,6 +43,10 @@ class @VideoPlayer extends Subview
     @control = new VideoControl el: @$('.video-controls')
     @qualityControl = new VideoQualityControl el: @$('.secondary-controls')
 
+    # If captions are enabled, we will show a horizontal bar with arrow at the
+    # right side. Also, we will create an area there which will trigger the
+    # display of captions when the mouse hovers over it. When the captions are
+    # shown, the vertical bar will be hidden automatically.
     if @video.show_captions is true
       @captionVertBar = new VideoCaptionVertBar el: @el, videoPlayer: this
 
@@ -74,6 +81,7 @@ class @VideoPlayer extends Subview
         onPlaybackQualityChange: @onPlaybackQualityChange
     @caption.hideCaptions(@['video'].hide_captions)
 
+    # If the user disabled captions in the XML, lets hide them.
     if @video.show_captions is false
       @el.find('.hide-subtitles').remove();
 
