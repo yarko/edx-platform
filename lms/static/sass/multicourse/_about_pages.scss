@@ -198,6 +198,22 @@
           font-weight: 700;
           margin-bottom: 15px;
         }
+
+        .question {
+
+          &.is-selectable {
+            cursor: pointer;
+          }
+        }
+
+        .answer {
+          display: none;
+          @include transition(display, 0.15s, linear);
+
+          &.is-shown {
+            display: block;
+          }
+        }
       }
     }
   }
