@@ -23,65 +23,15 @@ from .utils import get_full_modules
 from .utils import get_discussion_id_map
 from xmodule.modulestore.django import modulestore
 from .helpers import pluralize
+from .mustache_helpers import close_thread_text
+from .mustache_helpers import url_for_user
+from comment_client import CommentClientError
+from django.http import HttpRequest
+from django.http import HttpRequest
+from .middleware import *
 
-class PermissionsTestCase(TestCase):
-    def random_str(self, length=15, chars=string.ascii_uppercase + string.digits):
-        return ''.join(random.choice(chars) for x in range(length))
 
-    def setUp(self):
-
-        self.course_id = "edX/toy/2012_Fall"
-
-        self.moderator_role = Role.objects.get_or_create(name="Moderator", \
-                                                         course_id=self.course_id)[0]
-        self.student_role = Role.objects.get_or_create(name="Student", \
-                                                       course_id=self.course_id)[0]
-
-        self.student = User.objects.create(username=self.random_str(),
-                            password="123456", email="john@yahoo.com")
-        self.moderator = User.objects.create(username=self.random_str(),
-                            password="123456", email="staff@edx.org")
-        self.moderator.is_staff = True
-        self.moderator.save()
-        self.student_enrollment = CourseEnrollment.objects.create(user=self.student, \
-                                                                  course_id=self.course_id)
-        self.moderator_enrollment = CourseEnrollment.objects.create(user=self.moderator, \
-                                                                    course_id=self.course_id)
-        #Fake json files
-        self.empty_data = {"content":{
-                                    }
-                    }
-        self.open_data = {"content":{
-                                "closed":False,
-                                "user_id":str(self.student.id)
-                                }
-                     }
-        self.closed_data = {"content":{
-                                "closed":True,
-                                "user_id":str(self.student.id)
-                                }
-                     }
-        
-    def tearDown(self):
-        self.student_enrollment.delete()
-        self.moderator_enrollment.delete()
-
-# Do we need to have this? We shouldn't be deleting students, ever
-#        self.student.delete()
-#        self.moderator.delete()
-
-    def testDefaultRoles(self):
-        self.assertTrue(self.student_role in self.student.roles.all())
-        self.assertTrue(self.moderator_role in self.moderator.roles.all())
-
-    def testPermission(self):
-        name = self.random_str()
-        self.moderator_role.add_permission(name)
-        self.assertTrue(has_permission(self.moderator, name, self.course_id))
-        # Moderators do not have student priveleges unless explicitly added
-
-        self.student_role.add_permission(name)
-        self.assertTrue(has_permission(self.student, name, self.course_id))
+#Tests for .utils
 
 class UtilsTestCase(TestCase):
     def random_str(self, length=15, chars=string.ascii_uppercase + string.digits):
@@ -148,7 +98,70 @@ class UtilsTestCase(TestCase):
 
     def test_get_discussion_id_map(self):
         _DISCUSSIONINFO = defaultdict({"6.006": False, "18.410": True})
+
+
+#Tests for .permissions
+
+
+class PermissionsTestCase(TestCase):
+    def random_str(self, length=15, chars=string.ascii_uppercase + string.digits):
+        return ''.join(random.choice(chars) for x in range(length))
+
+    def setUp(self):
+
+        self.course_id = "edX/toy/2012_Fall"
+
+        self.moderator_role = Role.objects.get_or_create(name="Moderator", \
+                                                         course_id=self.course_id)[0]
+        self.student_role = Role.objects.get_or_create(name="Student", \
+                                                       course_id=self.course_id)[0]
+
+        self.student = User.objects.create(username=self.random_str(),
+                            password="123456", email="john@yahoo.com")
+        self.moderator = User.objects.create(username=self.random_str(),
+                            password="123456", email="staff@edx.org")
+        self.moderator.is_staff = True
+        self.moderator.save()
+        self.student_enrollment = CourseEnrollment.objects.create(user=self.student, \
+                                                                  course_id=self.course_id)
+        self.moderator_enrollment = CourseEnrollment.objects.create(user=self.moderator, \
+                                                                    course_id=self.course_id)
+        #Fake json files
+        self.empty_data = {"content":{
+                                    }
+                    }
+        self.open_data = {"content":{
+                                "closed":False,
+                                "user_id":str(self.student.id)
+                                }
+                     }
+        self.closed_data = {"content":{
+                                "closed":True,
+                                "user_id":str(self.student.id)
+                                }
+                     }
         
+    def tearDown(self):
+        self.student_enrollment.delete()
+        self.moderator_enrollment.delete()
+
+# Do we need to have this? We shouldn't be deleting students, ever
+#        self.student.delete()
+#        self.moderator.delete()
+
+
+    def testDefaultRoles(self):
+        self.assertTrue(self.student_role in self.student.roles.all())
+        self.assertTrue(self.moderator_role in self.moderator.roles.all())
+
+    def testPermission(self):
+        name = self.random_str()
+        self.moderator_role.add_permission(name)
+        self.assertTrue(has_permission(self.moderator, name, self.course_id))
+        # Moderators do not have student priveleges unless explicitly added
+
+        self.student_role.add_permission(name)
+        self.assertTrue(has_permission(self.student, name, self.course_id))
 
         # Students don't have moderator priveleges 
         name2 = self.random_str()
@@ -210,20 +223,6 @@ class UtilsTestCase(TestCase):
 ##        self.assertTrue(check_permissions_by_view(self.student,self.course_id, \
 ##                                                   self.open_data, 'vote_for_thread'))
 
-class PluralizeTestCase(TestCase):
-    """Practice test case"""
-    def setUp(self):
-        self.term = "cat"
-
-    def testPluralize(self):
-        self.assertEqual(pluralize(self.term, 0), "cats")
-        self.assertEqual(pluralize(self.term, 1), "cat")
-        self.assertEqual(pluralize(self.term, 2), "cats")
-
-    def tearDown(self):
-        pass
-
-# finished testing models.py
 
 class PermissionClassTestCase(TestCase):
 
@@ -268,3 +267,48 @@ class RoleClassTestCase(TestCase):
         # permissions from TA_role 
         self.TA_role_2.inherit_permissions(TA_role)
         self.assertTrue(self.TA_role_2.has_permission("delete_thread"))
+
+
+
+
+
+
+#Start of tests for .mustache_helpers.py
+		
+		
+
+class CloseThreadTextTestCase(TestCase):
+	
+	def setUp(self):
+		self.contentClosed = {'closed': True}
+		self.contentOpen = {'closed': False}
+
+	def test_close_thread_text(self):
+		self.assertEqual(close_thread_text(self.contentClosed), 'Re-open thread')
+		self.assertEqual(close_thread_text(self.contentOpen), 'Close thread')
+
+	def tearDown(self):
+		pass
+
+
+
+#End of tests for mustache_helpers.py
+
+
+
+class PluralizeTestCase(TestCase):
+    """Practice test case"""
+    def setUp(self):
+        self.term = "cat"
+
+    def testPluralize(self):
+        self.assertEqual(pluralize(self.term, 0), "cats")
+        self.assertEqual(pluralize(self.term, 1), "cat")
+        self.assertEqual(pluralize(self.term, 2), "cats")
+
+    def tearDown(self):
+        pass
+
+# finished testing models.py
+
+
