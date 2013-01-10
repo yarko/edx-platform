@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+cd #!/usr/bin/env bash
 
 # posix compliant sanity check
 if [ -z $BASH ] || [  $BASH = "/bin/sh" ]; then
