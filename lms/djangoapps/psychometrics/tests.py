@@ -12,14 +12,6 @@ import string
 import random
 from .permissions import has_permission
 from .models import Role, Permission
-from .helpers import pluralize
-from .mustache_helpers import close_thread_text
-from .mustache_helpers import url_for_user
-from comment_client import CommentClientError
-from django.http import HttpRequest
-from django.http import HttpRequest
-from .middleware import *
-
 
 class PermissionsTestCase(TestCase):
     def random_str(self, length=15, chars=string.ascii_uppercase + string.digits):
@@ -40,6 +32,7 @@ class PermissionsTestCase(TestCase):
         self.moderator.save()
         self.student_enrollment = CourseEnrollment.objects.create(user=self.student, course_id=self.course_id)
         self.moderator_enrollment = CourseEnrollment.objects.create(user=self.moderator, course_id=self.course_id)
+	
 
     def tearDown(self):
         self.student_enrollment.delete()
@@ -49,6 +42,8 @@ class PermissionsTestCase(TestCase):
 #        self.student.delete()
 #        self.moderator.delete()
 
+
+    
 
     def testDefaultRoles(self):
         self.assertTrue(self.student_role in self.student.roles.all())
@@ -62,80 +57,3 @@ class PermissionsTestCase(TestCase):
         self.student_role.add_permission(name)
         self.assertTrue(has_permission(self.student, name, self.course_id))
 
-class PluralizeTestCase(TestCase):
-	
-	def setUp(self):
-		self.term = "cat"
-
-	def test_pluralize(self):
-		self.assertEqual(pluralize(self.term, 0), "cats")
-		self.assertEqual(pluralize(self.term, 1), "cat")
-		self.assertEqual(pluralize(self.term, 3), "cats")
-
-	def tearDown(self):
-		pass
-
-#Tests for .middleware
-
-class ProcessExceptionTestCase(TestCase):
-
-
-	def setUp(self):
-		self.a = AjaxExceptionMiddleware()
-		self.request1 = HttpRequest()
-		self.request0 = HttpRequest()
-		self.exception1 = CommentClientError('a')
-		self.exception0 = 5
-		self.request1.META['HTTP_X_REQUESTED_WITH'] = "XMLHttpRequest"
-		self.request0.META['HTTP_X_REQUESTED_WITH'] = "SHADOWFAX"
-
-
-		
-	def test_process_exception(self):
-		self.assertRaises(JsonError, self.a.process_exception(self.request1, self.exception1))
-		self.assertIsNone(self.a.process_exception(self.request1, self.exception0))
-		self.assertIsNone(self.a.process_exception(self.request0, self.exception1))
-		self.assertIsNone(self.a.process_exception(self.request0, self.exception0))
-
-	def tearDown(self):
-		pass
-		
-		
-		
-		
-
-#Tests for mustache_helpers.py
-
-#class UrlForUserTestCase(TestCase):
-	
-#	def setUp(self):
-#		self.content = {'course_id': 6.002}
-#		self.user_id = 'jeanmanuel'
-
-#	def test_url_for_user(content, user_id):
-#		self.assertEqual(url_for_user(content, user_id), url_for_user(content, user_id))
-
-#	def tearDown(self):
-#		pass
-
-
-		
-		
-
-class CloseThreadTextTestCase(TestCase):
-	
-	def setUp(self):
-		self.contentClosed = {'closed': True}
-		self.contentOpen = {'closed': False}
-
-	def test_close_thread_text(self):
-		self.assertEqual(close_thread_text(self.contentClosed), 'Re-open thread')
-		self.assertEqual(close_thread_text(self.contentOpen), 'Close thread')
-
-	def tearDown(self):
-		pass
-
-
-
-
-	
