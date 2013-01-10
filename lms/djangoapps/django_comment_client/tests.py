@@ -273,51 +273,7 @@ class RoleClassTestCase(TestCase):
 
 
 
-#Tests for .middleware
-#not complete
-
-class ProcessExceptionTestCase(TestCase):
-
-
-	def setUp(self):
-		self.a = AjaxExceptionMiddleware()
-		self.request1 = HttpRequest()
-		self.request0 = HttpRequest()
-		self.exception1 = CommentClientError('a')
-		self.exception0 = 5
-		self.request1.META['HTTP_X_REQUESTED_WITH'] = "XMLHttpRequest"
-		self.request0.META['HTTP_X_REQUESTED_WITH'] = "SHADOWFAX"
-
-
-		
-	def test_process_exception(self):
-		self.assertRaises(JsonError, self.a.process_exception(self.request1, self.exception1))
-		self.assertIsNone(self.a.process_exception(self.request1, self.exception0))
-		self.assertIsNone(self.a.process_exception(self.request0, self.exception1))
-		self.assertIsNone(self.a.process_exception(self.request0, self.exception0))
-
-	def tearDown(self):
-		pass
-		
-		
-		
-		
-
-#Tests for mustache_helpers.py
-
-#class UrlForUserTestCase(TestCase):
-	
-#	def setUp(self):
-#		self.content = {'course_id': 6.002}
-#		self.user_id = 'jeanmanuel'
-
-#	def test_url_for_user(content, user_id):
-#		self.assertEqual(url_for_user(content, user_id), url_for_user(content, user_id))
-
-#	def tearDown(self):
-#		pass
-
-
+#Start of tests for .mustache_helpers.py
 		
 		
 
