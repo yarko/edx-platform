@@ -324,3 +324,30 @@ class PluralizeTestCase(TestCase):
     def tearDown(self):
         pass
 
+
+
+#Tests for .middleware
+
+class ProcessExceptionTestCase(TestCase):
+
+
+	def setUp(self):
+		self.a = AjaxExceptionMiddleware()
+		self.request1 = HttpRequest()
+		self.request0 = HttpRequest()
+		self.exception1 = CommentClientError('{}')
+		self.exception0 = ValueError()
+		self.request1.META['HTTP_X_REQUESTED_WITH'] = "XMLHttpRequest"
+		self.request0.META['HTTP_X_REQUESTED_WITH'] = "SHADOWFAX"
+
+
+		
+	def test_process_exception(self):
+		self.assertIsInstance(self.a.process_exception(self.request1, self.exception1), JsonError)
+		self.assertIsNone(self.a.process_exception(self.request1, self.exception0))
+		self.assertIsNone(self.a.process_exception(self.request0, self.exception1))
+		self.assertIsNone(self.a.process_exception(self.request0, self.exception0))
+
+	def tearDown(self):
+		pass
+
