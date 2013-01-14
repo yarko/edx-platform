@@ -72,7 +72,14 @@ class UtilsTestCase(TestCase):
         self.moderator.save()
         self.student_enrollment = CourseEnrollment.objects.create(user=self.student, course_id=self.course_id)
         self.moderator_enrollment = CourseEnrollment.objects.create(user=self.moderator, course_id=self.course_id)
-        self.course = "6.006"
+        
+        # class Dummy():
+        #     def render_template():
+        #         pass
+        # self.course = CourseDescriptor(Dummy)
+
+
+
 
     def test_extract(self):
         test_extract_dic1 = {"cats": "meow", "dogs": "woof", "hamsters": None}
