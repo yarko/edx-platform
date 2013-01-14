@@ -1,5 +1,6 @@
 import string
 import random
+from collections import defaultdict
 
 
 from django.contrib.auth.models import User
@@ -71,7 +72,14 @@ class UtilsTestCase(TestCase):
         self.moderator.save()
         self.student_enrollment = CourseEnrollment.objects.create(user=self.student, course_id=self.course_id)
         self.moderator_enrollment = CourseEnrollment.objects.create(user=self.moderator, course_id=self.course_id)
-        self.course = "6.006"
+        
+        # class Dummy():
+        #     def render_template():
+        #         pass
+        # self.course = CourseDescriptor(Dummy)
+
+
+
 
     def test_extract(self):
         test_extract_dic1 = {"cats": "meow", "dogs": "woof", "hamsters": None}
@@ -97,7 +105,8 @@ class UtilsTestCase(TestCase):
         self.assertEqual(get_full_modules(), modulestore().modules)
 
     def test_get_discussion_id_map(self):
-        _DISCUSSIONINFO = defaultdict({"6.006": False, "18.410": True})
+        d = {"6.006": False, "18.410": True}
+        _DISCUSSIONINFO = defaultdict(dict)
 
 
 #Tests for .permissions
