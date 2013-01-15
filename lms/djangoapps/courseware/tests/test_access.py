@@ -111,7 +111,13 @@ class AccessTestCase(TestCase):
         self.assertRaises(TypeError, access.get_access_group_name,
                            'notCourseDescriptor', 'dummy_action')
         
+<<<<<<< HEAD
     
+=======
+    def test_has_access(self):
+        error = ErrorDescriptor()
+        access.has_access('dummyuser', error, 'load')
+>>>>>>> feature/deena/courseware
 
 # How do decorators work? I think that is the correct 
 ##    def test_patches(self):
