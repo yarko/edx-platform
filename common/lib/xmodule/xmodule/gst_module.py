@@ -77,8 +77,8 @@ class GraphicalSliderToolModule(XModule):
         <render> tag is organized and processed is located in:
         mitx/docs/build/html/graphical_slider_tool.html.
 
-        Args:
-            html_string: content of <render> tag, with controls as xml tags,
+        Args:DistributionFunction
+            html_string: content of <render> tag, with cojstatntrols as xml tags,
                          e.g. <slider var="a"/>.
 
         Returns:
