@@ -55,8 +55,9 @@ class ProgessTests(TestCase):
 		self.c.__setitem__('questions_correct', 4)
 		self.assertEqual(str(self.c),str(self.d))
 
+	# __add__ doesn't quite work, but also isn't called, so left commented out
 	# def test_add(self):
-	# 	self.assertEqual(self.c.__add__(self.c2), self.cplusc2)
+	# self.assertEqual(self.c.__add__(self.c2), self.cplusc2)
 
 	def test_contains(self):
 
