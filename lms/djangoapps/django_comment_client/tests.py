@@ -107,6 +107,8 @@ class UtilsTestCase(TestCase):
     def test_get_discussion_id_map(self):
         _DISCUSSIONINFO = collections.defaultdict(list,[("6.006", False), ("18.410", True)])
 
+    # get a "course" by calling get_course_with_access(request.user, course_id,
+    # "load")
 
 #Tests for .permissions
 
@@ -222,10 +224,9 @@ class PermissionsTestCase(TestCase):
 
     def testCheckPermissionsByView(self):
         # kwargs is the data entered in check_condition, which is json?
-##        self.assertRaises(UnboundLocalError, check_permissions_by_view(self.student,\
-##                                                self.course_id,\
-##                                                self.empty_data,\
-##                                                  "nonexistant"))
+        self.assertRaises(UnboundLocalError, check_permissions_by_view, self.student,
+                                                self.course_id, self.empty_data,
+                                                  "nonexistant")
         self.assertFalse(check_permissions_by_view(self.student,self.course_id, \
                                                    self.empty_data, 'update_thread'))
 ##        self.assertTrue(check_permissions_by_view(self.student,self.course_id, \
@@ -330,6 +331,7 @@ class PluralizeTestCase(TestCase):
 
     def tearDown(self):
         pass
+
 
 
 
