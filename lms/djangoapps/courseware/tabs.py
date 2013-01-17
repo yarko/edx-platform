@@ -23,6 +23,7 @@ from static_replace import replace_urls
 
 from open_ended_grading.peer_grading_service import PeerGradingService
 from open_ended_grading.staff_grading_service import StaffGradingService
+from open_ended_grading.controller_query_service import ControllerQueryService
 from student.models import unique_id_for_user
 
 log = logging.getLogger(__name__)
@@ -130,6 +131,7 @@ def _staff_grading(tab, user, course, active_page):
     return []
 
 def _peer_grading(tab, user, course, active_page):
+    log.debug(user.__dict__)
     if user.is_authenticated():
         link = reverse('peer_grading', args=[course.id])
         peer_gs = PeerGradingService(settings.PEER_GRADING_INTERFACE)
@@ -151,6 +153,38 @@ def _peer_grading(tab, user, course, active_page):
         tab = [CourseTab(tab_name, link, active_page == "peer_grading", pending_grading, img_path)]
         return tab
     return []
+
+def _combined_open_ended_grading(tab, user, course, active_page):
+    if user.is_authenticated:
+        link = reverse('peer_grading', args=[course.id])
+        peer_grading_url = settings.PEER_GRADING_INTERFACE
+        split_url = peer_grading_url.split("/")
+        controller_url = "http://" + split_url[2] + "/grading_controller"
+        log.debug(controller_url)
+        peer_gs = ControllerQueryService(controller_url)
+        student_id = unique_id_for_user(user)
+        course_id = course.id
+        user_is_staff  = has_access(user, course, 'staff')
+        last_time_viewed = 1
+        pending_grading= False
+        tab_name = "Peer grading"
+        img_path= ""
+        try:
+            notifications = json.loads(peer_gs.get_notifications(course.id,))
+            if notifications['success']:
+                if notifications['student_needs_to_peer_grade']:
+                    pending_grading=True
+        except:
+            #Non catastrophic error, so no real action
+            log.info("Problem with getting notifications from peer grading service.")
+
+        if pending_grading:
+            img_path = "/static/images/slider-handle.png"
+
+        tab = [CourseTab(tab_name, link, active_page == "peer_grading", pending_grading, img_path)]
+        return tab
+    return []
+
 
 #### Validators
 
