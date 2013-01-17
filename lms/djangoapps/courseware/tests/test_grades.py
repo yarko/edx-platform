@@ -75,9 +75,9 @@ class test_grades(TestCase):
 		descriptor_true_mock.system.load_item('locC').return_value = ['C']
 		descriptor_false_mock.get_children.return_value = "Descriptor with no\
 														dynamic children"
-
-		self.assertEqual(yield_dynamic_descriptor_descendents(descriptor_true_mock, module_creator_mock),)					
-
+		true_descriptor_children_list = ['A', 'B', 'C']
+		self.assertEqual(yield_dynamic_descriptor_descendents(descriptor_true_mock, module_creator_mock),true_descriptor_children_list)					
+		self.assertEqual(yield_dynamic_descriptor_descendents(descriptor_false_mock, module_creator_mock),"Descriptor with no dynamic children")	
 
 
 		
