@@ -40,7 +40,7 @@ def yield_dynamic_descriptor_descendents(descriptor, module_creator):
             return [descriptor.system.load_item(child_location) for child_location in child_locations ]
         else:
             return descriptor.get_children()
-    
+    print
     
     stack = [descriptor]
 
