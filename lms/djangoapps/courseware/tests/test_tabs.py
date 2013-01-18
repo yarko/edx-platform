@@ -19,37 +19,37 @@ from static_replace import replace_urls
 
 ###############################################################################
 
-class ProgressTestCase(TestCase):
+#class ProgressTestCase(TestCase):
+#
+ #   def setUp(self):
+#
+ #       self.mockuser1 = MagicMock()
+  #      self.mockuser0 = MagicMock()
+   #     self.course = MagicMock()
+   #     self.mockuser1.is_authenticated.return_value = True
+   #     self.mockuser0.is_authenticated.return_value = False
+   #     self.course.id = 'edX/full/6.002_Spring_2012'
+   #     self.tab = {'name':'same'}
+   #     self.active_page1 = 'progress'
+   #     self.active_page0 = 'stagnation'
+#
+ #   def test_progress(self):
+#
+ #       self.assertEqual(tabs._progress(self.tab, self.mockuser0, self.course,
+  #                                      self.active_page0),
+  #                       [])
 
-    def setUp(self):
+#        self.assertEqual(tabs._progress(self.tab, self.mockuser1, self.course,
+ #                                       self.active_page1)[0].name,
+  #                       'same')
 
-        self.mockuser1 = MagicMock()
-        self.mockuser0 = MagicMock()
-        self.course = MagicMock()
-        self.mockuser1.is_authenticated.return_value = True
-        self.mockuser0.is_authenticated.return_value = False
-        self.course.id = 'edX/full/6.002_Spring_2012'
-        self.tab = {'name':'same'}
-        self.active_page1 = 'progress'
-        self.active_page0 = 'stagnation'
-
-    def test_progress(self):
-
-        self.assertEqual(tabs._progress(self.tab, self.mockuser0, self.course,
-                                        self.active_page0),
-                         [])
-
-        self.assertEqual(tabs._progress(self.tab, self.mockuser1, self.course,
-                                        self.active_page1)[0].name,
-                         'same')
-
-        self.assertEqual(tabs._progress(self.tab, self.mockuser1, self.course,
-                                        self.active_page1)[0].link,
-                         reverse('progress', args = [self.course.id]))  
-
-        self.assertEqual(tabs._progress(self.tab, self.mockuser1, self.course, self.active_page0)[0].is_active, False)
-
-        self.assertEqual(tabs._progress(self.tab, self.mockuser1, self.course, self.active_page1)[0].is_active, True)
+  #      self.assertEqual(tabs._progress(self.tab, self.mockuser1, self.course,
+  #                                     self.active_page1)[0].link,
+  #                       reverse('progress', args = [self.course.id]))  
+#
+#        self.assertEqual(tabs._progress(self.tab, self.mockuser1, self.course, self.active_page0)[0].is_active, False)
+#
+#        self.assertEqual(tabs._progress(self.tab, self.mockuser1, self.course, self.active_page1)[0].is_active, True)
 
 ###############################################################################
 
@@ -289,7 +289,6 @@ class TextbooksTestCase(TestCase):
         
 ###############################################################################
 
-	
 class KeyCheckerTestCase(TestCase):
 
     def setUp(self):
@@ -302,6 +301,46 @@ class KeyCheckerTestCase(TestCase):
 
         self.assertIsNone(tabs.key_checker(self.expected_keys1)(self.dictio))
         self.assertRaises(tabs.InvalidTabsException, tabs.key_checker(self.expected_keys0), self.dictio)
+
+###############################################################################
+
+class ValidateTabsTestCase(TestCase):
+
+    def setUp(self):
+
+        self.course0 = MagicMock()
+        self.course1 = MagicMock()
+        self.course2 = MagicMock()
+        self.course3 = MagicMock()
+        self.course0.tabs = None
+        self.course1.tabs = [{'type':'courseware'}, {'type':'course_info'}]
+        self.course2.tabs = [{'type':'shadow'}, {'type':'fax'}]
+        self.course3.tabs = [{'type':'set'}]
+        
+    def test_validate_tabs(self):
+
+        self.assertIsNone(tabs.validate_tabs(self.course0))
+
+        #self.assertRaises(tabs.InvalidTabsException, tabs.valid_tabs(course): )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
 
 
 
