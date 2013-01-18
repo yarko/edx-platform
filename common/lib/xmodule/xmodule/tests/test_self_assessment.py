@@ -2,8 +2,9 @@ import json
 from mock import Mock
 import unittest
 
-from xmodule.self_assessment_module import SelfAssessmentModule
+from xmodule.self_assessment_module import SelfAssessmentModule, SelfAssessmentDescriptor
 from xmodule.modulestore import Location
+from lxml import etree
 
 from . import test_system
 
@@ -28,10 +29,28 @@ class SelfAssessmentTest(unittest.TestCase):
                             'hints': ['o hai'],
                             'state': SelfAssessmentModule.ASSESSING,
                             'attempts': 2})
+        static_data = {
+            'max_score': 2,
+            'max_attempts': 100,
+            'prompt': "<prompt>this is a prompt</prompt>",
+            'rubric': """
+                        <rubric>
+                            <rubric>
+                                <category>
+                                    <description>Blah</description>
+                                    <option> Option 1 </option>
+                                    <option> Option 2 </option>
+                                </category>
+                          </rubric>
+                        </rubric>
+                      """
+        }
+        static_data['rubric'] = SelfAssessmentTest.generate_xml_object(static_data['rubric'], 'rubric')
+        static_data['prompt'] = SelfAssessmentTest.generate_xml_object(static_data['prompt'], 'prompt')
 
         module = SelfAssessmentModule(test_system, self.location,
-                                      self.definition, self.descriptor,
-                                      state, {}, metadata=self.metadata)
+                                      self.definition, self.descriptor, static_data,
+                                      state, metadata=self.metadata)
 
         self.assertEqual(module.get_score()['score'], 0)
 
@@ -52,3 +71,7 @@ class SelfAssessmentTest(unittest.TestCase):
         module.save_answer({'student_answer': 'answer 4'})
         module.save_assessment({'assessment': '1'})
         self.assertEqual(module.state, module.DONE)
+
+    @staticmethod
+    def generate_xml_object(xml, name):
+        return etree.fromstring(xml).xpath(name)[0]
