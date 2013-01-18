@@ -65,6 +65,7 @@ class WikiTestCase(TestCase):
         self.active_page0 = 'miki'
 
     @override_settings(WIKI_ENABLED=True)
+
     def test_wiki_enabled(self):
 
         self.assertEqual(tabs._wiki(self.tab, self.user, 
@@ -84,6 +85,7 @@ class WikiTestCase(TestCase):
                          False)
 
     @override_settings(WIKI_ENABLED=False)
+
     def test_wiki_enabled_false(self):
 
         self.assertEqual(tabs._wiki(self.tab, self.user, 
@@ -103,25 +105,24 @@ class DiscussionTestCase(TestCase):
         self.active_page1 = 'discussion'
         self.active_page0 = 'cheese_string'
 
-    if settings.MITX_FEATURES['ENABLE_DISCUSSION_SERVICE']:
-
-        def test_discussion_enabled(self):
+    #@override_settings(settings.MITX_FEATURES['ENABLE_DISCUSSION_SERVICE']='True')
+    def test_discussion_enabled(self):
 			
-            self.assertEqual(tabs._discussion(self.tab, self.user, self.course, 
-                                              self.active_page1)[0].name,
-                             'same')
+        self.assertEqual(tabs._discussion(self.tab, self.user, self.course, 
+                                          self.active_page1)[0].name,
+                         'same')
 
-            self.assertEqual(tabs._discussion(self.tab, self.user, self.course, 
-                                              self.active_page1)[0].link, 
-                             reverse('django_comment_client.forums.views.forum_form_discussion', 
-								     args = [self.course.id]))
+        self.assertEqual(tabs._discussion(self.tab, self.user, self.course, 
+                                          self.active_page1)[0].link, 
+                         reverse('django_comment_client.forums.views.forum_form_discussion', 
+								 args = [self.course.id]))
 
-            self.assertEqual(tabs._discussion(self.tab, self.user, self.course, 
-                                              self.active_page1)[0].is_active, 
-                             True)
+        self.assertEqual(tabs._discussion(self.tab, self.user, self.course, 
+                                          self.active_page1)[0].is_active, 
+                         True)
 
-            self.assertEqual(tabs._discussion(self.tab, self.user, self.course, 
-                                              self.active_page0)[0].is_active, False)
+        self.assertEqual(tabs._discussion(self.tab, self.user, self.course, 
+                                          self.active_page0)[0].is_active, False)
 		
     #@override_settings(settings.MITX_FEATURES['ENABLE_DISCUSSION_SERVICE'] = 'False')
     def test_discussion_disabled(self):
@@ -215,7 +216,7 @@ class TextbooksTestCase(TestCase):
 
     def test_textbooks(self):
    
-        if settings.MITX_FEATURES['ENABLE_TEXTBOOK']:
+        if settings.MITX_FEATURES.get('ENABLE_TEXTBOOK'):
             
             self.assertEqual(tabs._textbooks(self.tab, self.mockuser1, 
                                              self.course, self.active_page0)[0].name,
@@ -290,18 +291,6 @@ class TextbooksTestCase(TestCase):
 ###############################################################################
 
 	
-class KeyCheckerTestCase(TestCase):
-
-    def setUp(self):
-        
-        self.expected_keys1 = ['a', 'b']
-        self.expected_keys0 = ['a', 'v', 'g']
-        self.dictio = {'a': 1, 'b': 2, 'c': 3}
-
-    def test_key_checker(self):
-
-        self.assertIsNone(tabs.key_checker(self.expected_keys1)(self.dictio))
-        self.assertRaises(tabs.InvalidTabsException, tabs.key_checker(self.expected_keys0), self.dictio)
 
 
 
