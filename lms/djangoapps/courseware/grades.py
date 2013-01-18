@@ -86,8 +86,8 @@ def yield_problems(request, course, student):
                 continue
 
             for problem in yield_module_descendents(section_module):
-                if isinstance(problem, CapaModule):
-                    yield problem
+                    if isinstance(problem, CapaModule):
+                        yield problem
 
 def answer_distributions(request, course):
     """
