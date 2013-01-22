@@ -398,10 +398,10 @@ class CombinedOpenEndedModule(XModule):
             if isinstance(last_post_assessment, list):
                 eval_list = []
                 for i in xrange(0, len(last_post_assessment)):
-                    eval_list.append(task.format_feedback_with_evaluation(last_post_assessment[i]))
+                    eval_list.append(task.format_feedback_with_evaluation(self.system, last_post_assessment[i]))
                 last_post_evaluation = "".join(eval_list)
             else:
-                last_post_evaluation = task.format_feedback_with_evaluation(last_post_assessment)
+                last_post_evaluation = task.format_feedback_with_evaluation(self.system, last_post_assessment)
             last_post_assessment = last_post_evaluation
         last_correctness = task.is_last_response_correct()
         max_score = task.max_score()
@@ -464,7 +464,7 @@ class CombinedOpenEndedModule(XModule):
         self.update_task_states()
         response_dict = self.get_last_response(task_number)
         context = {'results': response_dict['post_assessment'], 'task_number': task_number + 1}
-        html = render_to_string('combined_open_ended_results.html', context)
+        html = self.system.render_template('combined_open_ended_results.html', context)
         return {'html': html, 'success': True}
 
     def handle_ajax(self, dispatch, get):
