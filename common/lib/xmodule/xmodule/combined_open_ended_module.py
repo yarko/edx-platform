@@ -35,6 +35,9 @@ MAX_ATTEMPTS = 10000
 # Overriden by max_score specified in xml.
 MAX_SCORE = 1
 
+#The highest score allowed for the overall xmodule and for each rubric point
+MAX_SCORE_ALLOWED = 3
+
 class CombinedOpenEndedModule(XModule):
     """
     This is a module that encapsulates all open ended grading (self assessment, peer assessment, etc).
@@ -140,7 +143,7 @@ class CombinedOpenEndedModule(XModule):
         # completion (doesn't matter if you self-assessed correct/incorrect).
         self._max_score = int(self.metadata.get('max_score', MAX_SCORE))
 
-        rubric_renderer = CombinedOpenEndedRubric(system, True)
+        rubric_renderer = CombinedOpenEndedRubric(True)
         success, rubric_feedback = rubric_renderer.render_rubric(stringify_children(definition['rubric']))
         if not success:
             error_message="Could not parse rubric : {0}".format(definition['rubric'])
@@ -325,7 +328,7 @@ class CombinedOpenEndedModule(XModule):
         Output: HTML rendered directly via Mako
         """
         context = self.get_context()
-        html = self.system.render_template('combined_open_ended.html', context)
+        html = render_to_string('combined_open_ended.html', context)
         return html
 
     def get_html_base(self):
@@ -375,17 +378,17 @@ class CombinedOpenEndedModule(XModule):
             self.static_data, instance_state=task_state)
         last_response = task.latest_answer()
         last_score = task.latest_score()
-        last_post_assessment = task.latest_post_assessment(self.system)
+        last_post_assessment = task.latest_post_assessment()
         last_post_feedback = ""
         if task_type == "openended":
-            last_post_assessment = task.latest_post_assessment(self.system, short_feedback=False, join_feedback=False)
+            last_post_assessment = task.latest_post_assessment(short_feedback=False, join_feedback=False)
             if isinstance(last_post_assessment, list):
                 eval_list = []
                 for i in xrange(0, len(last_post_assessment)):
-                    eval_list.append(task.format_feedback_with_evaluation(self.system, last_post_assessment[i]))
+                    eval_list.append(task.format_feedback_with_evaluation(last_post_assessment[i]))
                 last_post_evaluation = "".join(eval_list)
             else:
-                last_post_evaluation = task.format_feedback_with_evaluation(self.system, last_post_assessment)
+                last_post_evaluation = task.format_feedback_with_evaluation(last_post_assessment)
             last_post_assessment = last_post_evaluation
         last_correctness = task.is_last_response_correct()
         max_score = task.max_score()
@@ -448,7 +451,7 @@ class CombinedOpenEndedModule(XModule):
         self.update_task_states()
         response_dict = self.get_last_response(task_number)
         context = {'results': response_dict['post_assessment'], 'task_number': task_number + 1}
-        html = self.system.render_template('combined_open_ended_results.html', context)
+        html = render_to_string('combined_open_ended_results.html', context)
         return {'html': html, 'success': True}
 
     def handle_ajax(self, dispatch, get):
