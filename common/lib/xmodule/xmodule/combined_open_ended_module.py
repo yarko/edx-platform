@@ -148,7 +148,7 @@ class CombinedOpenEndedModule(XModule):
             log.exception(error_message)
             raise Exception
 
-        rubric_renderer = CombinedOpenEndedRubric(True)
+        rubric_renderer = CombinedOpenEndedRubric(system, True)
         success, rubric_feedback = rubric_renderer.render_rubric(stringify_children(definition['rubric']))
         if not success:
             error_message="Could not parse rubric : {0}".format(definition['rubric'])
