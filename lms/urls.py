@@ -272,6 +272,10 @@ if settings.COURSEWARE_ENABLED:
             'open_ended_grading.peer_grading_service.save_grade', name='peer_grading_save_grade'),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/peer_grading/save_calibration_essay$',
             'open_ended_grading.peer_grading_service.save_calibration_essay', name='peer_grading_save_calibration_essay'),
+
+        # Open Ended problem list
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/open_ended_problems$',
+            'open_ended_grading.views.student_problem_list', name='open_ended_problems'),
     )
 
     # discussion forums live within courseware, so courseware must be enabled first
