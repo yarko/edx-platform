@@ -341,7 +341,7 @@ class CombinedOpenEndedModule(XModule):
         Output: HTML rendered directly via Mako
         """
         context = self.get_context()
-        html = render_to_string('combined_open_ended.html', context)
+        html = self.system.render_template('combined_open_ended.html', context)
         return html
 
     def get_html_base(self):
