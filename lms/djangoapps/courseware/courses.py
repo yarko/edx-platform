@@ -64,6 +64,7 @@ def course_image_url(course):
     path = course.metadata['data_dir'] + "/images/course_image.jpg"
     return try_staticfiles_lookup(path)
 
+
 def find_file(fs, dirs, filename):
     """
     Looks for a filename in a list of dirs on a filesystem, in the specified order.
@@ -79,6 +80,7 @@ def find_file(fs, dirs, filename):
         if fs.exists(filepath):
             return filepath
     raise ResourceNotFoundError("Could not find {0}".format(filename))
+
 
 def get_course_about_section(course, section_key):
     """
@@ -233,35 +235,19 @@ def get_courses(user, domain=None):
     courses = branding.get_visible_courses(domain)
     courses = [c for c in courses if has_access(user, c, 'see_exists')]
 
-    # Add metadata about the start day and if the course is new
-    for course in courses:
-        days_to_start = _get_course_days_to_start(course)
-
-        metadata = course.metadata
-        metadata['days_to_start'] = days_to_start
-        metadata['is_new'] = course.metadata.get('is_new', days_to_start > 1)
-
     courses = sorted(courses, key=lambda course:course.number)
+
     return courses
 
 
-def _get_course_days_to_start(course):
-    from datetime import datetime as dt
-    from time import mktime, gmtime
+def sort_by_announcement(courses):
+    """
+    Sorts a list of courses by their announcement date. If the date is
+    not available, sort them by their start date.
+    """
 
-    convert_to_datetime = lambda ts: dt.fromtimestamp(mktime(ts))
+    # Sort courses by how far are they from they start day
+    key = lambda course: course.sorting_score
+    courses = sorted(courses, key=key)
 
-    start_date = convert_to_datetime(course.start)
-
-    # If the course has a valid advertised date, use that instead
-    advertised_start = course.metadata.get('advertised_start', None)
-    if advertised_start:
-        try:
-            start_date = dt.strptime(advertised_start, "%Y-%m-%dT%H:%M")
-        except ValueError:
-            pass # Invalid date, keep using course.start
-
-    now = convert_to_datetime(gmtime())
-    days_to_start = (start_date - now).days
-
-    return days_to_start
+    return courses

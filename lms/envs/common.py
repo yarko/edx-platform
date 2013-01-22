@@ -329,10 +329,34 @@ WIKI_LINK_DEFAULT_LEVEL = 2
 
 ################################# Staff grading config  #####################
 
-STAFF_GRADING_INTERFACE = None
+#By setting up the default settings with an incorrect user name and password,
+# will get an error when attempting to connect
+STAFF_GRADING_INTERFACE = {
+    'url': 'http://sandbox-grader-001.m.edx.org/staff_grading',
+    'username': 'incorrect_user',
+    'password': 'incorrect_pass',
+    }
+
 # Used for testing, debugging
 MOCK_STAFF_GRADING = False
 
+################################# Pearson TestCenter config  ################
+
+PEARSONVUE_SIGNINPAGE_URL = "https://www1.pearsonvue.com/testtaker/signin/SignInPage/EDX"
+# TESTCENTER_ACCOMMODATION_REQUEST_EMAIL = "exam-help@edx.org"
+
+################################# Peer grading config  #####################
+
+#By setting up the default settings with an incorrect user name and password,
+# will get an error when attempting to connect
+PEER_GRADING_INTERFACE = {
+    'url': 'http://sandbox-grader-001.m.edx.org/peer_grading',
+    'username': 'incorrect_user',
+    'password': 'incorrect_pass',
+    }
+
+# Used for testing, debugging
+MOCK_PEER_GRADING = False
 
 ################################# Jasmine ###################################
 JASMINE_TEST_DIRECTORY = PROJECT_ROOT + '/static/coffee'
@@ -408,6 +432,8 @@ courseware_only_js += [
     in glob2.glob(PROJECT_ROOT / 'static/coffee/src/modules/**/*.coffee')
 ]
 
+# 'js/vendor/RequireJS.js' - Require JS wrapper.
+# See https://edx-wiki.atlassian.net/wiki/display/LMS/Integration+of+Require+JS+into+the+system
 main_vendor_js = [
   'js/vendor/RequireJS.js',
   'js/vendor/json2.js',
@@ -421,6 +447,7 @@ main_vendor_js = [
 discussion_js = sorted(glob2.glob(PROJECT_ROOT / 'static/coffee/src/discussion/**/*.coffee'))
 
 staff_grading_js = sorted(glob2.glob(PROJECT_ROOT / 'static/coffee/src/staff_grading/**/*.coffee'))
+peer_grading_js = sorted(glob2.glob(PROJECT_ROOT / 'static/coffee/src/peer_grading/**/*.coffee'))
 
 
 # Load javascript from all of the available xmodules, and
@@ -496,6 +523,7 @@ PIPELINE_JS = {
             for pth in sorted(glob2.glob(PROJECT_ROOT / 'static/coffee/src/**/*.coffee'))\
             if (pth not in courseware_only_js and
                 pth not in discussion_js and
+                pth not in peer_grading_js and
                 pth not in staff_grading_js)
         ] + [
             'js/form.ext.js',
@@ -529,8 +557,11 @@ PIPELINE_JS = {
     'staff_grading' : {
         'source_filenames': [pth.replace(PROJECT_ROOT / 'static/', '')  for pth in staff_grading_js],
         'output_filename': 'js/staff_grading.js'
+    },
+    'peer_grading' : {
+        'source_filenames': [pth.replace(PROJECT_ROOT / 'static/', '')  for pth in peer_grading_js],
+        'output_filename': 'js/peer_grading.js'
     }
-
 }
 
 PIPELINE_DISABLE_WRAPPER = True
@@ -603,6 +634,7 @@ INSTALLED_APPS = (
     'util',
     'certificates',
     'instructor',
+    'open_ended_grading',
     'psychometrics',
     'licenses',
 
