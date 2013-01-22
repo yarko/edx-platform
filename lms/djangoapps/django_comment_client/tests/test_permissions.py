@@ -11,7 +11,7 @@ import student.models
 
 import django_comment_client.permissions as permissions
 
-#########################################################################################
+###############################################################################
 
 class PermissionsTestCase(TestCase):
     def random_str(self, length=15, chars=string.ascii_uppercase + string.digits):
@@ -79,7 +79,6 @@ class PermissionsTestCase(TestCase):
         self.assertFalse(permissions.has_permission(self.moderator, name2, self.course_id))
 
     def testCachedPermission(self):
-        
         # Cache miss returns None
         # Don't really understand how this works? What's in Cache?
         self.assertFalse(permissions.cached_has_permission(self.student, self.moderator,
@@ -118,7 +117,7 @@ class PermissionsTestCase(TestCase):
                                                       self.course_id,
                                                       data=self.open_data,
                                                       operator='and'))
-        self.assertFalse(permissions.check_conditions_permissions(self.student, 'update_thread',
+        self.assertFalse(permissions.check_conditions_permissions(self.student,'update_thread',
                                                       self.course_id, data=self.open_data))
 
     def testCheckPermissionsByView(self):
@@ -128,6 +127,3 @@ class PermissionsTestCase(TestCase):
                           "nonexistant")
         self.assertFalse(permissions.check_permissions_by_view(self.student,self.course_id, 
                                                    self.empty_data, 'update_thread'))
-##        self.assertTrue(check_permissions_by_view(self.student,self.course_id, 
-##                                                   self.open_data, 'vote_for_thread'))
-
