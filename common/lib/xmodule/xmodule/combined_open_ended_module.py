@@ -24,8 +24,6 @@ import open_ended_module
 from combined_open_ended_rubric import CombinedOpenEndedRubric
 from .stringify import stringify_children
 
-from mitxmako.shortcuts import render_to_string
-
 log = logging.getLogger("mitx.courseware")
 
 # Set the default number of max attempts.  Should be 1 for production
@@ -36,6 +34,9 @@ MAX_ATTEMPTS = 10000
 # Set maximum available number of points.
 # Overriden by max_score specified in xml.
 MAX_SCORE = 1
+
+#The highest score allowed for the overall xmodule and for each rubric point
+MAX_SCORE_ALLOWED = 3
 
 class CombinedOpenEndedModule(XModule):
     """
@@ -142,12 +143,25 @@ class CombinedOpenEndedModule(XModule):
         # completion (doesn't matter if you self-assessed correct/incorrect).
         self._max_score = int(self.metadata.get('max_score', MAX_SCORE))
 
+        if self._max_score>MAX_SCORE_ALLOWED:
+            error_message="Max score {0} is higher than max score allowed {1}".format(self._max_score, MAX_SCORE_ALLOWED)
+            log.exception(error_message)
+            raise Exception
+
         rubric_renderer = CombinedOpenEndedRubric(True)
         success, rubric_feedback = rubric_renderer.render_rubric(stringify_children(definition['rubric']))
         if not success:
             error_message="Could not parse rubric : {0}".format(definition['rubric'])
             log.exception(error_message)
             raise Exception
+
+        rubric_categories = rubric_renderer.extract_categories(stringify_children(definition['rubric']))
+        for category in rubric_categories:
+            if len(category['options'])>MAX_SCORE_ALLOWED:
+                error_message="Number of score points in rubric higher than the max allowed, which is {0} : {1}".format(MAX_SCORE_ALLOWED, definition['rubric'])
+                log.exception(error_message)
+                raise Exception
+
         #Static data is passed to the child modules to render
         self.static_data = {
             'max_score': self._max_score,
