@@ -22,9 +22,6 @@ from xmodule.capa_module import CapaModule
 
 class test_grades(TestCase):
 
-	def setUp(self):
-		pass
-
 	def test_yield_module_descendents(self):
 		mock_module = MagicMock()
 		a = MagicMock()
@@ -160,7 +157,48 @@ class test_grades(TestCase):
 		yield_module_descendents_mock(sec3_module_mock).return_value = [prob5, prob6]
 		yield_module_descendents_mock(sec4_module_mock).return_value = [prob7, prob8]
 
-		print isinstance(prob1, CapaModule)
+		self.assertEqual(list(grades.yield_problems(request_mock, course_mock, student_mock)), [])
 		
+	def test_answer_distributions(self):
+		request_mock = MagicMock()
+		course_mock = MagicMock()
+		course_id_mock = MagicMock()
+		course_mock.id.return_value = ('dummy')
+		student1 = MagicMock()
+		student2 = MagicMock()
+		capa_module_mock2 = MagicMock()
+		# capa_module_mock2.return_value = capa_module
+		capa_module_mock = MagicMock()
+		# capa_module_mock.__iter__ = [capa_module_mock2]
+		# capa_module_mock2.return_value = [capa_module_mock]
+		User.objects.filter(courseenrollment__course_id=course_id_mock).return_value = (student1, student2)
+		# print enrolled_students
+		grades.yield_problems(request_mock, course_mock, student1) = MagicMock()
+		self.assertEqual(list(grades.yield_problems(request_mock, course_mock, student1)), []) # = MagicMock(return_value=iter([capa_module_mock]))
+
+		
+		
+		id1 = MagicMock()
+		id2 = MagicMock()
+		capa_module_mock.lcp.student_answers_mock.return_value= [id1, id2]
+		answer1 = MagicMock()
+		answer2 = MagicMock()
+		answer1.return_value = "answer1"
+		answer2.return_value = "answer2"
+		capa_module_mock.lcp.student_answers[id1].return_value = answer1
+		capa_module_mock.lcp.student_answers[id2].return_value = answer2
+		url_name_mock = MagicMock()
+		display_name_mock = MagicMock()
+		capa_module_mock.display_name.return_value = display_name_mock
+		capa_module_mock.url_name = url_name_mock
+
+		d = defaultdict(lambda: defaultdict(int))
+		e = defaultdict(lambda: defaultdict(int))
+		d[(url_name_mock, display_name_mock, id1)][answer1] = 1
+		d[(url_name_mock, display_name_mock, id2)][answer2] = 1
+		self.assertEqual(grades.answer_distributions(request_mock, course_mock),e)
 
 
+		# defaultdict(<function <lambda> at 0x104d7f6e0>, {}) != 
+		# defaultdict(<function <lambda> at 0x104d7f398>, {(<MagicMock name='mock.url_name' id='4376250000'>, <MagicMock name='mock.display_name()' id='4376254736'>, <MagicMock id='4376207312'>): 
+		# 	defaultdict(<type 'int'>, {<MagicMock name='mock.lcp.student_answers.__getitem__()()' id='4376226384'>: 1}), (<MagicMock name='mock.url_name' id='4376250000'>, <MagicMock name='mock.display_name()' id='4376254736'>, <MagicMock id='4376202576'>): defaultdict(<type 'int'>, {<MagicMock name='mock.lcp.student_answers.__getitem__()()' id='4376221584'>: 1})})
