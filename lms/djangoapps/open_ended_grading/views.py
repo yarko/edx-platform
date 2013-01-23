@@ -51,6 +51,16 @@ def _reverse_without_slash(url_name, course_id):
     ajax_url = reverse(url_name, kwargs={'course_id': course_id})
     return ajax_url
 
+DESCRIPTION_DICT = {
+            'Peer Grading': "View all problems that require peer assessment in this particular course.",
+            'Staff Grading': "View ungraded submissions submitted by students for the open ended problems in the course.",
+            'Problems you have submitted': "View open ended problems that you have previously submitted for grading." 
+    }
+ALERT_DICT = {
+            'Peer Grading': "New submissions to grade",
+            'Staff Grading': "New submissions to grade",
+            'Problems you have submitted': "New grades have been returned" 
+    }
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def staff_grading(request, course_id):
     """
@@ -199,13 +209,24 @@ def combined_notifications(request, course_id):
             human_name = notification_tuples[response_num][2]
             url = _reverse_without_slash(url_name, course_id)
             has_img = response[tag]
-            img_path = "/static/images/slider-handle.png"
 
+            # check to make sure we have descriptions and alert messages
+            if human_name in DESCRIPTION_DICT:
+                description = DESCRIPTION_DICT[human_name]
+            else:
+                description = ""
+
+            if human_name in ALERT_DICT:
+                alert_message = ALERT_DICT[human_name]
+            else:
+                alert_message = ""
+                
             notification_item = {
                 'url' : url,
                 'name' : human_name,
-                'has_img' : has_img,
-                'img' : img_path,
+                'alert' : has_img,
+                'description': description,
+                'alert_message': alert_message
             }
             notification_list.append(notification_item)
 
