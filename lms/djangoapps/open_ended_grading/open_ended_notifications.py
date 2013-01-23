@@ -14,7 +14,7 @@ log=logging.getLogger(__name__)
 NOTIFICATION_TYPES = (
     ('student_needs_to_peer_grade', 'peer_grading', 'Peer Grading'),
     ('staff_needs_to_grade', 'staff_grading', 'Staff Grading'),
-    ('overall_need_to_check', 'open_ended_problems', 'Problems you have submitted')
+    ('new_student_grading_to_view', 'open_ended_problems', 'Problems you have submitted')
     )
 
 def staff_grading_notifications(course):
@@ -66,9 +66,14 @@ def combined_notifications(course, user):
     course_id = course.id
 
     min_time_to_query = user.last_login
-    last_module_seen = StudentModule.objects.filter(student=user, course_id = course_id, modified__gt=min_time_to_query).values('modified').order_by('-modified')[0]
+    last_module_seen = StudentModule.objects.filter(student=user, course_id = course_id, modified__gt=min_time_to_query).values('modified').order_by('-modified')
+    last_module_seen_count = last_module_seen.count()
 
-    last_time_viewed = last_module_seen['modified']
+    if last_module_seen_count>0:
+        last_time_viewed = last_module_seen[0]['modified']
+    else:
+        last_time_viewed = user.last_login
+
     pending_grading= False
 
     img_path= ""
