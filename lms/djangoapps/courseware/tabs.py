@@ -109,7 +109,7 @@ def _staff_grading(tab, user, course, active_page):
         link = reverse('staff_grading', args=[course.id])
         tab_name = "Staff grading"
 
-        notifications  = open_ended_notifications.staff_grading_notifications(course)
+        notifications  = open_ended_notifications.staff_grading_notifications(course, user)
         pending_grading = notifications['pending_grading']
         img_path = notifications['img_path']
 
