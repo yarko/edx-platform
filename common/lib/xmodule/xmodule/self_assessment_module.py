@@ -75,7 +75,7 @@ class SelfAssessmentModule(openendedchild.OpenEndedChild):
             'previous_answer': previous_answer,
             'ajax_url': system.ajax_url,
             'initial_rubric': self.get_rubric_html(system),
-            'initial_hint': self.get_hint_html(system),
+            'initial_hint': "",
             'initial_message': self.get_message_html(),
             'state': self.state,
             'allow_reset': self._allow_reset(),
@@ -236,13 +236,9 @@ class SelfAssessmentModule(openendedchild.OpenEndedChild):
 
         d = {'success': True, }
 
-        if score == self.max_score():
-            self.change_state(self.DONE)
-            d['message_html'] = self.get_message_html()
-            d['allow_reset'] = self._allow_reset()
-        else:
-            self.change_state(self.POST_ASSESSMENT)
-            d['hint_html'] = self.get_hint_html(system)
+        self.change_state(self.DONE)
+        d['message_html'] = self.get_message_html()
+        d['allow_reset'] = self._allow_reset()
 
         d['state'] = self.state
         return d
@@ -284,6 +280,7 @@ class SelfAssessmentDescriptor(XmlDescriptor, EditingDescriptor):
 
     js = {'coffee': [resource_string(__name__, 'js/src/html/edit.coffee')]}
     js_module_name = "HTMLEditingDescriptor"
+    css = {'scss': [resource_string(__name__, 'css/editor/edit.scss'), resource_string(__name__, 'css/html/edit.scss')]}
 
     @classmethod
     def definition_from_xml(cls, xml_object, system):

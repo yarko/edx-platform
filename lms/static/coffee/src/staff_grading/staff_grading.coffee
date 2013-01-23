@@ -340,7 +340,15 @@ class StaffGrading
 
   render_view: () ->
     # clear the problem list and breadcrumbs
-    @problem_list.html('')
+    @problem_list.html('''
+        <tr>
+            <th>Problem Name</th>
+            <th>Graded</th>
+            <th>Available to Grade</th>
+            <th>Required</th>
+            <th>Progress</th>
+        </tr>
+    ''')    
     @breadcrumbs.html('')
     @problem_list_container.toggle(@list_view)
     if @backend.mock_backend
@@ -368,7 +376,7 @@ class StaffGrading
 
   problem_link:(problem) ->
     link = $('<a>').attr('href', "javascript:void(0)").append(
-      "#{problem.problem_name} (#{problem.num_graded} graded, #{problem.num_pending} pending, required to grade #{problem.num_required} more)")
+      "#{problem.problem_name}")
         .click =>
           @get_next_submission problem.location
 
@@ -381,7 +389,17 @@ class StaffGrading
 
   render_list: () ->
     for problem in @problems
-      @problem_list.append($('<li>').append(@problem_link(problem)))
+      problem_row = $('<tr>')
+      problem_row.append($('<td class="problem-name">').append(@problem_link(problem)))
+      problem_row.append($('<td>').append("#{problem.num_graded}"))
+      problem_row.append($('<td>').append("#{problem.num_pending}"))
+      problem_row.append($('<td>').append("#{problem.num_required}"))
+      row_progress_bar = $('<div>').addClass('progress-bar')
+      progress_value = parseInt(problem.num_graded)
+      progress_max = parseInt(problem.num_required) + progress_value
+      row_progress_bar.progressbar({value: progress_value, max: progress_max})
+      problem_row.append($('<td>').append(row_progress_bar))
+      @problem_list.append(problem_row)
 
   render_problem: () ->
     # make the view elements match the state.  Idempotent.
@@ -403,7 +421,7 @@ class StaffGrading
     else if @state == state_grading
       @ml_error_info_container.html(@ml_error_info)
       meta_list = $("<ul>")
-      meta_list.append("<li><span class='meta-info'>Pending - </span> #{@num_pending}</li>")
+      meta_list.append("<li><span class='meta-info'>Available - </span> #{@num_pending}</li>")
       meta_list.append("<li><span class='meta-info'>Graded - </span> #{@num_graded}</li>")
       meta_list.append("<li><span class='meta-info'>Needed for ML - </span> #{Math.max(@min_for_ml - @num_graded, 0)}</li>")
       @problem_meta_info.html(meta_list)
