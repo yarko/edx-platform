@@ -1373,8 +1373,8 @@ class CodeResponse(LoncapaResponse):
             return fail
         for tag in ['correct', 'score', 'msg']:
             if tag not in score_result:
-                log.error("External grader message is missing one or more required"
-                          " tags: 'correct', 'score', 'msg'")
+                log.error("External grader message %r is missing one or more required"
+                          " tags: 'correct', 'score', 'msg'", score_result)
                 return fail
 
         # Next, we need to check that the contents of the external grader message
