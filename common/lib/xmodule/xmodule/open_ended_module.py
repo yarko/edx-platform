@@ -377,7 +377,6 @@ class OpenEndedModule(openendedchild.OpenEndedChild):
             Return error message or feedback template
         """
 
-        log.debug(response_items)
         rubric_feedback=""
         feedback = self._convert_longform_feedback_to_html(response_items)
         if response_items['rubric_scores_complete']==True:
@@ -602,7 +601,6 @@ class OpenEndedModule(openendedchild.OpenEndedChild):
             'child_type': 'openended',
             'correct': correct,
         }
-        log.debug(context)
         html = system.render_template('open_ended.html', context)
         return html
 
