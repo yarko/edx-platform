@@ -199,7 +199,6 @@ def combined_notifications(request, course_id):
     user = request.user
     notifications = open_ended_notifications.combined_notifications(course, user)
     response = notifications['response']
-    log.debug(response)
     notification_tuples=open_ended_notifications.NOTIFICATION_TYPES
 
     notification_list = []
