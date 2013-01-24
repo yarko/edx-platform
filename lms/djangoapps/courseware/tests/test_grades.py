@@ -16,9 +16,7 @@ from courseware.module_render import get_module as get_module
 from courseware.module_render import get_instance_module as get_instance_module
 # from xmodule import graders
 from xmodule.capa_module import CapaModule
-# from xmodule.course_module import CourseDescriptor
-# from xmodule.graders import Score
-# from models import StudentModule
+
 
 class test_grades(TestCase):
 
@@ -173,10 +171,10 @@ class test_grades(TestCase):
 		# capa_module_mock2.return_value = [capa_module_mock]
 		User.objects.filter(courseenrollment__course_id=course_id_mock).return_value = (student1, student2)
 		# print enrolled_students
+
 		grades.yield_problems(request_mock, course_mock, student1) = MagicMock()
 		self.assertEqual(list(grades.yield_problems(request_mock, course_mock, student1)), []) # = MagicMock(return_value=iter([capa_module_mock]))
 
-		
 		
 		id1 = MagicMock()
 		id2 = MagicMock()
