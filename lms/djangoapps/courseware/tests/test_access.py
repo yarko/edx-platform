@@ -22,7 +22,6 @@ class AccessTestCase(TestCase):
         pass
     
     def test__has_global_staff_access(self):
-        # Only 2 branches?
         mock_user = MagicMock()
         mock_user.is_staff = True
         self.assertTrue(access._has_global_staff_access(mock_user))
@@ -54,7 +53,7 @@ class AccessTestCase(TestCase):
         mock_user = MagicMock()
         mock_user.is_staff = True
         self.assertTrue(access._has_access_string(mock_user, 'global', 'staff'))
-        self.assertFalse(access._has_access_string(mock_user, 'dummy', 'dummy'))
+        self.assertFalse(access._has_access_string(mock_user, '!global', 'staff'))
         
     def test__has_access_descriptor(self):
         mock_descriptor = MagicMock()
@@ -79,16 +78,11 @@ class AccessTestCase(TestCase):
         self.assertEquals(access._get_access_group_name_course_desc('dummy',
                                                                     'notstaff'),
                           [])
-        # Problem: Can't use a Mock for location because needs to be a valid
-        # input to Location
-        # Getting "IndentationError: expected an indented block"
-##        tag, org, course, category, name = [MagicMock()]*5
-##        #mock_course.location = ['tag', 'org', 'course', 'category', 'name']
-##        L = Location([tag, org, course, category, name])
-##        print L.course_id()
-##        assert False
-        #mock_course.location.course = 'toy'
-        #access._get_access_group_name_course_desc(mock_course, 'staff')
+        location = Location('i4x', 'edX', 'toy', 'chapter', 'Overview')
+        mock_course = MagicMock()
+        mock_course.location = location
+        self.assertEquals('staff_toy', access._get_access_group_name_course_desc(mock_course,'staff'))
+        self.assertEquals('instructor_toy', access._get_access_group_name_course_desc(mock_course, 'instructor'))
 
     def test__has_access_course_desc(self):
         # This is more of a test for see_exists
@@ -98,29 +92,16 @@ class AccessTestCase(TestCase):
                                                        'see_exists'))
         mock_course_2 = MagicMock()
         mock_course_2.metadata.get = 'private'
-        # Is there a way to see all the functions that have been called on a mock?
-        # Basically, I want to see if _has_staff_access_to_descriptor is called on
-        # the mock user and course
-        # This actually doesn't seem possible, according to the API
         # None user can see course even if not 'is_public'?
         self.assertTrue(access._has_access_course_desc(None, mock_course_2,
                                                         'see_exists'))
     def test_get_access_group_name(self):
         # Need to create an instance of CourseDescriptor
-        # Is it necessary to test? basically "testing" python
         self.assertRaises(TypeError, access.get_access_group_name,
                            'notCourseDescriptor', 'dummy_action')
         
-<<<<<<< HEAD
-    
-=======
     def test_has_access(self):
-        error = ErrorDescriptor()
-        access.has_access('dummyuser', error, 'load')
->>>>>>> feature/deena/courseware
-
-# How do decorators work? I think that is the correct 
-##    def test_patches(self):
-##        user = Stub()
-##        @patch.object(Stub, "is_staff", True)
-##        self.assertTrue(access._has_global_staff_access(mock_user))
+        mock_user = MagicMock()
+        mock_user.is_staff = True
+        self.assertTrue(access.has_access(mock_user, 'global', 'staff'))
+        self.assertRaises(TypeError, access.has_access, mock_user, {}, 'dummy')
