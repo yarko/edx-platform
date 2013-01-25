@@ -145,7 +145,8 @@ def get_course_about_section(course, section_key):
     if section_key in ['short_description', 'description', 'key_dates', 'video',
                        'course_staff_short', 'course_staff_extended',
                        'requirements', 'syllabus', 'textbook', 'faq', 'more_info',
-                       'number', 'instructors', 'overview',
+                       # 'number', 
+                       'instructors', 'overview',
                        'effort', 'end_date', 'prerequisites', 'ocw_links']:
 
         try:
