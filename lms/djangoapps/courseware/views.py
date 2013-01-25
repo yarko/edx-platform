@@ -178,7 +178,7 @@ def index(request, course_id, chapter=None, section=None,
 
      - HTTPresponse
     """
-    course = get_course_with_access(request.user, course_id, 'load', depth=2)
+    course = get_course_with_access(request.user, course_id, 'load', depth=4)
     staff_access = has_access(request.user, course, 'staff')
     registered = registered_for_course(course, request.user)
     if not registered:
@@ -188,7 +188,7 @@ def index(request, course_id, chapter=None, section=None,
 
     try:
         student_module_cache = StudentModuleCache.cache_for_descriptor_descendents(
-            course.id, request.user, course, depth=2)
+            course.id, request.user, course, depth=4)
 
         # Has this student been in this course before?
         first_time = student_module_cache.lookup(course_id, 'course', course.location.url()) is None
