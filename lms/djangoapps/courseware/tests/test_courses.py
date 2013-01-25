@@ -2,7 +2,6 @@ from django.test import TestCase
 from courseware import courses
 from mock import MagicMock
 
-
 from collections import defaultdict
 from fs.errors import ResourceNotFoundError
 from functools import wraps
@@ -22,12 +21,6 @@ from xmodule.modulestore.exceptions import ItemNotFoundError
 from static_replace import replace_urls, try_staticfiles_lookup
 from courseware.access import has_access
 import branding
-
-# class UserFactory(factory.Factory):
-# 	first_name = 'Test'
-# 	last_name = 'Robot'
-# 	is_staff = True
-# 	is_active = True
 
 def xml_store_config(data_dir):
     return {
@@ -49,8 +42,9 @@ class CoursesTests(TestCase):
 		self._MODULESTORES = {}
 		self.course_name = 'edX/toy/2012_Fall'
 		self.toy_course = modulestore().get_course('edX/toy/2012_Fall')
+		# self.fake_course = modulestore().get_course('edX/fake/2012_Fall')
 		self.fake_user = User.objects.create(is_superuser=True)
-		
+
 	'''
 	no test written for get_request_for_thread
 	'''
@@ -70,9 +64,30 @@ class CoursesTests(TestCase):
 		# self.assertRaisesRegexp(Http404,"Course not found.", courses.get_course_with_access, self.fake_user2, self.course_name, 'enroll')
 	def test_get_opt_course_with_access(self):
 		self.assertEqual(courses.get_opt_course_with_access(self.fake_user, None, 'enroll'), None)
+		self.assertEqual(courses.get_opt_course_with_access(self.fake_user, self.course_name,'enroll'),courses.get_course_by_id("edX/toy/2012_Fall"))
 
+	def test_course_image_url(self):
+		#real course
+		self.assertEqual(courses.course_image_url(self.toy_course), 'toy/images/course_image.jpg')
+		
+		#unable to test for when modulestore() is not an instance of XMLModuleStore
 
+	def test_find_file(self):
+		pass
 
+	def test_get_course_about_section(self):
+		self.assertEqual(courses.get_course_about_section(self.toy_course, "title"), "Toy Course")
+		self.assertEqual(courses.get_course_about_section(self.toy_course, "university"), "edX")
+		'''
+		See potential bugs page on the wiki. This test will word if 'number' is removed from line 148
+		self.assertEqual(courses.get_course_about_section(self.toy_course, "number"), "toy")
+		'''
+		# self.assertEqual(courses.get_course_about_section(self.toy_course, "short_description"), "toy")
+		# self.assertEqual(courses.get_course_about_section(self.toy_course, "description"), "toy")
+
+	def test_get_course_syllabus_section(self):
+		self.assertRaisesRegexp(KeyError,"Invalid about key "+"meowtoyhello", courses.get_course_syllabus_section,self.toy_course,"meowtoyhello")
+		self.assertRaisesRegexp(ResourceNotFoundError,"Resource not found",courses.get_course_syllabus_section,self.toy_course, 'syllabus')
 
 
 
