@@ -54,8 +54,8 @@ class CoursesTests(TestCase):
         self.fake_user = User.objects.create(is_superuser=True)
 
     '''
-	no test written for get_request_for_thread
-	'''
+    no test written for get_request_for_thread
+    '''
 
     def test_get_course_by_id(self):
         self.test_course_id = "edX/toy/2012_Fall"
@@ -100,9 +100,10 @@ class CoursesTests(TestCase):
         self.assertEqual(courses.get_course_about_section(
             self.toy_course, "university"), "edX")
         '''
-		See potential bugs page on the wiki. This test will word if 'number' is removed from line 148
-		self.assertEqual(courses.get_course_about_section(self.toy_course, "number"), "toy")
-		'''
+        See potential bugs page on the wiki. This test will word if 'number' is removed from line 148
+        self.assertEqual(
+            courses.get_course_about_section(self.toy_course, "number"), "toy")
+        '''
         # self.assertEqual(courses.get_course_about_section(self.toy_course, "short_description"), "toy")
         # self.assertEqual(courses.get_course_about_section(self.toy_course,
         # "description"), "toy")
@@ -112,9 +113,9 @@ class CoursesTests(TestCase):
             KeyError, "Invalid about key " + "meowtoyhello",
             courses.get_course_syllabus_section, self.toy_course, "meowtoyhello")
         '''
-		this isn't raising a ResourceNotFoundError for some reason
-		# self.assertRaisesRegexp(ResourceNotFoundError,"Resource not found",courses.get_course_syllabus_section,self.toy_course, 'syllabus')
-		'''
+        this isn't raising a ResourceNotFoundError for some reason
+        # self.assertRaisesRegexp(ResourceNotFoundError,"Resource not found",courses.get_course_syllabus_section,self.toy_course, 'syllabus')
+        '''
 
     def test_get_courses_by_university(self):
         pass
@@ -130,4 +131,5 @@ class CoursesTests(TestCase):
         # also outputs a really long defaultdict
 
     def test_sort_by_announcement(self):
-        self.assertEqual(courses.sort_by_announcement([self.full, self.toy_course]), [self.toy_course, self.full])
+        self.assertEqual(courses.sort_by_announcement(
+            [self.full, self.toy_course]), [self.toy_course, self.full])
