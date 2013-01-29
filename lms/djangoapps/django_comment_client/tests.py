@@ -3,9 +3,14 @@ import random
 import collections
 from collections import defaultdict
 from django.contrib.auth.models import User
+<<<<<<< HEAD
 from django.test import TestCase
 from django.db.models.signals import m2m_changed, pre_delete, pre_save, \
                                     post_delete, post_save
+=======
+from django.test import TestCase                         
+from django.db.models.signals import m2m_changed, pre_delete, pre_save, post_delete, post_save
+>>>>>>> a32673697c67cec09f87876dcff8d3e2020c7280
 from django.dispatch.dispatcher import _make_id
 
 from student.models import CourseEnrollment, \
@@ -14,7 +19,10 @@ from student.models import CourseEnrollment, \
                            update_user_information, \
                            replicate_user_save
 from .permissions import *
+<<<<<<< HEAD
 
+=======
+>>>>>>> a32673697c67cec09f87876dcff8d3e2020c7280
 from .models import Role, Permission
 from .utils import strip_none
 from .utils import extract
@@ -26,6 +34,7 @@ from .utils import get_discussion_id_map
 from xmodule.modulestore.django import modulestore
 from xmodule.modulestore import Location
 from xmodule.course_module import CourseDescriptor
+<<<<<<< HEAD
 from .helpers import pluralize
 from .mustache_helpers import close_thread_text
 from .mustache_helpers import url_for_user
@@ -33,6 +42,16 @@ from comment_client import CommentClientError
 from django.http import HttpRequest
 from .middleware import *
 
+=======
+
+from .helpers import pluralize
+from .mustache_helpers import close_thread_text
+from .mustache_helpers import url_for_user
+from comment_client import CommentClientError
+from django.http import HttpRequest
+from .middleware import *
+
+>>>>>>> a32673697c67cec09f87876dcff8d3e2020c7280
 from .utils import strip_none
 from .utils import extract
 from .utils import strip_blank
@@ -100,6 +119,7 @@ class UtilsTestCase(TestCase):
 
     def test_strip_blank(self):
         self.assertEqual(strip_blank(self.dic2blank), self.dic2)
+<<<<<<< HEAD
 
     def test_merge_dic(self):
         self.dicMerge12 ={'cats': 'meow', 'dogs': 'woof','lions': 'roar','ducks': 'quack'}
@@ -119,6 +139,27 @@ class UtilsTestCase(TestCase):
 
 #Tests for .permissions
 
+=======
+
+    def test_merge_dic(self):
+        self.dicMerge12 ={'cats': 'meow', 'dogs': 'woof','lions': 'roar','ducks': 'quack'}
+        self.assertEqual(merge_dict(self.dic1, self.dic2), self.dicMerge12)
+
+    def test_get_role_ids(self):
+        self.assertEqual(get_role_ids(self.course_id), {u'Moderator': [2], u'Student': [1], 'Staff': [2]})
+
+    def test_get_full_modules(self):
+        _FULLMODULES = True
+        self.assertTrue(get_full_modules())
+        _FULLMODULES = False
+        self.assertEqual(get_full_modules(), modulestore().modules)
+
+    def test_get_discussion_id_map(self):
+        _DISCUSSIONINFO = collections.defaultdict(list,[("6.006", False), ("18.410", True)])
+
+#Tests for .permissions
+
+>>>>>>> a32673697c67cec09f87876dcff8d3e2020c7280
 class PermissionsTestCase(TestCase):
     def random_str(self, length=15, chars=string.ascii_uppercase + string.digits):
         return ''.join(random.choice(chars) for x in range(length))
