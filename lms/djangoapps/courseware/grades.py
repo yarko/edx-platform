@@ -40,6 +40,7 @@ def yield_dynamic_descriptor_descendents(descriptor, module_creator):
         else:
             return descriptor.get_children()
     
+    
     stack = [descriptor]
 
     while len(stack) > 0:
@@ -84,8 +85,8 @@ def yield_problems(request, course, student):
                 continue
 
             for problem in yield_module_descendents(section_module):
-                    if isinstance(problem, CapaModule):
-                        yield problem
+                if isinstance(problem, CapaModule):
+                    yield problem
 
 def answer_distributions(request, course):
     """
