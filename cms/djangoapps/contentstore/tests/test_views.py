@@ -233,7 +233,7 @@ class ViewsTestCase(TestCase):
         self.user7.is_authenticated.return_value = True
         self.request7.POST["email"] = 'fake@yahoo.com'
         
-        #stuck from here on because I don't know how get_user_byemail(email) works.
+        # stuck from here on because I don't know how get_user_byemail(email) works.
 
     def test_remove_user(self):
         self.user9 = MagicMock(is_staff = True, is_active = True)
@@ -242,6 +242,7 @@ class ViewsTestCase(TestCase):
         self.request9.user = self.user9
         self.assertIsInstance(views.add_user(self.request9, self.location), HttpResponseRedirect)
 
+        # stuck from here on because I don't know how get_user_byemail(email) works.
     def test_export_course(self):
         self.request8 = RequestFactory().get('foo')
         self.user8 = MagicMock()
