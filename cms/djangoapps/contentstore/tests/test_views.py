@@ -170,18 +170,22 @@ class ViewsTestCase(TestCase):
         self.request3.POST = {}
         self.request3.POST['id'] = self.location
         self.assertIsInstance(views.create_draft(self.request3), HttpResponseRedirect)
-
+        '''
         #WHY THIS NOT WORK?
-        self.user4 = MagicMock(is_staff = False, is_active = False)
+        #possible that the test locations don't have the proper methods associated with
+        #them to return an HttpResponse
+        #Instead, either a BaseException or NotImplemented returns.
+        self.user4 = MagicMock(is_staff = True, is_active = True)
         self.user4.is_authenticated.return_value = True
         self.request4 = RequestFactory().get('foo')
         self.request4.user = self.user4
         self.request4.POST = {}
-        self.request4.POST['id'] = self.location_2
+        self.request4.POST['id'] = self.location
         # self.assertRaisesRegexp(BaseException,"Found more than one course at *", views.create_draft, self.request4.user)
         # self.assertIsInstance(views.create_draft(self.request4), HttpResponse)
-
+        '''
     def test_publish_draft(self): #same test as above
+        # if the user doesn't have access
         self.user5 = MagicMock(is_staff = False, is_active = False)
         self.user5.is_authenticated.return_value = False
         self.request5 = RequestFactory().get('foo')
@@ -189,8 +193,14 @@ class ViewsTestCase(TestCase):
         self.request5.POST = {}
         self.request5.POST['id'] = self.location
         self.assertIsInstance(views.create_draft(self.request5), HttpResponseRedirect)
-    
-    def test_unpublish_unit(self): #same test as aboves
+        
+        # now the user does have access!
+        self.user5 = MagicMock(is_staff = True, is_active = True)
+        self.user5.is_authenticated.return_value = True
+        self.assertIsInstance(views.create_draft(self.request5), HttpResponse)
+
+    def test_unpublish_unit(self): # same test as aboves
+        # user doesn't have access...
         self.user6 = MagicMock(is_staff = False, is_active = False)
         self.user6.is_authenticated.return_value = False
         self.request6 = RequestFactory().get('foo')
@@ -198,6 +208,52 @@ class ViewsTestCase(TestCase):
         self.request6.POST = {}
         self.request6.POST['id'] = self.location
         self.assertIsInstance(views.create_draft(self.request6), HttpResponseRedirect)
+        
+        # and now he does
+        self.user6 = MagicMock(is_staff = False, is_active = False)
+        self.user6.is_authenticated.return_value = False
+        self.assertIsInstance(views.create_draft(self.request6), HttpResponse)
+
+    def test_add_user(self):
+        # has blank email address
+        self.user7 = MagicMock(is_staff = True, is_active = True)
+        self.user7.is_authenticated.return_value = True
+        self.request7 = RequestFactory().get('foo')
+        self.request7.user = self.user7
+        self.request7.POST = {}
+        self.request7.POST["email"] = ''
+        self.assertIsInstance(views.add_user(self.request7, self.location), HttpResponse)
+        
+        # doesn't have permission to do anything
+        self.user7.is_authenticated.return_value = False
+        self.request7.POST["email"] = 'fake@yahoo.com'
+        self.assertIsInstance(views.add_user(self.request7, self.location), HttpResponseRedirect)
+   
+        # user is authenticated by doesn't exist
+        self.user7.is_authenticated.return_value = True
+        self.request7.POST["email"] = 'fake@yahoo.com'
+        
+        #stuck from here on because I don't know how get_user_byemail(email) works.
+
+    def test_remove_user(self):
+        self.user9 = MagicMock(is_staff = True, is_active = True)
+        self.user9.is_authenticated.return_value = False
+        self.request9 = RequestFactory().get('foo')
+        self.request9.user = self.user9
+        self.assertIsInstance(views.add_user(self.request9, self.location), HttpResponseRedirect)
+
+    def test_export_course(self):
+        self.request8 = RequestFactory().get('foo')
+        self.user8 = MagicMock()
+        self.user8.is_authenticated.return_value = False
+        self.request8.user = self.user8
+        self.assertIsInstance(views.export_course(self.request8, 'edX', 'toy', 'Overview'), HttpResponseRedirect)
+
+        self.user8.is_authenticated.return_value = True
+        # the test beneath this doesn't work because render to response returns a NotImplementedError
+        # self.assertIsInstance(views.export_course(self.request8, 'edX', 'toy', 'Overview'), HttpResponse)
+   
+
     # def tearDown(self):
     #     _MODULESTORES = {}
     #     modulestore().collection.drop()
