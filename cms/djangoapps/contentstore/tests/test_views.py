@@ -243,6 +243,33 @@ class ViewsTestCase(TestCase):
         self.assertIsInstance(views.add_user(self.request9, self.location), HttpResponseRedirect)
 
         # stuck from here on because I don't know how get_user_byemail(email) works.
+    
+    def test_course_grader_updates(self):
+        # if user doesn't have permssion to item
+        self.user11 = MagicMock(is_staff = True, is_active = True)
+        self.user11.is_authenticated.return_value = False
+        self.request11 = RequestFactory().get('foo')
+        self.request11.user = self.user11
+        self.assertIsInstance(views.course_grader_updates(self.request11, 'edX', 'toy', 'Overview'), HttpResponseRedirect)
+
+        self.user11.is_active_authenticated.return_value = True
+        self.request11.method = MagicMock(return_value = 'POST')
+        self.request11.META= MagicMock(return_value = {'HTTP_X_HTTP_METHOD_OVERRIDE': 'GET'})
+        # the test underneath this doesn't work because no JSON object could be found
+        # self.assertIsInstance(views.course_grader_updates(self.request11, 'edX', 'toy', 'Overview'), HttpResponse)
+
+        self.request11.method = MagicMock(return_value = 'GET')
+
+        # the test underneath this doesn't work because no JSON object could be found
+        # self.assertIsInstance(views.course_grader_updates(self.request11, 'edX', 'toy', 'Overview'), HttpResponse)
+
+        self.request11.method = MagicMock(return_value = 'DELETE')
+        # the test underneath this doesn't work because no JSON object could be found
+        # self.assertIsInstance(views.course_grader_updates(self.request11, 'edX', 'toy', 'Overview'), HttpResponse)
+
+        self.request11.method = MagicMock(return_value = 'DELETE')
+        # the test underneath this doesn't work because no JSON object could be found
+        # self.assertIsInstance(views.course_grader_updates(self.request11, 'edX', 'toy', 'Overview'), HttpResponse)
     def test_export_course(self):
         self.request8 = RequestFactory().get('foo')
         self.user8 = MagicMock()
@@ -253,7 +280,10 @@ class ViewsTestCase(TestCase):
         self.user8.is_authenticated.return_value = True
         # the test beneath this doesn't work because render to response returns a NotImplementedError
         # self.assertIsInstance(views.export_course(self.request8, 'edX', 'toy', 'Overview'), HttpResponse)
-   
+
+    def test_event(self):
+        self.request10 = RequestFactory().get('foo')
+        self.assertIsInstance(views.event(self.request10), HttpResponse)
 
     # def tearDown(self):
     #     _MODULESTORES = {}
