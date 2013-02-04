@@ -26,9 +26,9 @@ class DiscussionModule(XModule):
         if isinstance(instance_state, str):
             instance_state = json.loads(instance_state)
         xml_data = etree.fromstring(definition['data'])
-        self.discussion_id = xml_data.attrib['id']
-        self.title = xml_data.attrib['for']
-        self.discussion_category = xml_data.attrib['discussion_category']
+        self.discussion_id = descriptor.metadata['id']
+        self.title = descriptor.metadata['for']
+        self.discussion_category = descriptor.metadata['discussion_category']
 
 class DiscussionDescriptor(RawDescriptor):
     module_class = DiscussionModule
