@@ -12,7 +12,7 @@ import copy
 from mock import Mock
 
 from student.models import Registration
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from cms.djangoapps.contentstore.utils import get_modulestore
 
 from utils import ModuleStoreTestCase, parse_json
@@ -242,15 +242,10 @@ class ContentStoreToyCourseTest(ModuleStoreTestCase):
         # note, we know the link it should be because that's what in the 'full' course in the test data
         self.assertContains(resp, '/c4x/edX/full/asset/handouts_schematic_tutorial.pdf')
 
+
 class NoPermissionsContentStoreTest(ModuleStoreTestCase):
     def setUp(self):
-        """
-        These tests need a user in the DB so that the django Test Client
-        can log them in.
-        They inherit from the ModuleStoreTestCase class so that the mongodb collection
-        will be cleared out before each test case execution and deleted
-        afterwards.
-        """
+
         uname = 'testusernotstaff'
         email = 'test+courses+not+staff@edx.org'
         password = 'foo'
@@ -278,6 +273,45 @@ class NoPermissionsContentStoreTest(ModuleStoreTestCase):
     def test_no_permissions_to_create_course(self):
         resp = self.client.post(reverse('create_new_course'), self.course_data)
         self.assertEqual(resp.status_code, 403)
+
+class CreateCourseInGroupContentStoreTest(ModuleStoreTestCase):
+    def setUp(self):
+        """
+        These tests need a user in the DB so that the django Test Client
+        can log them in.
+        They inherit from the ModuleStoreTestCase class so that the mongodb collection
+        will be cleared out before each test case execution and deleted
+        afterwards.
+        """
+        uname = 'testuseringroup'
+        email = 'test+courses+in+group@edx.org'
+        password = 'foo'
+
+        # Create the use so we can log them in.
+        self.user = User.objects.create_user(uname, email, password)
+
+        # Note that we do not actually need to do anything
+        # for registration if we directly mark them active.
+        self.user.is_active = True
+        self.user.is_staff = False
+
+        (group, created) = Group.objects.get_or_create(name='studio_course_creator_group')
+        self.user.groups.add(group)
+        self.user.save()
+
+        self.client = Client()
+        self.client.login(username=uname, password=password)
+
+        self.course_data = {
+            'template': 'i4x://edx/templates/course/Empty',
+            'org': 'MITx',
+            'number': '999',
+            'display_name': 'Robot Super Course',
+            }
+
+    def test_user_in_group_can_create_course(self):
+        resp = self.client.post(reverse('create_new_course'), self.course_data)
+        self.assertEqual(resp.status_code, 200)
 
 
 
