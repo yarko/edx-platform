@@ -45,7 +45,7 @@ from xmodule.contentstore.content import StaticContent
 
 from auth.authz import is_user_in_course_group_role, get_users_in_course_group_by_role
 from auth.authz import get_user_by_email, add_user_to_course_group, remove_user_from_course_group
-from auth.authz import INSTRUCTOR_ROLE_NAME, STAFF_ROLE_NAME, create_all_course_groups
+from auth.authz import INSTRUCTOR_ROLE_NAME, STAFF_ROLE_NAME, create_all_course_groups, can_create_new_course
 from .utils import get_course_location_for_item, get_lms_link_for_item, compute_unit_state, get_date_display, UnitState, get_course_for_item
 
 from xmodule.modulestore.xml_importer import import_from_xml
@@ -69,7 +69,6 @@ COMPONENT_TYPES = ['customtag', 'discussion', 'html', 'problem', 'video']
 
 # cdodge: these are categories which should not be parented, they are detached from the hierarchy
 DETACHED_CATEGORIES = ['about', 'static_tab', 'course_info']
-
 
 # ==== Public views ==================================================
 
@@ -122,7 +121,8 @@ def index(request):
                         course.location.course,
                         course.location.name]))
                     for course in courses],
-        'user': request.user
+        'user': request.user,
+        'can_create_new_course' : can_create_new_course(request.user)
     })
 
 
@@ -1259,6 +1259,10 @@ def edge(request):
 @login_required
 @expect_json
 def create_new_course(request):
+
+    if not can_create_new_course(request.user):
+        raise PermissionDenied()
+
     # This logic is repeated in xmodule/modulestore/tests/factories.py
     # so if you change anything here, you need to also change it there.
     # TODO: write a test that creates two courses, one with the factory and

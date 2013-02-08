@@ -15,6 +15,8 @@ but this implementation should be data compatible with the LMS implementation
 INSTRUCTOR_ROLE_NAME = 'instructor'
 STAFF_ROLE_NAME = 'staff'
 
+COURSE_CREATOR_GROUP_NAME = 'studio_course_creator_group'
+
 # we're just making a Django group for each location/role combo
 # to do this we're just creating a Group name which is a formatted string
 # of those two variables
@@ -138,6 +140,11 @@ def remove_user_from_course_group(caller, user, location, role):
         user.groups.remove(group)
         user.save()
 
+def can_create_new_course(user):
+    # make sure the group exists (for first time run)
+    Group.objects.get_or_create(name=COURSE_CREATOR_GROUP_NAME)
+    # see if the user is part of this group
+    return user.is_staff or user.groups.filter(name=COURSE_CREATOR_GROUP_NAME).count() > 0
 
 def is_user_in_course_group_role(user, location, role):
     if user.is_active and user.is_authenticated:
