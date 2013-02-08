@@ -771,7 +771,6 @@ class TestCourseGrader(PageLoader):
 
     def setUp(self):
         xmodule.modulestore.django._MODULESTORES = {}
-        courses = modulestore().get_courses()
 
         self.graded_course = modulestore().get_course("edX/graded/2012_Fall")
 
