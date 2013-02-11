@@ -799,6 +799,12 @@ class TestSubmittingProblems(PageLoader):
                         }
                     )
 
+    def reset_question_answer(self, problem_url_name):
+        problem_location = self.problem_location(problem_url_name)
+        modx_url = self.modx_url(problem_location, 'problem_reset')
+        resp = self.client.post(modx_url)
+        return resp
+
 
 class TestCourseGrader(TestSubmittingProblems):
     """Check that a course gets graded properly"""
@@ -848,15 +854,6 @@ class TestCourseGrader(TestSubmittingProblems):
             'input_i4x-edX-graded-problem-{0}_2_1'.format(problem_url_name): responses[0],
             'input_i4x-edX-graded-problem-{0}_2_2'.format(problem_url_name): responses[1],
             })
-        print "modx_url", modx_url, "responses", responses
-        print "resp", resp
-
-        return resp
-
-    def reset_question_answer(self, problem_url_name):
-        problem_location = self.problem_location(problem_url_name)
-        modx_url = self.modx_url(problem_location, 'problem_reset')
-        resp = self.client.post(modx_url)
         return resp
 
     def test_get_graded(self):
@@ -923,7 +920,7 @@ class TestCourseGrader(TestSubmittingProblems):
 
 @override_settings(MODULESTORE=TEST_DATA_XML_MODULESTORE)
 class TestSchematicResponse(TestSubmittingProblems):
-    """Check that a course gets graded properly"""
+    """Check that we can submit a schematic response, and it answers properly."""
 
     course_slug = "embedded_python"
     course_when = "2013_Spring"
@@ -935,9 +932,6 @@ class TestSchematicResponse(TestSubmittingProblems):
         resp = self.client.post(modx_url, {
             'input_i4x-edX-embedded_python-problem-{0}_2_1'.format(problem_url_name): json.dumps(responses),
             })
-        print "modx_url", modx_url, "responses", responses
-        print "resp", resp
-
         return resp
 
     def test_get_graded(self):
@@ -955,3 +949,19 @@ class TestSchematicResponse(TestSubmittingProblems):
             )
         respdata = json.loads(resp.content)
         self.assertEqual(respdata['success'], 'correct')
+
+        self.reset_question_answer('H1P1')
+        resp = self.submit_question_answer('H1P1',
+            [['transient', {'Z': [
+            [0.0000004, 2.8],
+            [0.0000009, 0.0],       # wrong.
+            [0.0000014, 2.8],
+            [0.0000019, 2.8],
+            [0.0000024, 2.8],
+            [0.0000029, 0.2],
+            [0.0000034, 0.2],
+            [0.0000039, 0.2]
+            ]}]]
+            )
+        respdata = json.loads(resp.content)
+        self.assertEqual(respdata['success'], 'incorrect')
