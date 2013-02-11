@@ -194,6 +194,8 @@ class ActivateLoginTestCase(TestCase):
         # Now make sure that the user is now actually activated
         self.assertTrue(user(email).is_active)
 
+
+class TestLoginLogout(ActivateLoginTestCase):
     def test_activate_login(self):
         '''The setup function does all the work'''
         pass
@@ -350,7 +352,7 @@ class TestCoursesLoadTestCase_XmlModulestore(PageLoader):
     '''Check that all pages in test courses load properly'''
 
     def setUp(self):
-        ActivateLoginTestCase.setUp(self)
+        super(TestCoursesLoadTestCase_XmlModulestore, self).setUp()
         xmodule.modulestore.django._MODULESTORES = {}
 
     def test_toy_course_loads(self):
@@ -378,7 +380,7 @@ class TestCoursesLoadTestCase_MongoModulestore(PageLoader):
     '''Check that all pages in test courses load properly'''
 
     def setUp(self):
-        ActivateLoginTestCase.setUp(self)
+        super(TestCoursesLoadTestCase_MongoModulestore, self).setUp()
         xmodule.modulestore.django._MODULESTORES = {}
         modulestore().collection.drop()
 
@@ -457,9 +459,6 @@ class TestDraftModuleStore(TestCase):
 @override_settings(MODULESTORE=TEST_DATA_XML_MODULESTORE)
 class TestViewAuth(PageLoader):
     """Check that view authentication works properly"""
-
-    # NOTE: setUpClass() runs before override_settings takes effect, so
-    # can't do imports there without manually hacking settings.
 
     def setUp(self):
         xmodule.modulestore.django._MODULESTORES = {}
@@ -763,50 +762,72 @@ class TestViewAuth(PageLoader):
 
 
 @override_settings(MODULESTORE=TEST_DATA_XML_MODULESTORE)
-class TestCourseGrader(PageLoader):
-    """Check that a course gets graded properly"""
+class TestSubmittingProblems(PageLoader):
 
-    # NOTE: setUpClass() runs before override_settings takes effect, so
-    # can't do imports there without manually hacking settings.
+    # Subclasses should specify the course slug
+    course_slug = "UNKNOWN"
+    course_when = "UNKNOWN"
 
     def setUp(self):
         xmodule.modulestore.django._MODULESTORES = {}
 
-        self.graded_course = modulestore().get_course("edX/graded/2012_Fall")
+        course_name = "edX/%s/%s" % (self.course_slug, self.course_when)
+        self.course = modulestore().get_course(course_name)
+        assert self.course, "Couldn't load course %r" % course_name
 
         # create a test student
         self.student = 'view@test.com'
         self.password = 'foo'
         self.create_account('u1', self.student, self.password)
         self.activate_user(self.student)
-        self.enroll(self.graded_course)
+        self.enroll(self.course)
 
         self.student_user = user(self.student)
 
         self.factory = RequestFactory()
 
+    def problem_location(self, problem_url_name):
+        return "i4x://edX/{}/problem/{}".format(self.course_slug, problem_url_name)
+
+    def modx_url(self, problem_location, dispatch):
+        return reverse(
+                    'modx_dispatch',
+                    kwargs={
+                        'course_id': self.course.id,
+                        'location': problem_location,
+                        'dispatch': dispatch,
+                        }
+                    )
+
+
+class TestCourseGrader(TestSubmittingProblems):
+    """Check that a course gets graded properly"""
+
+    course_slug = "graded"
+    course_when = "2012_Fall"
+
     def get_grade_summary(self):
         student_module_cache = StudentModuleCache.cache_for_descriptor_descendents(
-            self.graded_course.id, self.student_user, self.graded_course)
+            self.course.id, self.student_user, self.course)
 
         fake_request = self.factory.get(reverse('progress',
-                                       kwargs={'course_id': self.graded_course.id}))
+                                       kwargs={'course_id': self.course.id}))
 
         return grades.grade(self.student_user, fake_request,
-                            self.graded_course, student_module_cache)
+                            self.course, student_module_cache)
 
     def get_homework_scores(self):
         return self.get_grade_summary()['totaled_scores']['Homework']
 
     def get_progress_summary(self):
         student_module_cache = StudentModuleCache.cache_for_descriptor_descendents(
-            self.graded_course.id, self.student_user, self.graded_course)
+            self.course.id, self.student_user, self.course)
 
         fake_request = self.factory.get(reverse('progress',
-                                       kwargs={'course_id': self.graded_course.id}))
+                                       kwargs={'course_id': self.course.id}))
 
         progress_summary = grades.progress_summary(self.student_user, fake_request,
-                                                   self.graded_course, student_module_cache)
+                                                   self.course, student_module_cache)
         return progress_summary
 
     def check_grade_percent(self, percent):
@@ -821,15 +842,8 @@ class TestCourseGrader(PageLoader):
         input_i4x-edX-graded-problem-H1P3_2_1
         input_i4x-edX-graded-problem-H1P3_2_2
         """
-        problem_location = "i4x://edX/graded/problem/{0}".format(problem_url_name)
-
-        modx_url = reverse('modx_dispatch',
-                            kwargs={
-                                'course_id': self.graded_course.id,
-                                'location': problem_location,
-                                'dispatch': 'problem_check', }
-                          )
-
+        problem_location = self.problem_location(problem_url_name)
+        modx_url = self.modx_url(problem_location, 'problem_check')
         resp = self.client.post(modx_url, {
             'input_i4x-edX-graded-problem-{0}_2_1'.format(problem_url_name): responses[0],
             'input_i4x-edX-graded-problem-{0}_2_2'.format(problem_url_name): responses[1],
@@ -839,19 +853,9 @@ class TestCourseGrader(PageLoader):
 
         return resp
 
-    def problem_location(self, problem_url_name):
-        return "i4x://edX/graded/problem/{0}".format(problem_url_name)
-
     def reset_question_answer(self, problem_url_name):
         problem_location = self.problem_location(problem_url_name)
-
-        modx_url = reverse('modx_dispatch',
-                            kwargs={
-                                'course_id': self.graded_course.id,
-                                'location': problem_location,
-                                'dispatch': 'problem_reset', }
-                          )
-
+        modx_url = self.modx_url(problem_location, 'problem_reset')
         resp = self.client.post(modx_url)
         return resp
 
@@ -915,3 +919,39 @@ class TestCourseGrader(PageLoader):
         # Now we answer the final question (worth half of the grade)
         self.submit_question_answer('FinalQuestion', ['Correct', 'Correct'])
         self.check_grade_percent(1.0)   # Hooray! We got 100%
+
+
+@override_settings(MODULESTORE=TEST_DATA_XML_MODULESTORE)
+class TestSchematicResponse(TestSubmittingProblems):
+    """Check that a course gets graded properly"""
+
+    course_slug = "embedded_python"
+    course_when = "2013_Spring"
+
+    def submit_question_answer(self, problem_url_name, responses):
+        """Particular to the embedded_python/2013_Spring course."""
+        problem_location = self.problem_location(problem_url_name)
+        modx_url = self.modx_url(problem_location, 'problem_check')
+        resp = self.client.post(modx_url, {
+            'input_i4x-edX-embedded_python-problem-{0}_2_1'.format(problem_url_name): json.dumps(responses),
+            })
+        print "modx_url", modx_url, "responses", responses
+        print "resp", resp
+
+        return resp
+
+    def test_get_graded(self):
+        resp = self.submit_question_answer('H1P1',
+            [['transient', {'Z': [
+            [0.0000004, 2.8],
+            [0.0000009, 2.8],
+            [0.0000014, 2.8],
+            [0.0000019, 2.8],
+            [0.0000024, 2.8],
+            [0.0000029, 0.2],
+            [0.0000034, 0.2],
+            [0.0000039, 0.2]
+            ]}]]
+            )
+        respdata = json.loads(resp.content)
+        self.assertEqual(respdata['success'], 'correct')
