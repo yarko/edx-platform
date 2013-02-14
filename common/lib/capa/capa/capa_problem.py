@@ -23,23 +23,13 @@ import numpy
 import os
 import random
 import re
-import scipy
 import struct
 import sys
 
 from lxml import etree
 from xml.sax.saxutils import unescape
 
-import chem
-import chem.chemcalc
-import chem.chemtools
-import chem.miller
-import verifiers
-import verifiers.draganddrop
-
-import calc
 from correctmap import CorrectMap
-import eia
 import inputtypes
 import customrender
 from util import contextualize_text, convert_files_to_filenames
@@ -47,6 +37,8 @@ import xqueue_interface
 
 # to be replaced with auto-registering
 import responsetypes
+
+from codejail.safe_exec import safe_exec
 
 # dict of tagname, Response Class -- this should come from auto-registering
 response_tag_dict = dict([(x.response_tag, x) for x in responsetypes.__all__])
@@ -63,16 +55,18 @@ html_transforms = {'problem': {'tag': 'div'},
                    "math": {'tag': 'span'},
                    }
 
-global_context = {'random': random,
-                  'numpy': numpy,
-                  'math': math,
-                  'scipy': scipy,
-                  'calc': calc,
-                  'eia': eia,
-                  'chemcalc': chem.chemcalc,
-                  'chemtools': chem.chemtools,
-                  'miller': chem.miller,
-                  'draganddrop': verifiers.draganddrop}
+safe_exec_assumed_imports = [
+    "random",
+    "numpy",
+    "math",
+    "scipy",
+    "calc",
+    "eia",
+    ("chemcalc", "chem.chemcalc"),
+    ("chemtools", "chem.chemtools"),
+    ("miller", "chem.miller"),
+    ("draganddrop", "verifiers.draganddrop"),
+]
 
 # These should be removed from HTML output, including all subelements
 html_problem_semantics = ["codeparam", "responseparam", "answer", "script", "hintgroup", "openendedparam", "openendedrubric"]
@@ -135,7 +129,7 @@ class LoncapaProblem(object):
         self._process_includes()
 
         # construct script processor context (eg for customresponse problems)
-        self.context = self._extract_context(self.tree, seed=self.seed)
+        self.context = self._extract_context(self.tree)
 
         # Pre-parse the XML tree: modifies it to add ID's and perform some in-place
         # transformations.  This also creates the dict (self.responders) of Response
@@ -400,7 +394,7 @@ class LoncapaProblem(object):
 
         return path
 
-    def _extract_context(self, tree, seed=struct.unpack('i', os.urandom(4))[0]):  # private
+    def _extract_context(self, tree):
         '''
         Extract content of <script>...</script> from the problem.xml file, and exec it in the
         context of this problem.  Provides ability to randomize problems, and also set
@@ -409,14 +403,18 @@ class LoncapaProblem(object):
         Problem XML goes to Python execution context. Runs everything in script tags.
         '''
         random.seed(self.seed)
-        # save global context in here also
-        context = {'global_context': global_context}
 
-        # initialize context to have stuff in global_context
-        context.update(global_context)
-
+        # TODO: REMOVE THIS COMMENTED OUT CODE.
+        ## save global context in here also
+        #context = {'global_context': global_context}
+        #
+        ## initialize context to have stuff in global_context
+        #context.update(global_context)
+        #
         # put globals there also
-        context['__builtins__'] = globals()['__builtins__']
+        #context['__builtins__'] = globals()['__builtins__']
+
+        context = {}
 
         # pass instance of LoncapaProblem in
         context['the_lcp'] = self
@@ -450,7 +448,7 @@ class LoncapaProblem(object):
             context['script_code'] += code
             try:
                 # use "context" for global context; thus defs in code are global within code
-                exec code in context, context
+                safe_exec(code, context, future_division=True, assumed_imports=safe_exec_assumed_imports)
             except Exception as err:
                 log.exception("Error while execing script code: " + code)
                 msg = "Error while executing script code: %s" % str(err).replace('<', '&lt;')
