@@ -36,6 +36,8 @@ from lxml import etree
 from lxml.html.soupparser import fromstring as fromstring_bs     # uses Beautiful Soup!!! FIXME?
 import xqueue_interface
 
+from codejail.safe_exec import safe_exec
+
 log = logging.getLogger('mitx.' + __name__)
 
 
@@ -908,13 +910,20 @@ def sympy_check2():
             cfn = xml.get('cfn')
             if cfn:
                 log.debug("cfn = %s" % cfn)
-                if cfn in self.context:
-                    self.code = self.context[cfn]
-                else:
-                    msg = "%s: can't find cfn %s in context" % (unicode(self), cfn)
-                    msg += "\nSee XML source line %s" % getattr(self.xml, 'sourceline',
-                                                                '<unavailable>')
-                    raise LoncapaProblemError(msg)
+                
+                def make_check_function(script_code, cfn):
+                    def check_function(expect, ans):
+                        code = (script_code + "\n" +
+                                "cfn_return = %s(expect, ans)\n" % cfn)
+                        globals_dict = {
+                            'expect': expect,
+                            'ans': ans,
+                        }
+                        safe_exec(code, globals_dict)
+                        return globals_dict['cfn_return']
+                    return check_function
+
+                self.code = make_check_function(self.context['script_code'], cfn)
 
         if not self.code:
             if answer is None:
@@ -1007,6 +1016,7 @@ def sympy_check2():
         # exec the check function
         if isinstance(self.code, basestring):
             try:
+                raise Exception("exec 1")
                 exec self.code in self.context['global_context'], self.context
                 correct = self.context['correct']
                 messages = self.context['messages']
@@ -1017,7 +1027,7 @@ def sympy_check2():
                 # Notify student
                 raise StudentInputError("Error: Problem could not be evaluated with your input")
         else:
-            # self.code is not a string; assume its a function
+            # self.code is not a string; it's a function we created earlier.
 
             # this is an interface to the Tutor2 check functions
             fn = self.code
@@ -1025,19 +1035,7 @@ def sympy_check2():
             log.debug(" submission = %s" % submission)
             try:
                 answer_given = submission[0] if (len(idset) == 1) else submission
-                # handle variable number of arguments in check function, for backwards compatibility
-                # with various Tutor2 check functions
-                args = [self.expect, answer_given, student_answers, self.answer_ids[0]]
-                argspec = inspect.getargspec(fn)
-                nargs = len(argspec.args) - len(argspec.defaults or [])
-                kwargs = {}
-                for argname in argspec.args[nargs:]:
-                    kwargs[argname] = self.context[argname] if argname in self.context else None
-
-                log.debug('[customresponse] answer_given=%s' % answer_given)
-                log.debug('nargs=%d, args=%s, kwargs=%s' % (nargs, args, kwargs))
-
-                ret = fn(*args[:nargs], **kwargs)
+                ret = fn(self.expect, answer_given)
             except Exception as err:
                 log.error("oops in customresponse (cfn) error %s" % err)
                 # print "context = ",self.context
@@ -1111,6 +1109,7 @@ class SymbolicResponse(CustomResponse):
     def setup_response(self):
         self.xml.set('cfn', 'symmath_check')
         code = "from symmath import *"
+        raise Exception("exec 2")
         exec code in self.context, self.context
         CustomResponse.setup_response(self)
 
@@ -1218,6 +1217,7 @@ class CodeResponse(LoncapaResponse):
         penv = {}
         penv['__builtins__'] = globals()['__builtins__']
         try:
+            raise Exception("exec 3")
             exec(code, penv, penv)
         except Exception as err:
             log.error('Error in CodeResponse %s: Error in problem reference code' % err)
@@ -1724,10 +1724,10 @@ class SchematicResponse(LoncapaResponse):
             self.code = answer.text
 
     def get_score(self, student_answers):
-        from capa_problem import global_context
+        #from capa_problem import global_context
         submission = [json.loads(student_answers[k]) for k in sorted(self.answer_ids)]
         self.context.update({'submission': submission})
-        exec self.code in global_context, self.context
+        safe_exec(self.code, {}, self.context)
         cmap = CorrectMap()
         cmap.set_dict(dict(zip(sorted(self.answer_ids), self.context['correct'])))
         return cmap
