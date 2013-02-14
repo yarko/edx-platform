@@ -874,8 +874,9 @@ class CustomResponse(LoncapaResponse):
                             'expect': expect,
                             'ans': ans,
                         }
-                        safe_exec.safe_exec(code, globals_dict)
-                        return globals_dict['cfn_return']
+                        locals_dict = {}
+                        safe_exec.safe_exec(code, globals_dict, locals_dict)
+                        return locals_dict['cfn_return']
                     return check_function
 
                 self.code = make_check_function(self.context['script_code'], cfn)
@@ -933,9 +934,6 @@ class CustomResponse(LoncapaResponse):
         # put these in the context of the check function evaluator
         # note that this doesn't help the "cfn" version - only the exec version
         self.context.update({
-            # our subtree
-            'xml': self.xml,
-
             # my ID
             'response_id': self.myid,
 
@@ -971,7 +969,9 @@ class CustomResponse(LoncapaResponse):
         # exec the check function
         if isinstance(self.code, basestring):
             try:
-                safe_exec.safe_exec(self.code, self.context)
+                locals_dict = {}
+                safe_exec.safe_exec(self.code, self.context, locals_dict)
+                self.context.update(locals_dict)
                 correct = self.context['correct']
                 messages = self.context['messages']
             except Exception as err:
@@ -1560,9 +1560,10 @@ class SchematicResponse(LoncapaResponse):
         #from capa_problem import global_context
         submission = [json.loads(student_answers[k]) for k in sorted(self.answer_ids)]
         self.context.update({'submission': submission})
-        safe_exec.safe_exec(self.code, {}, self.context)
+        locals_dict = {}
+        safe_exec.safe_exec(self.code, self.context, locals_dict)
         cmap = CorrectMap()
-        cmap.set_dict(dict(zip(sorted(self.answer_ids), self.context['correct'])))
+        cmap.set_dict(dict(zip(sorted(self.answer_ids), locals_dict['correct'])))
         return cmap
 
     def get_answers(self):
