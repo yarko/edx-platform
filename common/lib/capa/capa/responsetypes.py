@@ -1021,8 +1021,7 @@ def sympy_check2():
         # exec the check function
         if isinstance(self.code, basestring):
             try:
-                raise Exception("exec 1")
-                exec self.code in self.context['global_context'], self.context
+                safe_exec.safe_exec(self.code, self.context)
                 correct = self.context['correct']
                 messages = self.context['messages']
             except Exception as err:
