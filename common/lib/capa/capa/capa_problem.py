@@ -389,6 +389,7 @@ class LoncapaProblem(object):
         random.seed(self.seed)
 
         context = {}
+        context['seed'] = self.seed
         context['script_code'] = ''
 
         self._execute_scripts(tree.findall('.//script'), context)
