@@ -248,7 +248,7 @@ class DragAndDrop(object):
             correct_answer = {'name4': 't1',
                             'name_with_icon': 't1',
                             '5': 't2',
-                            '7':'t2'}
+                            '7': 't2'}
 
             It is draggable_name: dragable_position mapping.
 
@@ -284,7 +284,7 @@ class DragAndDrop(object):
 
         Args:
             user_answer: json
-            correct_answer: dict  or list
+            correct_answer: dict or list
         """
 
         self.correct_groups = dict()  # correct groups from xml
@@ -296,10 +296,10 @@ class DragAndDrop(object):
         if isinstance(correct_answer, dict):
             tmp = []
             for key, value in correct_answer.items():
-                tmp_dict = {'draggables': [], 'targets': [], 'rule': 'exact'}
-                tmp_dict['draggables'].append(key)
-                tmp_dict['targets'].append(value)
-                tmp.append(tmp_dict)
+                tmp.append({
+                    'draggables': [key],
+                    'targets': [value],
+                    'rule': 'exact'})
             correct_answer = tmp
 
         user_answer = json.loads(user_answer)
@@ -308,11 +308,11 @@ class DragAndDrop(object):
         self.excess_draggables = {}
 
         # create identical data structures from user answer and correct answer
-        for i in xrange(0, len(correct_answer)):
-            groupname = str(i)
-            self.correct_groups[groupname] = correct_answer[i]['draggables']
-            self.correct_positions[groupname] = {correct_answer[i]['rule']:
-                                                correct_answer[i]['targets']}
+        for index, answer in enumerate(correct_answer):
+            groupname = str(index)
+            self.correct_groups[groupname] = answer['draggables']
+            self.correct_positions[groupname] = {answer['rule']:
+                                                answer['targets']}
             self.user_groups[groupname] = []
             self.user_positions[groupname] = {'user': []}
             for draggable_dict in user_answer['draggables']:
