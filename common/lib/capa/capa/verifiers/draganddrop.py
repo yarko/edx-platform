@@ -315,7 +315,7 @@ class DragAndDrop(object):
                                                 answer['targets']}
             self.user_groups[groupname] = []
             self.user_positions[groupname] = {'user': []}
-            for draggable_dict in user_answer['draggables']:
+            for draggable_dict in user_answer:
                 # draggable_dict is 1-to-1 {draggable_name: position}
                 draggable_name = draggable_dict.keys()[0]
                 if draggable_name in self.correct_groups[groupname]:
