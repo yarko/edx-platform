@@ -1052,8 +1052,6 @@ class SymbolicResponse(CustomResponse):
 
     def setup_response(self):
         self.xml.set('cfn', 'symmath_check')
-        code = "from symmath import *"
-        exec code in self.context, self.context
         CustomResponse.setup_response(self)
 
 #-----------------------------------------------------------------------------
