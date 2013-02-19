@@ -27,6 +27,59 @@ values are (x,y) coordinates of centers of dragged images.
 import json
 
 
+def flat_correct_answer(correct_answer):
+    return correct_answer
+
+
+def flat_user_answer(user_answer):
+    """
+    Convert nested user_answer to flat format.
+
+    Example:
+
+    [
+        {'up': {'first': {'p': 'p_l'}}}
+    ]
+
+    to
+
+    [
+        {'up': 'p_l[p][first]'},
+        {'first': 'p_l[p]'},
+        {'p': 'p_l'}
+    ]
+    """
+    def parse_user_answer(answer):
+        key = answer.keys()[0]
+        value = answer.values()[0]
+        if isinstance(value, dict):
+
+            # Make complex value:
+            # Exmple:
+            # Create like 'p_l[p][first]' from {'first': {'p': 'p_l'}
+            complex_value_list = []
+            v_value = value
+            while isinstance(v_value, dict):
+                v_key = v_value.keys()[0]
+                v_value = v_value.values()[0]
+                complex_value_list.append(v_key)
+
+            complex_value = '{0}'.format(v_value)
+            for i in reversed(complex_value_list):
+                complex_value = '{0}[{1}]'.format(complex_value, i)
+
+            res = [{key: complex_value}]
+            res.extend(parse_user_answer(value))
+            return res
+        else:
+            return [answer]
+
+    result = []
+    for answer in user_answer:
+        result.extend(parse_user_answer(answer))
+    return result
+
+
 class PositionsCompare(list):
     """ Class for comparing positions.
 
@@ -306,6 +359,9 @@ class DragAndDrop(object):
 
         # check if we have draggables that are not in correct answer:
         self.excess_draggables = {}
+
+        correct_answer = flat_correct_answer(correct_answer)
+        user_answer = flat_user_answer(user_answer)
 
         # create identical data structures from user answer and correct answer
         for index, answer in enumerate(correct_answer):

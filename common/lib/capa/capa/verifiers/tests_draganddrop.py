@@ -44,11 +44,41 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
     def test_targets_are_draggable(self):
         user_input = json.dumps([
             {
-                "up": {"first": {"p": "p_l"}}
+                "up": {"first": {"p": "p_l"}},
             }
         ])
 
+        # user_input = json.dumps([
+        #     {'up': 'p_l[p][first]'},
+        #     {'first': 'p_l[p]'},
+        #     {'p': 'p_l'}
+        # ])
+
+        # correct_answer = [
+        #     {
+        #         'draggables': ['up'],
+        #         'targets': [
+        #             'p_l[p][first]', 'p_r[p][first]'
+        #         ],
+        #         'rule': 'anyof'
+        #     }
+        # ]
+
         correct_answer = [
+            {
+                'draggables': ['first'],
+                'targets': [
+                    'p_l[p]',
+                ],
+                'rule': 'exact'
+            },
+            {
+                'draggables': ['p'],
+                'targets': [
+                    'p_l',
+                ],
+                'rule': 'exact'
+            },
             {
                 'draggables': ['up'],
                 'targets': [
