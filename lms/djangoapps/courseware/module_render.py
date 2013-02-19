@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 from requests.auth import HTTPBasicAuth
 
 from capa.xqueue_interface import XQueueInterface
-from capa.chem import chemcalc
+from chem import chemcalc
 from courseware.access import has_access
 from mitxmako.shortcuts import render_to_string
 from models import StudentModule, StudentModuleCache
