@@ -28,7 +28,87 @@ import json
 
 
 def flat_correct_answer(correct_answer):
-    return correct_answer
+    """
+    Convert nested correct_answer to flat format.
+
+    Example:
+
+    [
+        {
+            'draggables': ['p'],
+            'targets': [
+                'p_l', 'p_r'
+            ],
+            'rule': 'anyof'
+        },
+        {
+            'draggables': ['up'],
+            'targets': [
+                'p_l[p][first]'
+            ],
+            'rule': 'anyof'
+        }
+    ]
+
+    to
+
+    [
+        {
+            'draggables': ['p'],
+            'targets': [
+                'p_l', 'p_r'
+            ],
+           'rule': 'anyof'
+        },
+        {
+            'draggables': ['first'],
+            'targets': [
+                'p_l[p]',
+            ],
+            'rule': 'exact'
+        },
+        {
+            'draggables': ['p'],
+            'targets': [
+                'p_l',
+            ],
+            'rule': 'exact'
+        },
+        {
+            'draggables': ['up'],
+            'targets': [
+                'p_l[p][first]',
+            ],
+            'rule': 'anyof'
+        }
+    ]
+    """
+    def parse_correct_answer(answer):
+        result = [answer]
+        data = []
+        targets = [i for i in answer['targets'] if '[' in i]
+
+        for target in targets:
+            while '[' in target:
+                split_list = target.split('[')
+                draggable = split_list[-1][:-1]
+                target = '['.join(split_list[:-1])
+                data.append((draggable, target))
+
+        for draggable, target in data:
+            result.append({
+                'draggables': [draggable],
+                'targets': [
+                    target
+                ],
+                'rule': 'exact'
+            })
+        return result
+
+    result = []
+    for answer in correct_answer:
+        result.extend(parse_correct_answer(answer))
+    return result
 
 
 def flat_user_answer(user_answer):
