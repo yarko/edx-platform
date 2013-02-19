@@ -41,7 +41,7 @@ class Test_PositionsCompare(unittest.TestCase):
 
 class Test_DragAndDrop_Grade(unittest.TestCase):
 
-    def test_targets_are_draggable(self):
+    def test_targets_are_draggable_1(self):
         user_input = json.dumps([
             {
                 'up': {'first': {'p': 'p_l'}},
@@ -62,6 +62,44 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
                     'p_l[p][first]'
                 ],
                 'rule': 'anyof'
+            }
+        ]
+        self.assertTrue(draganddrop.grade(user_input, correct_answer))
+
+    def test_targets_are_draggable_2(self):
+        user_input = json.dumps([
+            {'up': {'1': {'p': 'p_l'}}},
+            {'up': {'3': {'p': 'p_l'}}},
+            {'up': {'1': {'p': 'p_r'}}},
+            {'up': {'3': {'p': 'p_r'}}},
+            {'up_and_down': {'1': {'s': 's_l'}}},
+            {'up_and_down': {'1': {'s': 's_r'}}}
+        ])
+
+        correct_answer = [
+            {
+                'draggables': ['p'],
+                'targets': ['p_l', 'p_r'],
+                'rule': 'unordered_equal'
+            },
+            {
+                'draggables': ['s'],
+                'targets': ['s_l', 's_r'],
+                'rule': 'unordered_equal'
+            },
+            {
+              'draggables': ['up_and_down'],
+              'targets': [
+                's_l[s][1]', 's_r[s][1]'
+              ],
+              'rule': 'unordered_equal'
+            },
+            {
+              'draggables': ['up'],
+              'targets': [
+                'p_l[p][1]', 'p_l[p][3]', 'p_r[p][1]', 'p_r[p][3]'
+              ],
+              'rule': 'unordered_equal'
             }
         ]
         self.assertTrue(draganddrop.grade(user_input, correct_answer))

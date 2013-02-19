@@ -96,14 +96,21 @@ def flat_correct_answer(correct_answer):
                 data.append((draggable, target))
 
         for draggable, target in data:
-            result.append({
-                'draggables': [draggable],
-                'targets': [
-                    target
-                ],
-                'rule': 'exact'
-            })
+            if draggable not in global_draggable_list:
+                global_draggable_list.append(draggable)
+                result.append({
+                    'draggables': [draggable],
+                    'targets': [
+                        target
+                    ],
+                    'rule': 'exact'
+                })
         return result
+
+    global_draggable_list = []
+
+    for answer in correct_answer:
+        global_draggable_list.extend(answer['draggables'])
 
     result = []
     for answer in correct_answer:
