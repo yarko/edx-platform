@@ -35,9 +35,11 @@ define(['logme', 'update_input'], function (logme, updateInput) {
         draggableObj.containerEl = null; // Not needed, since a copy will never return to a container element.
         draggableObj.iconEl = null; // Will be created.
         draggableObj.labelEl = null; // Will be created.
+        draggableObj.icon_containerEl = null; // Will be created.
 
         // Create DOM elements and attach events.
         if (draggableObj.originalConfigObj.icon.length > 0) {
+            draggableObj.icon_containerEl = $('<div/>');
             draggableObj.iconEl = $('<img />');
             draggableObj.iconEl.attr('src', draggableObj.originalConfigObj.icon);
             draggableObj.iconEl.load(function () {
@@ -177,7 +179,8 @@ define(['logme', 'update_input'], function (logme, updateInput) {
                 'top': target.y - this.iconHeight * 0.5 + offset
             });
         }
-        this.iconEl.appendTo(this.state.baseImageEl.parent());
+        this.iconEl.appendTo(this.icon_containerEl);
+        this.icon_containerEl.appendTo(this.state.baseImageEl.parent());
 
         if (this.labelEl !== null) {
             if (this.isOriginal === true) {
@@ -233,6 +236,7 @@ define(['logme', 'update_input'], function (logme, updateInput) {
             'y': -1,
             'zIndex': 1,
             'containerEl': null,
+            'icon_containerEl': null,
             'iconEl': null,
             'iconElBGColor': null,
             'iconElPadding': null,
@@ -287,7 +291,7 @@ define(['logme', 'update_input'], function (logme, updateInput) {
             draggableObj.iconElPadding = 0;
             draggableObj.iconElBorder = 'none';
             draggableObj.iconElLeftOffset = 0;
-
+            draggableObj.icon_containerEl = $('<div />');
             draggableObj.iconEl = $('<img />');
             draggableObj.iconEl.attr('src', obj.icon);
             draggableObj.iconEl.load(function () {
@@ -309,7 +313,10 @@ define(['logme', 'update_input'], function (logme, updateInput) {
                     'left': 50 - draggableObj.iconWidthSmall * 0.5,
                     'top': ((obj.label.length > 0) ? 5 : 50 - draggableObj.iconHeightSmall * 0.5)
                 });
-                draggableObj.iconEl.appendTo(draggableObj.containerEl);
+
+
+                draggableObj.iconEl.appendTo(draggableObj.icon_containerEl);
+                draggableObj.icon_containerEl.appendTo(draggableObj.containerEl);
 
                 if (obj.label.length > 0) {
                     draggableObj.labelEl = $(
@@ -359,7 +366,8 @@ define(['logme', 'update_input'], function (logme, updateInput) {
                     '</div>'
                 );
 
-                draggableObj.iconEl.appendTo(draggableObj.containerEl);
+                draggableObj.iconEl.appendTo(draggableObj.icon_containerEl);
+                draggableObj.icon_containerEl.appendTo(draggableObj.containerEl);
 
                 draggableObj.iconWidth = draggableObj.iconEl.width();
                 draggableObj.iconHeight = draggableObj.iconEl.height();
@@ -418,7 +426,8 @@ define(['logme', 'update_input'], function (logme, updateInput) {
                     'left': event.pageX - this.state.baseImageEl.offset().left - this.iconWidth * 0.5 - this.iconElLeftOffset,
                     'top': event.pageY - this.state.baseImageEl.offset().top - this.iconHeight * 0.5
                 });
-                this.iconEl.appendTo(this.state.baseImageEl.parent());
+                this.iconEl.appendTo(this.icon_containerEl);
+                this.icon_containerEl.appendTo(this.state.baseImageEl.parent());
 
                 if (this.labelEl !== null) {
                     if (this.isOriginal === true) {
@@ -594,6 +603,16 @@ define(['logme', 'update_input'], function (logme, updateInput) {
             // coincides with the center of the target.
             this.snapToTarget(target);
 
+            //TODO attach nested targets
+            var _this = this;
+            console.log(this);
+            // this.state.detached_nested_targets[this['uniqueId']].every(
+            this.state.detached_nested_targets[this['id']].every(
+                function(target){
+                    _this['icon_containerEl'].append(target.targetEl);
+                 });
+            //set callbacks to them
+
             // Target was found.
             return true;
         }
@@ -680,7 +699,12 @@ define(['logme', 'update_input'], function (logme, updateInput) {
     // move it back to the slider, placing it in the same position
     // that it was dragged out of.
     function moveBackToSlider() {
+
         var c1;
+
+
+        //TODO detach nested draggables
+        // add callbacks
 
         if (this.isOriginal === false) {
             this.iconEl.remove();
@@ -713,7 +737,8 @@ define(['logme', 'update_input'], function (logme, updateInput) {
             'left': 50 - this.iconWidthSmall * 0.5,
             'top': ((this.labelEl !== null) ? 5 : 50 - this.iconHeightSmall * 0.5)
         });
-        this.iconEl.appendTo(this.containerEl);
+        this.iconEl.appendTo(this.icon_containerEl);
+        this.icon_containerEl.appendTo(this.containerEl);
 
         if (this.labelEl !== null) {
             this.labelEl.detach();
@@ -730,6 +755,7 @@ define(['logme', 'update_input'], function (logme, updateInput) {
         }
 
         this.inContainer = true;
+
     }
 });
 
