@@ -7,7 +7,7 @@
 define(['logme'], function (logme) {
     return Targets;
 
-    function Targets(state) {
+    function Targets(state, process_nested_targets) {
         (function (c1) {
             while (c1 < state.config.targets.length) {
                 processTarget(state, state.config.targets[c1]);
@@ -15,6 +15,77 @@ define(['logme'], function (logme) {
                 c1 += 1;
             }
         }(0));
+
+        if (process_nested_targets !== undefined)
+        {
+            state.config.draggables.every(function (draggable){
+                    processNestedTarget(state, draggable);
+                    return true;  // .every need true to proceed
+                });
+        }
+    }
+
+  function processNestedTarget(state, draggable) {
+        // same as processTarget but w/o callbacks
+        var targetEl, borderCss, numTextEl, targetObj;
+        var temp_obj;
+        temp_obj = [];
+
+        draggable.target_fields.every(function (obj){
+
+            borderCss = '';
+            if (state.config.targetOutline === true) {
+                borderCss = 'border: 1px dashed gray; ';
+            }
+
+            targetEl = $(
+                '<div ' +
+                    'style=" ' +
+                        'display: block; ' +
+                        'position: absolute; ' +
+                        'width: ' + obj.w + 'px; ' +
+                        'height: ' + obj.h + 'px; ' +
+                        'top: ' + obj.y + 'px; ' +
+                        'left: ' + obj.x + 'px; ' +
+                        borderCss +
+                    '" ' +
+                '></div>'
+            );
+
+            if (state.config.onePerTarget === true) {
+                false;
+                //TODO return 'Error'
+            }
+
+            targetObj = {
+                'id': obj.id,
+
+                'w': obj.w,
+                'h': obj.h,
+
+                'el': targetEl,
+                'offset': targetEl.position(),
+
+                'draggableList': [],
+
+                'state': state,
+
+                'targetEl': targetEl,
+
+                'numTextEl': undefined,
+                'updateNumTextEl': undefined,
+
+                'removeDraggable': removeDraggable,
+                'addDraggable': addDraggable
+            };
+
+            temp_obj.push(targetObj);
+
+            return true; // every needs true to proceed
+        });
+        // console.log(draggable);
+        // TODO add multiple draggables support (uniqueID issue)
+        state.detached_nested_targets[draggable['id']]= temp_obj;
     }
 
     function processTarget(state, obj) {
