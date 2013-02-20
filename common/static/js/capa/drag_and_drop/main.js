@@ -34,6 +34,7 @@ define(
 
         try {
             config = JSON.parse($('#drag_and_drop_json_' + problemId).html());
+            console.log(config)
         } catch (err) {
             logme('ERROR: Could not parse the JSON configuration options.');
             logme('Error message: "' + err.message + '".');
@@ -59,7 +60,8 @@ define(
                 return;
             }
 
-            Targets(state);
+            Targets(state, 'create_nested_targets');
+
             Scroller(state);
             Draggables.init(state);
 
