@@ -27,6 +27,7 @@ define([], function () {
             'currentMovingDraggable': null,
 
             'targets': [],
+            'detached_nested_targets': {},
 
             'updateArrowOpacity': null,
 
