@@ -29,7 +29,7 @@ import json
 
 def flat_user_answer(user_answer):
     """
-    Convert nested user_answer to flat format.
+    Convert nested `user_answer` to flat format.
     We consider only the even positions (only <draggable> objects).
 
     Example:
@@ -56,7 +56,7 @@ def flat_user_answer(user_answer):
         if isinstance(value, dict):
 
             # Make complex value:
-            # Exmple:
+            # Example:
             # Create like 'p_l[p][first]' from {'first': {'p': 'p_l'}
             nonlocal_dict['remove_duplicates_flag'] = True
             complex_value_list = []
@@ -354,12 +354,12 @@ class DragAndDrop(object):
             correct_answer: dict or list
         """
 
-        self.correct_groups = []  # correct groups from xml
-        self.correct_positions = []  # correct positions for comparing
-        self.user_groups = []  # will be populated from user answer
-        self.user_positions = []  # will be populated from user answer
+        self.correct_groups = []  # Correct groups from xml.
+        self.correct_positions = []  # Correct positions for comparing.
+        self.user_groups = []  # Will be populated from user answer.
+        self.user_positions = []  # Will be populated from user answer.
 
-        # convert from dict answer format to list format
+        # Convert from dict answer format to list format.
         if isinstance(correct_answer, dict):
             tmp = []
             for key, value in correct_answer.items():
@@ -369,30 +369,35 @@ class DragAndDrop(object):
                     'rule': 'exact'})
             correct_answer = tmp
 
+        # Convert string `user_answer` to object.
         user_answer = json.loads(user_answer)
 
-        # check if we have draggables that are not in correct answer:
+        # Check if we have draggables that are not in correct answer:
         self.excess_draggables = {}
 
+        # Convert nested `user_answer` to flat format.
         user_answer = flat_user_answer(user_answer)
 
-        # create identical data structures from user answer and correct answer
-        for index, answer in enumerate(correct_answer):
-            self.correct_groups.append(answer['draggables'])
-            self.correct_positions.append({answer['rule']: answer['targets']})
-            self.user_groups.append([])
-            self.user_positions.append({'user': []})
+        # Create identical data structures from user answer and correct answer.
+        for answer in correct_answer:
+            user_groups_data = []
+            user_positions_data = []
             for draggable_dict in user_answer:
-                # draggable_dict is 1-to-1 {draggable_name: position}
+                # Draggable_dict is 1-to-1 {draggable_name: position}.
                 draggable_name = draggable_dict.keys()[0]
-                if draggable_name in self.correct_groups[index]:
-                    self.user_groups[index].append(draggable_name)
-                    self.user_positions[index]['user'].append(
+                if draggable_name in answer['draggables']:
+                    user_groups_data.append(draggable_name)
+                    user_positions_data.append(
                                             draggable_dict[draggable_name])
                     self.excess_draggables[draggable_name] = True
                 else:
                     self.excess_draggables[draggable_name] = \
                     self.excess_draggables.get(draggable_name, False)
+
+            self.correct_groups.append(answer['draggables'])
+            self.correct_positions.append({answer['rule']: answer['targets']})
+            self.user_groups.append(user_groups_data)
+            self.user_positions.append({'user': user_positions_data})
 
 
 def grade(user_input, correct_answer):
