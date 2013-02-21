@@ -27,100 +27,10 @@ values are (x,y) coordinates of centers of dragged images.
 import json
 
 
-def flat_correct_answer(correct_answer):
-    """
-    Convert nested correct_answer to flat format.
-
-    Example:
-
-    [
-        {
-            'draggables': ['p'],
-            'targets': [
-                'p_l', 'p_r'
-            ],
-            'rule': 'anyof'
-        },
-        {
-            'draggables': ['up'],
-            'targets': [
-                'p_l[p][first]'
-            ],
-            'rule': 'anyof'
-        }
-    ]
-
-    to
-
-    [
-        {
-            'draggables': ['p'],
-            'targets': [
-                'p_l', 'p_r'
-            ],
-           'rule': 'anyof'
-        },
-        {
-            'draggables': ['first'],
-            'targets': [
-                'p_l[p]',
-            ],
-            'rule': 'exact'
-        },
-        {
-            'draggables': ['p'],
-            'targets': [
-                'p_l',
-            ],
-            'rule': 'exact'
-        },
-        {
-            'draggables': ['up'],
-            'targets': [
-                'p_l[p][first]',
-            ],
-            'rule': 'anyof'
-        }
-    ]
-    """
-    def parse_correct_answer(answer):
-        result = [answer]
-        data = []
-        targets = [i for i in answer['targets'] if '[' in i]
-
-        for target in targets:
-            while '[' in target:
-                split_list = target.split('[')
-                draggable = split_list[-1][:-1]
-                target = '['.join(split_list[:-1])
-                data.append((draggable, target))
-
-        for draggable, target in data:
-            if draggable not in global_draggable_list:
-                global_draggable_list.append(draggable)
-                result.append({
-                    'draggables': [draggable],
-                    'targets': [
-                        target
-                    ],
-                    'rule': 'exact'
-                })
-        return result
-
-    global_draggable_list = []
-
-    for answer in correct_answer:
-        global_draggable_list.extend(answer['draggables'])
-
-    result = []
-    for answer in correct_answer:
-        result.extend(parse_correct_answer(answer))
-    return result
-
-
 def flat_user_answer(user_answer):
     """
     Convert nested user_answer to flat format.
+    We consider only the even positions (only <draggable> objects).
 
     Example:
 
@@ -132,10 +42,14 @@ def flat_user_answer(user_answer):
 
     [
         {'up': 'p_l[p][first]'},
-        {'first': 'p_l[p]'},
         {'p': 'p_l'}
     ]
     """
+
+    # Hack for python 2.X: works like nonlocal keyword
+    nonlocal_dict = {}
+    nonlocal_dict['remove_duplicates_flag'] = False
+
     def parse_user_answer(answer):
         key = answer.keys()[0]
         value = answer.values()[0]
@@ -144,6 +58,7 @@ def flat_user_answer(user_answer):
             # Make complex value:
             # Exmple:
             # Create like 'p_l[p][first]' from {'first': {'p': 'p_l'}
+            nonlocal_dict['remove_duplicates_flag'] = True
             complex_value_list = []
             v_value = value
             while isinstance(v_value, dict):
@@ -161,9 +76,22 @@ def flat_user_answer(user_answer):
         else:
             return [answer]
 
+    def remove_duplicates(res):
+        """Function which remove duplicates."""
+        new_res = []
+        for obj in res:
+            if obj not in new_res:
+                new_res.append(obj)
+        return new_res
+
     result = []
     for answer in user_answer:
-        result.extend(parse_user_answer(answer))
+        parse_answer = parse_user_answer(answer)[::2]
+        result.extend(parse_answer)
+
+    if nonlocal_dict['remove_duplicates_flag']:
+        result = remove_duplicates(result)
+
     return result
 
 
@@ -447,7 +375,6 @@ class DragAndDrop(object):
         # check if we have draggables that are not in correct answer:
         self.excess_draggables = {}
 
-        correct_answer = flat_correct_answer(correct_answer)
         user_answer = flat_user_answer(user_answer)
 
         # create identical data structures from user answer and correct answer
