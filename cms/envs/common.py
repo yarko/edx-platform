@@ -87,6 +87,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 LMS_BASE = None
+LMS_LIVE_VIEW_PREFIX = None
 
 #################### CAPA External Code Evaluation #############################
 XQUEUE_INTERFACE = {

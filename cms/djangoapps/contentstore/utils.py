@@ -76,9 +76,11 @@ def get_course_for_item(location):
 
 
 def get_lms_link_for_item(location, preview=False):
+    # cdodge: lms_live_view_prefix should be '' for Edge deploys and 'www.' for Edx deploys
+    lms_live_view_prefix = settings.LMS_LIVE_VIEW_PREFIX if settings.LMS_LIVE_VIEW_PREFIX is not None else ''
     if settings.LMS_BASE is not None:
         lms_link = "//{preview}{lms_base}/courses/{course_id}/jump_to/{location}".format(
-            preview='preview.' if preview else '',
+            preview='preview.' if preview else lms_live_view_prefix,
             lms_base=settings.LMS_BASE,
             course_id=get_course_id(location),
             location=Location(location)

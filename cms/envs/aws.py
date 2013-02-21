@@ -34,6 +34,7 @@ with open(ENV_ROOT / CONFIG_PREFIX + "env.json") as env_file:
     ENV_TOKENS = json.load(env_file)
 
 LMS_BASE = ENV_TOKENS.get('LMS_BASE')
+LMS_LIVE_VIEW_PREFIX = ENV_TOKENS.get('LMS_LIVE_VIEW_PREFIX')
 
 SITE_NAME = ENV_TOKENS['SITE_NAME']
 

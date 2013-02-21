@@ -54,6 +54,7 @@ DATABASES = {
 }
 
 LMS_BASE = "localhost:8000"
+LMS_LIVE_VIEW_PREFIX = None
 
 REPOS = {
     'edx4edx': {
