@@ -184,37 +184,36 @@ class DragAndDrop(object):
 
         # Number of draggables in user_groups may be differ that in
         # correct_groups, that is incorrect, except special case with 'number'
-        for groupname, draggable_ids in self.correct_groups.items():
-
+        for index, draggable_ids in enumerate(self.correct_groups):
             # 'number' rule special case
             # for reusable draggables we may get in self.user_groups
             # {'1': [u'2', u'2', u'2'], '0': [u'1', u'1'], '2': [u'3']}
             # if '+number' is in rule - do not remove duplicates and strip
             # '+number' from rule
-            current_rule = self.correct_positions[groupname].keys()[0]
+            current_rule = self.correct_positions[index].keys()[0]
             if 'number' in current_rule:
-                rule_values = self.correct_positions[groupname][current_rule]
+                rule_values = self.correct_positions[index][current_rule]
                 # clean rule, do not do clean duplicate items
-                self.correct_positions[groupname].pop(current_rule, None)
+                self.correct_positions[index].pop(current_rule, None)
                 parsed_rule = current_rule.replace('+', '').replace('number', '')
-                self.correct_positions[groupname][parsed_rule] = rule_values
+                self.correct_positions[index][parsed_rule] = rule_values
             else:  # remove dublicates
-                self.user_groups[groupname] = list(set(self.user_groups[groupname]))
+                self.user_groups[index] = list(set(self.user_groups[index]))
 
-            if sorted(draggable_ids) != sorted(self.user_groups[groupname]):
+            if sorted(draggable_ids) != sorted(self.user_groups[index]):
                 return False
 
         # Check that in every group, for rule of that group, user positions of
         # every element are equal with correct positions
-        for groupname in self.correct_groups:
+        for index, _ in enumerate(self.correct_groups):
             rules_executed = 0
             for rule in ('exact', 'anyof', 'unordered_equal'):
                 # every group has only one rule
-                if self.correct_positions[groupname].get(rule, None):
+                if self.correct_positions[index].get(rule, None):
                     rules_executed += 1
                     if not self.compare_positions(
-                            self.correct_positions[groupname][rule],
-                            self.user_positions[groupname]['user'], flag=rule):
+                            self.correct_positions[index][rule],
+                            self.user_positions[index]['user'], flag=rule):
                         return False
             if not rules_executed:  # no correct rules for current group
             # probably xml content mistake - wrong rules names
@@ -355,10 +354,10 @@ class DragAndDrop(object):
             correct_answer: dict or list
         """
 
-        self.correct_groups = dict()  # correct groups from xml
-        self.correct_positions = dict()  # correct positions for comparing
-        self.user_groups = dict()  # will be populated from user answer
-        self.user_positions = dict()  # will be populated from user answer
+        self.correct_groups = []  # correct groups from xml
+        self.correct_positions = []  # correct positions for comparing
+        self.user_groups = []  # will be populated from user answer
+        self.user_positions = []  # will be populated from user answer
 
         # convert from dict answer format to list format
         if isinstance(correct_answer, dict):
@@ -379,18 +378,16 @@ class DragAndDrop(object):
 
         # create identical data structures from user answer and correct answer
         for index, answer in enumerate(correct_answer):
-            groupname = str(index)
-            self.correct_groups[groupname] = answer['draggables']
-            self.correct_positions[groupname] = {answer['rule']:
-                                                answer['targets']}
-            self.user_groups[groupname] = []
-            self.user_positions[groupname] = {'user': []}
+            self.correct_groups.append(answer['draggables'])
+            self.correct_positions.append({answer['rule']: answer['targets']})
+            self.user_groups.append([])
+            self.user_positions.append({'user': []})
             for draggable_dict in user_answer:
                 # draggable_dict is 1-to-1 {draggable_name: position}
                 draggable_name = draggable_dict.keys()[0]
-                if draggable_name in self.correct_groups[groupname]:
-                    self.user_groups[groupname].append(draggable_name)
-                    self.user_positions[groupname]['user'].append(
+                if draggable_name in self.correct_groups[index]:
+                    self.user_groups[index].append(draggable_name)
+                    self.user_positions[index]['user'].append(
                                             draggable_dict[draggable_name])
                     self.excess_draggables[draggable_name] = True
                 else:

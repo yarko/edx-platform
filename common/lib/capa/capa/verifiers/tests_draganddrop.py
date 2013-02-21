@@ -675,10 +675,10 @@ class Test_DragAndDrop_Populate(unittest.TestCase):
         user_input = '[{"1": [10, 10]}, {"name_with_icon": [20, 20]}]'
         dnd = draganddrop.DragAndDrop(correct_answer, user_input)
 
-        correct_groups = {'1': ['name_with_icon'], '0': ['1']}
-        correct_positions = {'1': {'exact': [[20, 20]]}, '0': {'exact': [[[40, 10], 29]]}}
-        user_groups = {'1': [u'name_with_icon'], '0': [u'1']}
-        user_positions = {'1': {'user': [[20, 20]]}, '0': {'user': [[10, 10]]}}
+        correct_groups = [['1'], ['name_with_icon']]
+        correct_positions = [{'exact': [[[40, 10], 29]]}, {'exact': [[20, 20]]}]
+        user_groups = [['1'], ['name_with_icon']]
+        user_positions = [{'user': [[10, 10]]}, {'user': [[20, 20]]}]
 
         self.assertEqual(correct_groups, dnd.correct_groups)
         self.assertEqual(correct_positions, dnd.correct_positions)
