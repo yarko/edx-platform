@@ -48,6 +48,9 @@ def flat_user_answer(user_answer):
 
     # Hack for python 2.X: works like nonlocal keyword
     nonlocal_dict = {}
+
+    # TODO: rework this for correct define - need we remove duplicates or not?
+    # Like idea, we can recieve this flag from client in `user_input`.
     nonlocal_dict['remove_duplicates_flag'] = False
 
     def parse_user_answer(answer):
