@@ -104,6 +104,48 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
         ]
         self.assertTrue(draganddrop.grade(user_input, correct_answer))
 
+    def test_targets_are_draggable_2_manual_parsing(self):
+        user_input = json.dumps([
+            {'up': 'p_l[p][1]'},
+            {'p': 'p_l'},
+            {'up': 'p_l[p][3]'},
+            {'up': 'p_r[p][1]'},
+            {'p': 'p_r'},
+            {'up': 'p_r[p][3]'},
+            {'up_and_down': 's_l[s][1]'},
+            {'s': 's_l'},
+            {'up_and_down': 's_r[s][1]'},
+            {'s': 's_r'}
+        ])
+
+        correct_answer = [
+            {
+                'draggables': ['p'],
+                'targets': ['p_l', 'p_r'],
+                'rule': 'unordered_equal'
+            },
+            {
+                'draggables': ['s'],
+                'targets': ['s_l', 's_r'],
+                'rule': 'unordered_equal'
+            },
+            {
+              'draggables': ['up_and_down'],
+              'targets': [
+                's_l[s][1]', 's_r[s][1]'
+              ],
+              'rule': 'unordered_equal'
+            },
+            {
+              'draggables': ['up'],
+              'targets': [
+                'p_l[p][1]', 'p_l[p][3]', 'p_r[p][1]', 'p_r[p][3]'
+              ],
+              'rule': 'unordered_equal'
+            }
+        ]
+        self.assertTrue(draganddrop.grade(user_input, correct_answer))
+
     def test_targets_true(self):
         user_input = '[{"1": "t1"}, \
          {"name_with_icon": "t2"}]'
