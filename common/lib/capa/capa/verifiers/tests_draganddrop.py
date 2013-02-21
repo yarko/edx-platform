@@ -146,6 +146,59 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
         ]
         self.assertTrue(draganddrop.grade(user_input, correct_answer))
 
+    def test_targets_are_draggable_3(self):
+        user_input = json.dumps([
+            {'up': {'1': {'p': {'p_target': {'molecule': 'left_side_tagret'}}}}},
+            {'up': {'3': {'p': {'p_target': {'molecule': 'left_side_tagret'}}}}},
+            {'up': {'1': {'p': {'p_target': {'molecule': 'right_side_tagret'}}}}},
+            {'up': {'3': {'p': {'p_target': {'molecule': 'right_side_tagret'}}}}},
+            {'up_and_down': {'1': {'s': {'s_target': {'molecule': 'left_side_tagret'}}}}},
+            {'up_and_down': {'1': {'s': {'s_target': {'molecule': 'right_side_tagret'}}}}}
+        ])
+
+        correct_answer = [
+            {
+                'draggables': ['molecule'],
+                'targets': ['left_side_tagret', 'right_side_tagret'],
+                'rule': 'unordered_equal'
+            },
+            {
+                'draggables': ['p'],
+                'targets': [
+                    'left_side_tagret[molecule][p_target]',
+                    'right_side_tagret[molecule][p_target]'
+                ],
+                'rule': 'unordered_equal'
+            },
+            {
+                'draggables': ['s'],
+                'targets': [
+                    'left_side_tagret[molecule][s_target]',
+                    'right_side_tagret[molecule][s_target]'
+                ],
+                'rule': 'unordered_equal'
+            },
+            {
+              'draggables': ['up_and_down'],
+              'targets': [
+                'left_side_tagret[molecule][s_target][s][1]',
+                'right_side_tagret[molecule][s_target][s][1]'
+              ],
+              'rule': 'unordered_equal'
+            },
+            {
+              'draggables': ['up'],
+              'targets': [
+                'left_side_tagret[molecule][p_target][p][1]',
+                'left_side_tagret[molecule][p_target][p][3]',
+                'right_side_tagret[molecule][p_target][p][1]',
+                'right_side_tagret[molecule][p_target][p][3]'
+              ],
+              'rule': 'unordered_equal'
+            }
+        ]
+        self.assertTrue(draganddrop.grade(user_input, correct_answer))
+
     def test_targets_true(self):
         user_input = '[{"1": "t1"}, \
          {"name_with_icon": "t2"}]'
