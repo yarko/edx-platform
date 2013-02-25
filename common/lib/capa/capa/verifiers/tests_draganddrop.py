@@ -146,7 +146,7 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
         ]
         self.assertTrue(draganddrop.grade(user_input, correct_answer))
 
-    def test_targets_are_draggable_3(self):
+    def test_targets_are_draggable_3_nested(self):
         user_input = json.dumps([
             {'up': {'1': {'p': {'p_target': {'molecule': 'left_side_tagret'}}}}},
             {'up': {'3': {'p': {'p_target': {'molecule': 'left_side_tagret'}}}}},
@@ -195,6 +195,47 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
                 'right_side_tagret[molecule][p_target][p][3]'
               ],
               'rule': 'unordered_equal'
+            }
+        ]
+        self.assertTrue(draganddrop.grade(user_input, correct_answer))
+
+    def test_targets_are_draggable_4_real_example(self):
+        user_input = json.dumps([
+            {'up': {'1': {'p': {'p_target': {'molecule': 'left_side_tagret'}}}}},
+            {'up': {'3': {'p': {'p_target': {'molecule': 'left_side_tagret'}}}}},
+            {'up': {'1': {'p': {'p_target': {'molecule': 'right_side_tagret'}}}}},
+            {'up': {'3': {'p': {'p_target': {'molecule': 'right_side_tagret'}}}}},
+            {'up_and_down': {'1': {'s': {'s_target': {'molecule': 'left_side_tagret'}}}}},
+            {'up_and_down': {'1': {'s': {'s_target': {'molecule': 'right_side_tagret'}}}}}
+        ])
+
+        correct_answer = [
+            {
+              'draggables': ['1'],
+              'targets': [
+                's_left', 's_right', 's_sigma', 's_sigma_star', 'p_pi_1', 'p_pi_2'
+              ],
+              'rule': 'exact'
+            }, {
+              'draggables': ['7'],
+              'targets': ['p_left_1', 'p_left_2', 'p_right_2', 'p_right_3'],
+              'rule': 'exact'
+            }, {
+              'draggables': ['11'],
+              'targets': ['s_sigma_name', 'p_sigma_name'],
+              'rule': 'exact'
+            }, {
+              'draggables': ['13'],
+              'targets': ['s_sigma_star_name', 'p_sigma_star_name'],
+              'rule': 'exact'
+            }, {
+              'draggables': ['15'],
+              'targets': ['p_pi_name'],
+              'rule': 'exact'
+            }, {
+              'draggables': ['16'],
+              'targets': ['p_pi_star_name'],
+              'rule': 'exact'
             }
         ]
         self.assertTrue(draganddrop.grade(user_input, correct_answer))
