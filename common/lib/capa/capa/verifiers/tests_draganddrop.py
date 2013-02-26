@@ -201,42 +201,51 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
 
     def test_targets_are_draggable_4_real_example(self):
         user_input = json.dumps([
-            {'up': {'1': {'p': {'p_target': {'molecule': 'left_side_tagret'}}}}},
-            {'up': {'3': {'p': {'p_target': {'molecule': 'left_side_tagret'}}}}},
-            {'up': {'1': {'p': {'p_target': {'molecule': 'right_side_tagret'}}}}},
-            {'up': {'3': {'p': {'p_target': {'molecule': 'right_side_tagret'}}}}},
-            {'up_and_down': {'1': {'s': {'s_target': {'molecule': 'left_side_tagret'}}}}},
-            {'up_and_down': {'1': {'s': {'s_target': {'molecule': 'right_side_tagret'}}}}}
+            {'up': {'1': {'triple_draggable': 'p_l'}}},
+            {'up': {'2': {'triple_draggable': 'p_l'}}},
+            {'up': {'2': {'triple_draggable': 'p_r'}}},
+            {'up': {'3': {'triple_draggable': 'p_r'}}},
+            {'up_and_down': {'1': {'single_draggable': 's_l'}}},
+            {'up_and_down': {'1': {'single_draggable': 's_r'}}},
+            {'up_and_down': {'1': {'single_draggable': 's_sigma'}}},
+            {'up_and_down': {'1': {'single_draggable': 's_sigma*'}}},
+            {'up_and_down': {'1': {'double_draggable': 'p_pi'}}},
+            {'up_and_down': {'2': {'double_draggable': 'p_pi'}}},
+            {'single_draggable': 'p_sigma'},
+            {'single_draggable': 'p_sigma*'},
+            {'double_draggable': 'p_pi*'}
         ])
 
         correct_answer = [
             {
-              'draggables': ['1'],
-              'targets': [
-                's_left', 's_right', 's_sigma', 's_sigma_star', 'p_pi_1', 'p_pi_2'
-              ],
-              'rule': 'exact'
-            }, {
-              'draggables': ['7'],
-              'targets': ['p_left_1', 'p_left_2', 'p_right_2', 'p_right_3'],
-              'rule': 'exact'
-            }, {
-              'draggables': ['11'],
-              'targets': ['s_sigma_name', 'p_sigma_name'],
-              'rule': 'exact'
-            }, {
-              'draggables': ['13'],
-              'targets': ['s_sigma_star_name', 'p_sigma_star_name'],
-              'rule': 'exact'
-            }, {
-              'draggables': ['15'],
-              'targets': ['p_pi_name'],
-              'rule': 'exact'
-            }, {
-              'draggables': ['16'],
-              'targets': ['p_pi_star_name'],
-              'rule': 'exact'
-            }
+              'draggables': ['triple_draggable'],
+              'targets': ['p_l', 'p_r'],
+              'rule': 'unordered_equal'
+            },
+            {
+              'draggables': ['double_draggable'],
+              'targets': ['p_pi', 'p_pi*'],
+              'rule': 'unordered_equal'
+            },
+            {
+              'draggables': ['single_draggable'],
+              'targets': ['s_l', 's_r', 's_sigma', 's_sigma*', 'p_sigma', 'p_sigma*'],
+              'rule': 'unordered_equal'
+            },
+            {
+              'draggables': ['up'],
+              'targets': ['p_l[triple_draggable][1]', 'p_l[triple_draggable][2]',
+              'p_r[triple_draggable][2]', 'p_r[triple_draggable][3]'],
+              'rule': 'unordered_equal'
+            },
+            {
+              'draggables': ['up_and_down'],
+              'targets': ['s_l[single_draggable][1]', 's_r[single_draggable][1]',
+              's_sigma[single_draggable][1]', 's_sigma*[single_draggable][1]',
+              'p_pi[double_draggable][1]', 'p_pi[double_draggable][2]'],
+              'rule': 'unordered_equal'
+            },
+
         ]
         self.assertTrue(draganddrop.grade(user_input, correct_answer))
 
