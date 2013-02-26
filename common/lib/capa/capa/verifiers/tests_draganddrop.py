@@ -146,7 +146,7 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
         ]
         self.assertTrue(draganddrop.grade(user_input, correct_answer))
 
-    def test_targets_are_draggable_3(self):
+    def test_targets_are_draggable_3_nested(self):
         user_input = json.dumps([
             {'up': {'1': {'p': {'p_target': {'molecule': 'left_side_tagret'}}}}},
             {'up': {'3': {'p': {'p_target': {'molecule': 'left_side_tagret'}}}}},
@@ -196,6 +196,73 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
               ],
               'rule': 'unordered_equal'
             }
+        ]
+        self.assertTrue(draganddrop.grade(user_input, correct_answer))
+
+    def test_targets_are_draggable_4_real_example(self):
+        # We can do not send from client to server:
+        #
+        # {'triple_draggable': 'p_l'},
+        # {'triple_draggable': 'p_r'}
+        #
+        # etc., cause we get it from this records:
+        #
+        # {'up': {'1': {'triple_draggable': 'p_l'}}},
+        # {'up': {'2': {'triple_draggable': 'p_r'}}}
+        user_input = json.dumps([
+            {'up': {'1': {'triple_draggable': 'p_l'}}},
+            {'up': {'2': {'triple_draggable': 'p_l'}}},
+            {'up': {'2': {'triple_draggable': 'p_r'}}},
+            {'up': {'3': {'triple_draggable': 'p_r'}}},
+            {'up_and_down': {'1': {'single_draggable': 's_l'}}},
+            {'up_and_down': {'1': {'single_draggable': 's_r'}}},
+            {'up_and_down': {'1': {'single_draggable': 's_sigma'}}},
+            {'up_and_down': {'1': {'single_draggable': 's_sigma*'}}},
+            {'up_and_down': {'1': {'double_draggable': 'p_pi'}}},
+            {'up_and_down': {'2': {'double_draggable': 'p_pi'}}},
+            {'single_draggable': 'p_sigma'},
+            {'single_draggable': 'p_sigma*'},
+            {'double_draggable': 'p_pi*'}
+        ])
+
+        # 10 targets:
+        # s_l, s_r, p_l, p_r, s_sigma, s_sigma*, p_pi, p_sigma, p_pi*, p_sigma*
+        #
+        # 3 draggable objects, which have targets (internal target ids - 1, 2, 3):
+        # single_draggable, double_draggable, triple_draggable
+        #
+        # 2 draggable objects:
+        # up, up_and_down
+        correct_answer = [
+            {
+              'draggables': ['triple_draggable'],
+              'targets': ['p_l', 'p_r'],
+              'rule': 'unordered_equal'
+            },
+            {
+              'draggables': ['double_draggable'],
+              'targets': ['p_pi', 'p_pi*'],
+              'rule': 'unordered_equal'
+            },
+            {
+              'draggables': ['single_draggable'],
+              'targets': ['s_l', 's_r', 's_sigma', 's_sigma*', 'p_sigma', 'p_sigma*'],
+              'rule': 'unordered_equal'
+            },
+            {
+              'draggables': ['up'],
+              'targets': ['p_l[triple_draggable][1]', 'p_l[triple_draggable][2]',
+              'p_r[triple_draggable][2]', 'p_r[triple_draggable][3]'],
+              'rule': 'unordered_equal'
+            },
+            {
+              'draggables': ['up_and_down'],
+              'targets': ['s_l[single_draggable][1]', 's_r[single_draggable][1]',
+              's_sigma[single_draggable][1]', 's_sigma*[single_draggable][1]',
+              'p_pi[double_draggable][1]', 'p_pi[double_draggable][2]'],
+              'rule': 'unordered_equal'
+            },
+
         ]
         self.assertTrue(draganddrop.grade(user_input, correct_answer))
 
