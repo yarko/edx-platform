@@ -216,6 +216,14 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
             {'double_draggable': 'p_pi*'}
         ])
 
+        # 10 targets:
+        # s_l, s_r, p_l, p_r, s_sigma, s_sigma*, p_pi, p_sigma, p_pi*, p_sigma*
+        #
+        # 3 draggable objects, which have targets:
+        # single_draggable, double_draggable, triple_draggable
+        #
+        # 2 draggable objects:
+        # up, up_and_down
         correct_answer = [
             {
               'draggables': ['triple_draggable'],
