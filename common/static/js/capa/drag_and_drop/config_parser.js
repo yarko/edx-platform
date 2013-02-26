@@ -16,7 +16,7 @@ define(['logme'], function (logme) {
             'targetOutline': true,
             'labelBgColor': '#d6d6d6',
             'individualTargets': null, // Depends on 'targets'.
-            'errors': 0 // Number of errors found while parsing config.
+            'foundErrors': false // Whether or not we find errors while processing the config.
         };
 
         getDraggables(state, config);
@@ -28,7 +28,7 @@ define(['logme'], function (logme) {
 
         setIndividualTargets(state);
 
-        if (state.config.errors !== 0) {
+        if (state.config.foundErrors !== false) {
             return false;
         }
 
@@ -38,59 +38,65 @@ define(['logme'], function (logme) {
     function getDraggables(state, config) {
         if (config.hasOwnProperty('draggables') === false) {
             logme('ERROR: "config" does not have a property "draggables".');
-            state.config.errors = 1;
+            state.config.foundErrors = true;
         } else if ($.isArray(config.draggables) === true) {
-            config.draggables.every(function (draggable){
+            config.draggables.every(function (draggable) {
                 if (processDraggable(state, draggable) !== true) {
-                    state.config.errors = 1;
+                    state.config.foundErrors = true;
+
+                    // Exit immediately from .every() call.
                     return false;
                 }
-            return true;
+
+                // Continue to next .every() call.
+                return true;
             });
         } else {
             logme('ERROR: The type of config.draggables is no supported.');
-            state.config.errors = 1;
+            state.config.foundErrors = true;
         }
     }
 
     function getBaseImage(state, config) {
         if (config.hasOwnProperty('base_image') === false) {
             logme('ERROR: "config" does not have a property "base_image".');
-            state.config.errors += 1;
+            state.config.foundErrors = true;
         } else if (typeof config.base_image === 'string') {
             state.config.baseImage = config.base_image;
         } else {
             logme('ERROR: Property config.base_image is not of type "string".');
-            state.config.errors += 1;
+            state.config.foundErrors = true;
         }
     }
 
     function getTargets(state, config) {
         if (config.hasOwnProperty('targets') === false) {
-            true; // for linter xD
             // It is possible that no "targets" were specified. This is not an error.
             // In this case the default value of "[]" (empty array) will be used.
             // Draggables can be positioned anywhere on the image, and the server will
             // get an answer in the form of (x, y) coordinates for each draggable.
         } else if ($.isArray(config.targets) === true) {
-            (function (i) {
-                while (i < config.targets.length) {
-                    if (processTarget(state, config.targets[i]) !== true) {
-                        state.config.errors += 1;
-                    }
-                    i += 1;
+            config.targets.every(function (target) {
+                if (processTarget(state, target) !== true) {
+                    state.config.foundErrors = true;
+
+                    // Exit immediately from .every() call.
+                    return false;
                 }
-            }(0));
+
+                // Continue to next .every() call.
+                return true;
+            });
         } else {
             logme('ERROR: Property config.targets is not of a supported type.');
-            state.config.errors += 1;
+            state.config.foundErrors = true;
         }
     }
 
     function getOnePerTarget(state, config) {
         if (config.hasOwnProperty('one_per_target') === false) {
             logme('ERROR: "config" does not have a property "one_per_target".');
-            state.config.errors += 1;
+            state.config.foundErrors = true;
         } else if (typeof config.one_per_target === 'string') {
             if (config.one_per_target.toLowerCase() === 'true') {
                 state.config.onePerTarget = true;
@@ -98,44 +104,45 @@ define(['logme'], function (logme) {
                 state.config.onePerTarget = false;
             } else {
                 logme('ERROR: Property config.one_per_target can either be "true", or "false".');
-                state.config.errors += 1;
+                state.config.foundErrors = true;
             }
         } else {
             logme('ERROR: Property config.one_per_target is not of a supported type.');
-            state.config.errors += 1;
+            state.config.foundErrors = true;
         }
     }
 
     function getTargetOutline(state, config) {
-        if (config.hasOwnProperty('target_outline') === false) {
-            true;
-            // It is possible that no "target_outline" was specified. This is not an error.
-            // In this case the default value of 'true' (boolean) will be used.
-        } else if (typeof config.target_outline === 'string') {
-            if (config.target_outline.toLowerCase() === 'true') {
-                state.config.targetOutline = true;
-            } else if (config.target_outline.toLowerCase() === 'false') {
-                state.config.targetOutline = false;
+        // It is possible that no "target_outline" was specified. This is not an error.
+        // In this case the default value of 'true' (boolean) will be used.
+
+        if (config.hasOwnProperty('target_outline') === true) {
+            if (typeof config.target_outline === 'string') {
+                if (config.target_outline.toLowerCase() === 'true') {
+                    state.config.targetOutline = true;
+                } else if (config.target_outline.toLowerCase() === 'false') {
+                    state.config.targetOutline = false;
+                } else {
+                    logme('ERROR: Property config.target_outline can either be "true", or "false".');
+                    state.config.foundErrors = true;
+                }
             } else {
-                logme('ERROR: Property config.target_outline can either be "true", or "false".');
-                state.config.errors += 1;
+                logme('ERROR: Property config.target_outline is not of a supported type.');
+                state.config.foundErrors = true;
             }
-        } else {
-            logme('ERROR: Property config.target_outline is not of a supported type.');
-            state.config.errors += 1;
         }
     }
 
     function getLabelBgColor(state, config) {
-        if (config.hasOwnProperty('label_bg_color') === false) {
-            true;
-            // It is possible that no "label_bg_color" was specified. This is not an error.
-            // In this case the default value of '#d6d6d6' (string) will be used.
-        } else if (typeof config.label_bg_color === 'string') {
-            state.config.labelBgColor = config.label_bg_color;
-        } else {
-            logme('ERROR: Property config.label_bg_color is not of a supported type.');
-            returnStatus = false;
+        // It is possible that no "label_bg_color" was specified. This is not an error.
+        // In this case the default value of '#d6d6d6' (string) will be used.
+
+        if (config.hasOwnProperty('label_bg_color') === true) {
+            if (typeof config.label_bg_color === 'string') {
+                state.config.labelBgColor = config.label_bg_color;
+            } else {
+                logme('ERROR: Property config.label_bg_color is not of a supported type.');
+            }
         }
     }
 
@@ -152,15 +159,16 @@ define(['logme'], function (logme) {
             (attrIsString(obj, 'id') === false) ||
             (attrIsString(obj, 'icon') === false) ||
             (attrIsString(obj, 'label') === false) ||
+
             (attrIsBoolean(obj, 'can_reuse', false) === false) ||
+
             (obj.hasOwnProperty('target_fields') === false)
         ) {
-            // logme('processDraggable failed');
             return false;
         }
 
         state.config.draggables.push(obj);
-        // logme('processDraggable successed', state.config.draggables);
+
         return true;
     }
 
