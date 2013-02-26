@@ -200,6 +200,15 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
         self.assertTrue(draganddrop.grade(user_input, correct_answer))
 
     def test_targets_are_draggable_4_real_example(self):
+        # We can do not send from client to server:
+        #
+        # {'triple_draggable': 'p_l'},
+        # {'triple_draggable': 'p_r'}
+        #
+        # etc., cause we get it from this records:
+        #
+        # {'up': {'1': {'triple_draggable': 'p_l'}}},
+        # {'up': {'2': {'triple_draggable': 'p_r'}}}
         user_input = json.dumps([
             {'up': {'1': {'triple_draggable': 'p_l'}}},
             {'up': {'2': {'triple_draggable': 'p_l'}}},
@@ -219,7 +228,7 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
         # 10 targets:
         # s_l, s_r, p_l, p_r, s_sigma, s_sigma*, p_pi, p_sigma, p_pi*, p_sigma*
         #
-        # 3 draggable objects, which have targets:
+        # 3 draggable objects, which have targets (internal target ids - 1, 2, 3):
         # single_draggable, double_draggable, triple_draggable
         #
         # 2 draggable objects:
