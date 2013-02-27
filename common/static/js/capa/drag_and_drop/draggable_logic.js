@@ -1,5 +1,5 @@
 (function (requirejs, require, define) {
-define(['logme', 'update_input'], function (logme, updateInput) {
+define(['logme', 'update_input', 'targets'], function (logme, updateInput, Targets) {
 return {
     'moveDraggableTo': function (moveType, target) {
         var self, offset;
@@ -108,6 +108,8 @@ return {
         if (this.state.config.individualTargets === true) {
             if (this.checkIfOnTarget(positionIE) === true) {
                 this.correctZIndexes();
+
+                Targets.initializeTargetField(this);
             } else {
                 if (this.onTarget !== null) {
                     this.onTarget.removeDraggable(this);
@@ -139,6 +141,8 @@ return {
 
                 this.x = positionIE.left + this.iconWidth * 0.5;
                 this.y = positionIE.top + this.iconHeight * 0.5;
+
+                Targets.initializeTargetField(this);
             }
         }
 
@@ -189,7 +193,7 @@ return {
             // another, then we need to remove it from the
             // previous target's draggables list, and add it to the
             // new target's draggables list.
-            if ((this.onTarget !== null) && (this.onTarget.id !== target.id)) {
+            if ((this.onTarget !== null) && (this.onTarget.uniqueId !== target.uniqueId)) {
                 this.onTarget.removeDraggable(this);
                 target.addDraggable(this);
             }
@@ -292,14 +296,17 @@ return {
     'moveBackToSlider': function () {
         var c1;
 
+        Targets.destroyTargetField(this);
+
         if (this.isOriginal === false) {
             this.iconEl.remove();
             if (this.labelEl !== null) {
                 this.labelEl.remove();
             }
+
             this.state.draggables.splice(this.stateDraggablesIndex, 1);
 
-            for (c1 = 0; c1 < this.state.draggables; c1 += 1) {
+            for (c1 = 0; c1 < this.state.draggables.length; c1 += 1) {
                 if (this.state.draggables[c1].stateDraggablesIndex > this.stateDraggablesIndex) {
                     this.state.draggables[c1].stateDraggablesIndex -= 1;
                 }

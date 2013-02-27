@@ -37,6 +37,7 @@ function (logme, draggableEvents, draggableLogic) {
         draggableObj.iconEl = null; // Will be created.
         draggableObj.iconImgEl = null; // Will be created.
         draggableObj.labelEl = null; // Will be created.
+        draggableObj.targetField = []; // Will be populated.
 
         // Create DOM elements and attach events.
         if (draggableObj.originalConfigObj.icon.length > 0) {
@@ -84,7 +85,7 @@ function (logme, draggableEvents, draggableLogic) {
 
                 draggableObj.attachMouseEventsTo('iconEl');
 
-                draggableObj.stateDraggablesIndex = draggableObj.state.draggables.push(draggableObj);
+                draggableObj.stateDraggablesIndex = draggableObj.state.draggables.push(draggableObj) - 1;
 
                 setTimeout(function () {
                     callbackFunc(draggableObj);
@@ -112,7 +113,7 @@ function (logme, draggableEvents, draggableLogic) {
 
                 draggableObj.attachMouseEventsTo('iconEl');
 
-                draggableObj.stateDraggablesIndex = draggableObj.state.draggables.push(draggableObj);
+                draggableObj.stateDraggablesIndex = draggableObj.state.draggables.push(draggableObj) - 1;
 
                 setTimeout(function () {
                     callbackFunc(draggableObj);
@@ -169,7 +170,10 @@ function (logme, draggableEvents, draggableLogic) {
 
             'makeDraggableCopy': makeDraggableCopy,
 
-            'attachMouseEventsTo': draggableEvents.attachMouseEventsTo
+            'attachMouseEventsTo': draggableEvents.attachMouseEventsTo,
+
+            'targetField': [],
+            'numDraggablesOnMe': 0
         };
 
         draggableObj.containerEl = $(

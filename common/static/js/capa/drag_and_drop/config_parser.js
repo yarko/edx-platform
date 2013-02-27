@@ -167,12 +167,29 @@ define(['logme'], function (logme) {
             return false;
         }
 
+        // Check that all targets in the 'target_fields' property are proper target objects.
+        // We will be testing the return value from .every() call (it can be 'true' or 'false').
+        if (obj.target_fields.every(
+            function (targetObj) {
+                return processTarget(state, targetObj, false);
+            }
+        ) === false) {
+            return false;
+        }
+
         state.config.draggables.push(obj);
 
         return true;
     }
 
-    function processTarget(state, obj) {
+    // We need 'pushToState' parameter in order to simply test an object for the fact that it is a
+    // proper target (without pushing it to the 'state' object). When
+    //
+    //     pushToState === false
+    //
+    // the object being tested is not going to be pushed to 'state'. The function will onyl return
+    // 'true' or 'false.
+    function processTarget(state, obj, pushToState) {
         if (
             (attrIsString(obj, 'id') === false) ||
 
@@ -185,7 +202,9 @@ define(['logme'], function (logme) {
             return false;
         }
 
-        state.config.targets.push(obj);
+        if (pushToState !== false) {
+            state.config.targets.push(obj);
+        }
 
         return true;
     }

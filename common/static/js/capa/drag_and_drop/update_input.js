@@ -16,6 +16,7 @@ define(['logme'], function (logme) {
         draggables = [];
 
         if (state.config.individualTargets === false) {
+            console.log('one');
             (function (c1) {
                 while (c1 < state.draggables.length) {
                     if (state.draggables[c1].x !== -1) {
@@ -32,12 +33,20 @@ define(['logme'], function (logme) {
                 }
             }(0));
         } else {
+            console.log('two');
             (function (c1) {
                 while (c1 < state.targets.length) {
                     (function (c2) {
                         while (c2 < state.targets[c1].draggableList.length) {
                             tempObj = {};
-                            tempObj[state.targets[c1].draggableList[c2].id] = state.targets[c1].id;
+
+                            if (state.targets[c1].type === 'base') {
+                                tempObj[state.targets[c1].draggableList[c2].id] = state.targets[c1].id;
+                            } else {
+                                addTargetRecursively(tempObj, state.targets[c1].draggableList[c2], state.targets[c1]);
+
+                                console.log('Finally, tempObj = ', tempObj);
+                            }
                             draggables.push(tempObj);
                             tempObj = null;
 
@@ -51,6 +60,20 @@ define(['logme'], function (logme) {
         }
 
         $('#input_' + state.problemId).val(JSON.stringify({'draggables': draggables}));
+    }
+
+    function addTargetRecursively(tempObj, draggable, target) {
+        console.log('recurs');
+        console.log('tempObj =', tempObj);
+        console.log('draggable =', draggable);
+        console.log('target =', target);
+        if (target.type === 'base') {
+            tempObj[draggable.id] = target.id;
+        } else {
+            tempObj[draggable.id] = {};
+
+            addTargetRecursively(tempObj[draggable.id], target.draggableObj, target.draggableObj.onTarget);
+        }
     }
 
     // Check if input has an answer from server. If yes, then position

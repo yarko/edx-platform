@@ -24,6 +24,15 @@ return {
             event.preventDefault();
             event.stopPropagation();
 
+            console.log('mouseDown event; state = ');
+            console.log(this.state);
+
+            if (this.numDraggablesOnMe > 0) {
+                console.log('this.numDraggablesOnMe > 0');
+
+                return;
+            }
+
             // If this draggable is just being dragged out of the
             // container, we must perform some additional tasks.
             if (this.inContainer === true) {
@@ -39,9 +48,6 @@ return {
                     this.containerEl.hide();
                     this.iconEl.detach();
                 }
-
-                console.log('this.iconWidth = ', this.iconWidth);
-                console.log('this.iconHeight = ', this.iconHeight);
 
                 if (this.iconImgEl !== null) {
                     this.iconImgEl.css({

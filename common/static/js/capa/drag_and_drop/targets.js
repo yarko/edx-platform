@@ -5,9 +5,13 @@
 (function (requirejs, require, define) {
 
 define(['logme'], function (logme) {
-    return Targets;
+    return {
+        'initializeBaseTargets': initializeBaseTargets,
+        'initializeTargetField': initializeTargetField,
+        'destroyTargetField': destroyTargetField
+    };
 
-    function Targets(state) {
+    function initializeBaseTargets(state) {
         (function (c1) {
             while (c1 < state.config.targets.length) {
                 processTarget(state, state.config.targets[c1]);
@@ -17,7 +21,64 @@ define(['logme'], function (logme) {
         }(0));
     }
 
-    function processTarget(state, obj) {
+    function initializeTargetField(draggableObj) {
+        var iconElOffset;
+
+        if (draggableObj.targetField.length === 0) {
+            draggableObj.originalConfigObj.target_fields.every(function (targetObj) {
+                processTarget(draggableObj.state, targetObj, true, draggableObj);
+
+                return true;
+            });
+        } else {
+            iconElOffset = draggableObj.iconEl.position();
+
+            draggableObj.targetField.every(function (targetObj) {
+                targetObj.offset.top = iconElOffset.top + targetObj.y;
+                targetObj.offset.left = iconElOffset.left + targetObj.x;
+
+                return true;
+            });
+        }
+    }
+
+    function destroyTargetField(draggableObj) {
+        var indexOffset, lowestRemovedIndex;
+
+        indexOffset = 0;
+        lowestRemovedIndex = draggableObj.state.targets.length + 1;
+
+        console.log('before: draggableObj.state.targets = ');
+        console.log(draggableObj.state.targets);
+
+        draggableObj.targetField.every(function (target) {
+            target.el.remove();
+
+            if (lowestRemovedIndex > target.indexInStateArray) {
+                lowestRemovedIndex = target.indexInStateArray;
+            }
+
+            draggableObj.state.targets.splice(target.indexInStateArray - indexOffset, 1);
+            indexOffset += 1;
+
+            return true;
+        });
+
+        draggableObj.state.targets.every(function (target) {
+            if (target.indexInStateArray > lowestRemovedIndex) {
+                target.indexInStateArray -= indexOffset;
+            }
+
+            return true;
+        });
+
+        console.log('before: draggableObj.state.targets = ');
+        console.log(draggableObj.state.targets);
+
+        draggableObj.targetField = [];
+    }
+
+    function processTarget(state, obj, fromTargetField, draggableObj) {
         var targetEl, borderCss, numTextEl, targetObj;
 
         borderCss = '';
@@ -38,7 +99,13 @@ define(['logme'], function (logme) {
                 '" ' +
             '></div>'
         );
-        targetEl.appendTo(state.baseImageEl.parent());
+
+        if (fromTargetField === true) {
+            targetEl.appendTo(draggableObj.iconEl);
+        } else {
+            targetEl.appendTo(state.baseImageEl.parent());
+        }
+
         targetEl.mousedown(function (event) {
             event.preventDefault();
         });
@@ -68,7 +135,12 @@ define(['logme'], function (logme) {
         }
 
         targetObj = {
+            'uniqueId': state.getUniqueId(),
+
             'id': obj.id,
+
+            'x': obj.x,
+            'y': obj.y,
 
             'w': obj.w,
             'h': obj.h,
@@ -86,8 +158,20 @@ define(['logme'], function (logme) {
             'updateNumTextEl': updateNumTextEl,
 
             'removeDraggable': removeDraggable,
-            'addDraggable': addDraggable
+            'addDraggable': addDraggable,
+
+            'type': 'base',
+            'draggableObj': null
         };
+
+        if (fromTargetField === true) {
+            targetObj.offset = draggableObj.iconEl.position();
+            targetObj.offset.top += obj.y;
+            targetObj.offset.left += obj.x;
+
+            targetObj.type = 'on_drag';
+            targetObj.draggableObj = draggableObj;
+        }
 
         if (state.config.onePerTarget === false) {
             numTextEl.appendTo(state.baseImageEl.parent());
@@ -99,7 +183,11 @@ define(['logme'], function (logme) {
             });
         }
 
-        state.targets.push(targetObj);
+        targetObj.indexInStateArray = state.targets.push(targetObj) - 1;
+
+        if (fromTargetField === true) {
+            draggableObj.targetField.push(targetObj);
+        }
     }
 
     function removeDraggable(draggable) {
@@ -121,12 +209,22 @@ define(['logme'], function (logme) {
         draggable.onTarget = null;
         draggable.onTargetIndex = null;
 
+        if (this.type === 'on_drag') {
+            console.log('decreasing numDraggablesOnMe by 1');
+            this.draggableObj.numDraggablesOnMe -= 1;
+        }
+
         this.updateNumTextEl();
     }
 
     function addDraggable(draggable) {
         draggable.onTarget = this;
         draggable.onTargetIndex = this.draggableList.push(draggable) - 1;
+
+        if (this.type === 'on_drag') {
+            console.log('increasing numDraggablesOnMe by 1');
+            this.draggableObj.numDraggablesOnMe += 1;
+        }
 
         this.updateNumTextEl();
     }

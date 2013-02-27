@@ -90,7 +90,7 @@ define(
                 return;
             }
 
-            Targets(state);
+            Targets.initializeBaseTargets(state);
             Scroller(state);
             Draggables.init(state);
 
