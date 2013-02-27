@@ -224,7 +224,7 @@ class MongoModuleStore(ModuleStoreBase):
 
         if age.seconds >= max_age_allowed:
             logging.debug('************')
-            logging.debug('************ loading entire inheritance tree for {0}'.format(cache_name))
+            logging.debug('************ loading entire inheritance trees for all courses'.format(cache_name))
             
             start = int(round(time.time() * 1000))
             self.get_all_metadata_inheritance_trees()
