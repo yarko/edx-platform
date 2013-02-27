@@ -2,6 +2,7 @@ import pymongo
 import sys
 import logging
 import copy
+import time
 
 from bson.son import SON
 from fs.osfs import OSFS
@@ -151,17 +152,22 @@ class MongoModuleStore(ModuleStoreBase):
         self.render_template = render_template
         self.metadata_inheritance_cache = {}
 
-    def get_metadata_inheritance_tree(self, location):
+
+    def get_all_metadata_inheritance_trees(self):
         '''
         TODO (cdodge) This method can be deleted when the 'split module store' work has been completed
         '''
         
         # get all collections in the course, this query should not return any leaf nodes
-        query = { '_id.org' : location.org,
-                '_id.course' : location.course,
-                '_id.revision' : None,
-                'definition.children':{'$ne': []}
-                }
+        # cdodge: NOTE as we add more collection categories, then we'll have to add it here as well
+        query = { '$or': [ 
+                    {"_id.category":"course"}, 
+                    {"_id.category":"chapter"}, 
+                    {"_id.category":"sequential"}, 
+                    {"_id.category":"vertical"}
+                ]
+            }
+
         # we just want the Location, children, and metadata
         record_filter = {'_id':1,'definition.children':1,'metadata':1}
 
@@ -169,18 +175,17 @@ class MongoModuleStore(ModuleStoreBase):
         resultset = self.collection.find(query, record_filter)
 
         results_by_url = {}
-        root = None
+        roots = []
 
         # now go through the results and order them by the location url
         for result in resultset:
             location = Location(result['_id'])
             results_by_url[location.url()] = result
             if location.category == 'course':
-                root = location.url()
+                roots.append(location)
 
         # now traverse the tree and compute down the inherited metadata
-        metadata_to_inherit = {}
-        def _compute_inherited_metadata(url):
+        def _compute_inherited_metadata(url, metadata_to_inherit):
             my_metadata = results_by_url[url]['metadata']
             for key in my_metadata.keys():
                 if key not in XModuleDescriptor.inheritable_metadata:
@@ -195,18 +200,18 @@ class MongoModuleStore(ModuleStoreBase):
                     new_child_metadata.update(results_by_url[child]['metadata'])
                     results_by_url[child]['metadata'] = new_child_metadata
                     metadata_to_inherit[child] = new_child_metadata
-                    _compute_inherited_metadata(child)
+                    _compute_inherited_metadata(child, metadata_to_inherit)
                 else:
                     # this is likely a leaf node, so let's record what metadata we need to inherit
                     metadata_to_inherit[child] = my_metadata
         
-        if root is not None:
-            _compute_inherited_metadata(root)
+        for root in roots:
+            metadata_to_inherit = {}
+            cache_name = '{0}/{1}'.format(root.org, root.course)
+            _compute_inherited_metadata(root.url(), metadata_to_inherit)
+            self.metadata_inheritance_cache[cache_name] = {'parent_metadata': metadata_to_inherit, 
+                'timestamp' : datetime.now()}
 
-        cache = {'parent_metadata': metadata_to_inherit, 
-            'timestamp' : datetime.now()}
-
-        return cache
 
     def get_cached_metadata_inheritance_tree(self, location, max_age_allowed):
         '''
@@ -218,9 +223,19 @@ class MongoModuleStore(ModuleStoreBase):
         age = (datetime.now() - cache['timestamp'])
 
         if age.seconds >= max_age_allowed:
-            logging.debug('loading entire inheritance tree for {0}'.format(cache_name))
-            cache = self.get_metadata_inheritance_tree(location)
-            self.metadata_inheritance_cache[cache_name] = cache
+            logging.debug('************')
+            logging.debug('************ loading entire inheritance tree for {0}'.format(cache_name))
+            
+            start = int(round(time.time() * 1000))
+            self.get_all_metadata_inheritance_trees()
+            end = int(round(time.time()* 1000))
+
+            logging.debug("----- get_all_metadata_inheritance_trees() executed in {0}ms".format(end-start))
+            logging.debug('************')
+
+            cache = self.metadata_inheritance_cache.get(cache_name,{'parent_metadata': {}, 
+                'timestamp': datetime.now() - timedelta(hours=1)})
+            
 
         return cache
 
