@@ -172,7 +172,12 @@ class MongoModuleStore(ModuleStoreBase):
         record_filter = {'_id':1,'definition.children':1,'metadata':1}
 
         # call out to the DB
+
+        start = int(round(time.time() * 1000))
         resultset = self.collection.find(query, record_filter)
+        end = int(round(time.time()* 1000))
+
+        logging.debug('------ response time from database for get_all_metadata_inheritance_trees() query: {0}ms'.format(end-start))
 
         results_by_url = {}
         roots = []
