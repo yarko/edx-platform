@@ -696,7 +696,7 @@ class CustomResponseTest(ResponseTest):
         # The function should return a dict of the form 
         # { 'ok': BOOL, 'msg': STRING }
         #
-        script = """def check_func(expect, answer_given, student_answers):
+        script = """def check_func(expect, answer_given):
     return {'ok': answer_given == expect, 'msg': 'Message text'}"""
 
         problem = self.build_problem(script=script, cfn="check_func", expect="42")
@@ -727,7 +727,7 @@ class CustomResponseTest(ResponseTest):
         # The sample script below marks the problem as correct
         # if and only if it receives answer_given=[1,2,3]
         # (or string values ['1','2','3'])
-        script = """def check_func(expect, answer_given, student_answers):
+        script = """def check_func(expect, answer_given):
     check1 = (int(answer_given[0]) == 1)
     check2 = (int(answer_given[1]) == 2)
     check3 = (int(answer_given[2]) == 3)
