@@ -48,9 +48,6 @@ define(['logme'], function (logme) {
         indexOffset = 0;
         lowestRemovedIndex = draggableObj.state.targets.length + 1;
 
-        console.log('before: draggableObj.state.targets = ');
-        console.log(draggableObj.state.targets);
-
         draggableObj.targetField.every(function (target) {
             target.el.remove();
 
@@ -71,9 +68,6 @@ define(['logme'], function (logme) {
 
             return true;
         });
-
-        console.log('before: draggableObj.state.targets = ');
-        console.log(draggableObj.state.targets);
 
         draggableObj.targetField = [];
     }
@@ -210,7 +204,6 @@ define(['logme'], function (logme) {
         draggable.onTargetIndex = null;
 
         if (this.type === 'on_drag') {
-            console.log('decreasing numDraggablesOnMe by 1');
             this.draggableObj.numDraggablesOnMe -= 1;
         }
 
@@ -222,7 +215,6 @@ define(['logme'], function (logme) {
         draggable.onTargetIndex = this.draggableList.push(draggable) - 1;
 
         if (this.type === 'on_drag') {
-            console.log('increasing numDraggablesOnMe by 1');
             this.draggableObj.numDraggablesOnMe += 1;
         }
 

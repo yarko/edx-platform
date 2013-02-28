@@ -24,12 +24,7 @@ return {
             event.preventDefault();
             event.stopPropagation();
 
-            console.log('mouseDown event; state = ');
-            console.log(this.state);
-
             if (this.numDraggablesOnMe > 0) {
-                console.log('this.numDraggablesOnMe > 0');
-
                 return;
             }
 

@@ -1,14 +1,14 @@
 (function (requirejs, require, define) {
 define(['logme', 'update_input', 'targets'], function (logme, updateInput, Targets) {
 return {
-    'moveDraggableTo': function (moveType, target) {
+    'moveDraggableTo': function (moveType, target, funcCallback) {
         var self, offset;
 
         if (this.hasLoaded === false) {
             self = this;
 
             setTimeout(function () {
-                self.moveDraggableTo(moveType, target);
+                self.moveDraggableTo(moveType, target, funcCallback);
             }, 50);
 
             return;
@@ -16,7 +16,7 @@ return {
 
         if ((this.isReusable === true) && (this.isOriginal === true)) {
             this.makeDraggableCopy(function (draggableCopy) {
-                draggableCopy.moveDraggableTo(moveType, target);
+                draggableCopy.moveDraggableTo(moveType, target, funcCallback);
             });
 
             return;
@@ -33,6 +33,12 @@ return {
             this.containerEl.hide();
             this.iconEl.detach();
         }
+
+        this.iconImgEl.css({
+            'width': this.iconWidth,
+            'height': this.iconHeight
+        });
+
         this.iconEl.css({
             'background-color': this.iconElBGColor,
             'padding-left': this.iconElPadding,
@@ -88,9 +94,15 @@ return {
         this.zIndex = 1000;
         this.correctZIndexes();
 
+        Targets.initializeTargetField(this);
+
         if (this.isOriginal === true) {
             this.state.numDraggablesInSlider -= 1;
             this.state.updateArrowOpacity();
+        }
+
+        if ($.isFunction(funcCallback) === true) {
+            funcCallback();
         }
     },
 
