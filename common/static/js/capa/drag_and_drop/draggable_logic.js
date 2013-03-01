@@ -34,10 +34,12 @@ return {
             this.iconEl.detach();
         }
 
-        this.iconImgEl.css({
-            'width': this.iconWidth,
-            'height': this.iconHeight
-        });
+        if (this.iconImgEl !== null) {
+            this.iconImgEl.css({
+                'width': this.iconWidth,
+                'height': this.iconHeight
+            });
+        }
 
         this.iconEl.css({
             'background-color': this.iconElBGColor,

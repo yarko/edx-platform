@@ -223,9 +223,9 @@ define(['logme'], function (logme) {
         var draggableId, draggable;
 
         (function (c1) {
-            while (c1 < answer.draggables.length) {
-                for (draggableId in answer.draggables[c1]) {
-                    if (answer.draggables[c1].hasOwnProperty(draggableId) === false) {
+            while (c1 < answer.length) {
+                for (draggableId in answer[c1]) {
+                    if (answer[c1].hasOwnProperty(draggableId) === false) {
                         continue;
                     }
 
@@ -240,8 +240,8 @@ define(['logme'], function (logme) {
                     }
 
                     draggable.moveDraggableTo('XY', {
-                        'x': answer.draggables[c1][draggableId][0],
-                        'y': answer.draggables[c1][draggableId][1]
+                        'x': answer[c1][draggableId][0],
+                        'y': answer[c1][draggableId][1]
                     });
                 }
 
