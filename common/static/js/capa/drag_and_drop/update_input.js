@@ -41,7 +41,6 @@ define(['logme'], function (logme) {
                             if (state.targets[c1].type === 'base') {
                                 tempObj[state.targets[c1].draggableList[c2].id] = state.targets[c1].id;
                             } else {
-                                console.log('zero');
                                 addTargetRecursively(tempObj, state.targets[c1].draggableList[c2], state.targets[c1]);
                             }
                             draggables.push(tempObj);
@@ -66,7 +65,6 @@ define(['logme'], function (logme) {
             tempObj[draggable.id] = {};
             tempObj[draggable.id][target.id] = {};
 
-            console.log('one');
             addTargetRecursively(tempObj[draggable.id][target.id], target.draggableObj, target.draggableObj.onTarget);
         }
     }
@@ -86,51 +84,6 @@ define(['logme'], function (logme) {
 
         return true;
     }
-
-    /*
-    function getUseTargets(answer) {
-        if ($.isArray(answer) === false) {
-            logme('ERROR: answer.draggables is not an array.');
-
-            return;
-        } else if (answer.draggables.length === 0) {
-            return;
-        }
-
-        if ($.isPlainObject(answer.draggables[0]) === false) {
-            logme('ERROR: answer.draggables array does not contain objects.');
-
-            return;
-        }
-
-        for (c1 in answer.draggables[0]) {
-            if (answer.draggables[0].hasOwnProperty(c1) === false) {
-                continue;
-            }
-
-            if (typeof answer.draggables[0][c1] === 'string') {
-                // use_targets = true;
-
-                return true;
-            } else if (
-                ($.isArray(answer.draggables[0][c1]) === true) &&
-                (answer.draggables[0][c1].length === 2)
-            ) {
-                // use_targets = false;
-
-                return false;
-            } else {
-                logme('ERROR: answer.draggables[0] is inconsidtent.');
-
-                return;
-            }
-        }
-
-        logme('ERROR: answer.draggables[0] is an empty object.');
-
-        return;
-    }
-    */
 
     function processAnswerTargets(state, answerSortedByDepth, minDepth, maxDepth, depth, i) {
         var baseDraggableId, baseDraggable, baseTargetId, baseTarget,
@@ -333,14 +286,6 @@ define(['logme'], function (logme) {
         if ((minDepth < 1) || (maxDepth > 3)) {
             return;
         }
-
-        // This check is already not necessary.
-        //
-        // if (state.config.individualTargets !== getUseTargets(answer)) {
-        //     logme('ERROR: JSON config is not consistent with server response.');
-        //
-        //     return;
-        // }
 
         if (state.config.individualTargets === true) {
             processAnswerTargets(state, answerSortedByDepth, minDepth, maxDepth, maxDepth, 0);
