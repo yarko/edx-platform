@@ -190,6 +190,12 @@ return {
                 continue;
             }
 
+            // If the target is on a draggable (from target field), we must make sure that
+            // this draggable is not the same as "this" one.
+            if ((target.type === 'on_drag') && (target.draggableObj.uniqueId === this.uniqueId)) {
+                continue;
+            }
+
             // Check if the draggable's center coordinate is within
             // the target's dimensions. If not, go to next target.
             if (
