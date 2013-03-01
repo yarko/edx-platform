@@ -1050,13 +1050,25 @@ class SymbolicResponse(CustomResponse):
     Symbolic math response checking, using symmath library.
     """
 
+
     response_tag = 'symbolicresponse'
+    max_inputfields = 1
+
+    def setup_response(self):
+        # Symbolic response always uses symmath_check()
+        # If the XML did not specify this, then set it now
+        # Otherwise, we get an error from the superclass
+        self.xml.set('cfn', 'symmath_check')
+
+        # Let CustomResponse do its setup
+        super(SymbolicResponse, self).setup_response()
 
     def execute_check_function(self, idset, submission):
         from symmath import symmath_check
-        fn = self.code
         try:
-            answer_given = submission[0] if (len(idset) == 1) else submission
+            # Since we have limited max_inputfields to 1,
+            # we can assume that there is only one submission
+            answer_given = submission[0]
             ret = symmath_check(
                 self.expect, answer_given,
                 dynamath=self.context.get('dynamath'),
