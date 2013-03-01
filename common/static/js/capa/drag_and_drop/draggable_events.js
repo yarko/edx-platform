@@ -16,6 +16,7 @@ return {
             self.mouseMove(event);
         });
     },
+
     'mouseDown': function (event) {
         if (this.mousePressed === false) {
             // So that the browser does not perform a default drag.
@@ -93,6 +94,7 @@ return {
             this.state.currentMovingDraggable = this;
         }
     },
+
     'mouseUp': function () {
         if (this.mousePressed === true) {
             this.state.currentMovingDraggable = null;
@@ -100,6 +102,7 @@ return {
             this.checkLandingElement();
         }
     },
+
     'mouseMove': function (event) {
         if (this.mousePressed === true) {
             // Because we have also attached a 'mousemove' event to the
@@ -123,6 +126,6 @@ return {
             }
         }
     }
-};
-});
-}(RequireJS.requirejs, RequireJS.require, RequireJS.define));
+}; // End-of: return {
+}); // End-of: define(['logme'], function (logme) {
+}(RequireJS.requirejs, RequireJS.require, RequireJS.define)); // End-of: (function (requirejs, require, define) {

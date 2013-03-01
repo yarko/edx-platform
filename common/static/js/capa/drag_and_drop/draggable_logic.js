@@ -374,6 +374,6 @@ return {
 
         this.inContainer = true;
     }
-};
-});
-}(RequireJS.requirejs, RequireJS.require, RequireJS.define));
+}; // End-of: return {
+}); // End-of: define(['logme', 'update_input', 'targets'], function (logme, updateInput, Targets) {
+}(RequireJS.requirejs, RequireJS.require, RequireJS.define)); // End-of: (function (requirejs, require, define) {
