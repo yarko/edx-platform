@@ -30,28 +30,13 @@ import json
 def flat_user_answer(user_answer):
     """
     Convert nested `user_answer` to flat format.
-    We consider only the even positions (only <draggable> objects).
 
-    Example:
-
-    [
         {'up': {'first': {'p': 'p_l'}}}
-    ]
 
-    to
+        to
 
-    [
-        {'up': 'p_l[p][first]'},
-        {'p': 'p_l'}
-    ]
+        {'up': 'p_l[p][first]'}
     """
-
-    # Hack for python 2.X: works like nonlocal keyword
-    nonlocal_dict = {}
-
-    # TODO: rework this for correct define - need we remove duplicates or not?
-    # Like idea, we can recieve this flag from client in `user_input`.
-    nonlocal_dict['remove_duplicates_flag'] = False
 
     def parse_user_answer(answer):
         key = answer.keys()[0]
@@ -61,7 +46,6 @@ def flat_user_answer(user_answer):
             # Make complex value:
             # Example:
             # Create like 'p_l[p][first]' from {'first': {'p': 'p_l'}
-            nonlocal_dict['remove_duplicates_flag'] = True
             complex_value_list = []
             v_value = value
             while isinstance(v_value, dict):
@@ -73,27 +57,15 @@ def flat_user_answer(user_answer):
             for i in reversed(complex_value_list):
                 complex_value = '{0}[{1}]'.format(complex_value, i)
 
-            res = [{key: complex_value}]
-            res.extend(parse_user_answer(value))
+            res = {key: complex_value}
             return res
         else:
-            return [answer]
-
-    def remove_duplicates(res):
-        """Function which remove duplicates."""
-        new_res = []
-        for obj in res:
-            if obj not in new_res:
-                new_res.append(obj)
-        return new_res
+            return answer
 
     result = []
     for answer in user_answer:
-        parse_answer = parse_user_answer(answer)[::2]
-        result.extend(parse_answer)
-
-    if nonlocal_dict['remove_duplicates_flag']:
-        result = remove_duplicates(result)
+        parse_answer = parse_user_answer(answer)
+        result.append(parse_answer)
 
     return result
 

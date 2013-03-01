@@ -43,9 +43,8 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
 
     def test_targets_are_draggable_1(self):
         user_input = json.dumps([
-            {
-                'up': {'first': {'p': 'p_l'}},
-            }
+            {'p': 'p_l'},
+            {'up': {'first': {'p': 'p_l'}}}
         ])
 
         correct_answer = [
@@ -68,6 +67,10 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
 
     def test_targets_are_draggable_2(self):
         user_input = json.dumps([
+            {'p': 'p_l'},
+            {'p': 'p_r'},
+            {'s': 's_l'},
+            {'s': 's_r'},
             {'up': {'1': {'p': 'p_l'}}},
             {'up': {'3': {'p': 'p_l'}}},
             {'up': {'1': {'p': 'p_r'}}},
@@ -148,6 +151,12 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
 
     def test_targets_are_draggable_3_nested(self):
         user_input = json.dumps([
+            {'molecule': 'left_side_tagret'},
+            {'molecule': 'right_side_tagret'},
+            {'p': {'p_target': {'molecule': 'left_side_tagret'}}},
+            {'p': {'p_target': {'molecule': 'right_side_tagret'}}},
+            {'s': {'s_target': {'molecule': 'left_side_tagret'}}},
+            {'s': {'s_target': {'molecule': 'right_side_tagret'}}},
             {'up': {'1': {'p': {'p_target': {'molecule': 'left_side_tagret'}}}}},
             {'up': {'3': {'p': {'p_target': {'molecule': 'left_side_tagret'}}}}},
             {'up': {'1': {'p': {'p_target': {'molecule': 'right_side_tagret'}}}}},
@@ -200,16 +209,17 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
         self.assertTrue(draganddrop.grade(user_input, correct_answer))
 
     def test_targets_are_draggable_4_real_example(self):
-        # We can do not send from client to server:
-        #
-        # {'triple_draggable': 'p_l'},
-        # {'triple_draggable': 'p_r'}
-        #
-        # etc., cause we get it from this records:
-        #
-        # {'up': {'1': {'triple_draggable': 'p_l'}}},
-        # {'up': {'2': {'triple_draggable': 'p_r'}}}
         user_input = json.dumps([
+            {'single_draggable': 's_l'},
+            {'single_draggable': 's_r'},
+            {'single_draggable': 'p_sigma'},
+            {'single_draggable': 'p_sigma*'},
+            {'single_draggable': 's_sigma'},
+            {'single_draggable': 's_sigma*'},
+            {'double_draggable': 'p_pi*'},
+            {'double_draggable': 'p_pi'},
+            {'triple_draggable': 'p_l'},
+            {'triple_draggable': 'p_r'},
             {'up': {'1': {'triple_draggable': 'p_l'}}},
             {'up': {'2': {'triple_draggable': 'p_l'}}},
             {'up': {'2': {'triple_draggable': 'p_r'}}},
@@ -219,10 +229,7 @@ class Test_DragAndDrop_Grade(unittest.TestCase):
             {'up_and_down': {'1': {'single_draggable': 's_sigma'}}},
             {'up_and_down': {'1': {'single_draggable': 's_sigma*'}}},
             {'up_and_down': {'1': {'double_draggable': 'p_pi'}}},
-            {'up_and_down': {'2': {'double_draggable': 'p_pi'}}},
-            {'single_draggable': 'p_sigma'},
-            {'single_draggable': 'p_sigma*'},
-            {'double_draggable': 'p_pi*'}
+            {'up_and_down': {'2': {'double_draggable': 'p_pi'}}}
         ])
 
         # 10 targets:
