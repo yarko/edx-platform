@@ -312,7 +312,6 @@ class SymbolicResponseTest(ResponseTest):
                         expected_correctness)
 
 
-
 class OptionResponseTest(ResponseTest):
     from response_xml_factory import OptionResponseXMLFactory
     xml_factory_class = OptionResponseXMLFactory

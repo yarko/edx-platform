@@ -1050,7 +1050,6 @@ class SymbolicResponse(CustomResponse):
     Symbolic math response checking, using symmath library.
     """
 
-
     response_tag = 'symbolicresponse'
     max_inputfields = 1
 
@@ -1069,6 +1068,7 @@ class SymbolicResponse(CustomResponse):
             # Since we have limited max_inputfields to 1,
             # we can assume that there is only one submission
             answer_given = submission[0]
+
             ret = symmath_check(
                 self.expect, answer_given,
                 dynamath=self.context.get('dynamath'),
