@@ -9,10 +9,7 @@ import os
 import textwrap
 import unittest
 import mock
-<<<<<<< HEAD
-=======
 import textwrap
->>>>>>> aea295869dbe8d1a3ca6c36e6cdda5d19ff69f76
 
 from . import test_system
 
