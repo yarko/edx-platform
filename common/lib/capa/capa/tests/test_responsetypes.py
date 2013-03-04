@@ -2,11 +2,11 @@
 Tests of responsetypes
 """
 
-
 from datetime import datetime
 import json
 from nose.plugins.skip import SkipTest
 import os
+import textwrap
 import unittest
 import mock
 import textwrap
@@ -730,7 +730,6 @@ class CustomResponseTest(ResponseTest):
         self.assertEqual(msg, "Test Message")
 
     def test_function_code(self):
-
         # For function code, we pass in three arguments:
         # 
         #   'expect' is the expect attribute of the <customresponse>
@@ -738,9 +737,6 @@ class CustomResponseTest(ResponseTest):
         #   'answer_given' is the answer the student gave (if there is just one input)
         #       or an ordered list of answers (if there are multiple inputs)
         #   
-        #   'student_answers' is a dictionary of answers by input ID
-        #
-        #
         # The function should return a dict of the form 
         # { 'ok': BOOL, 'msg': STRING }
         #
@@ -748,6 +744,35 @@ class CustomResponseTest(ResponseTest):
     return {'ok': answer_given == expect, 'msg': 'Message text'}"""
 
         problem = self.build_problem(script=script, cfn="check_func", expect="42")
+
+        # Correct answer
+        input_dict = {'1_2_1': '42'}
+        correct_map = problem.grade_answers(input_dict)
+
+        correctness = correct_map.get_correctness('1_2_1')
+        msg = correct_map.get_msg('1_2_1')
+
+        self.assertEqual(correctness, 'correct')
+        self.assertEqual(msg, "Message text\n")
+
+        # Incorrect answer
+        input_dict = {'1_2_1': '0'}
+        correct_map = problem.grade_answers(input_dict)
+
+        correctness = correct_map.get_correctness('1_2_1')
+        msg = correct_map.get_msg('1_2_1')
+
+        self.assertEqual(correctness, 'incorrect')
+        self.assertEqual(msg, "Message text\n")
+
+    def test_function_code_with_extra_args(self):
+        script = textwrap.dedent("""\
+                    def check_func(expect, answer_given, options, dynamath):
+                        assert options == "xyzzy", "Options was %r" % options
+                        return {'ok': answer_given == expect, 'msg': 'Message text'}
+                    """)
+
+        problem = self.build_problem(script=script, cfn="check_func", expect="42", options="xyzzy", cfn_extra_args="options dynamath")
 
         # Correct answer
         input_dict = {'1_2_1': '42'}
