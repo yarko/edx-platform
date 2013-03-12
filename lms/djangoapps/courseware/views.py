@@ -268,11 +268,8 @@ def index(request, course_id, chapter=None, section=None,
             course = None
 
     if course is None:
-        logging.debug('********* CACHE MISS (courseware_nav_cache)')
         course = get_course_with_access(user, course_id, 'load', depth=2)
         courseware_nav_cache[course_id] = (course, datetime.now())
-    else:
-        logging.debug('********* CACHE HIT')
     
     staff_access = has_access(user, course, 'staff')
     registered = registered_for_course(course, user)
@@ -337,13 +334,10 @@ def index(request, course_id, chapter=None, section=None,
                     section_descriptor = None
 
             if section_descriptor is None:
-                logging.debug('***** CACHE MISS (section_descriptor)')
                 # cdodge: this looks silly, but let's refetch the section_descriptor with depth=None
                 # which will prefetch the children more efficiently than doing a recursive load
                 section_descriptor = modulestore().get_instance(course.id, section_location, depth=None)
                 courseware_section_cache[section_location] = (section_descriptor, datetime.now())
-            else:
-                logging.debug('***** CACHE HIT (section_descriptor)')
 
             # Load all descendants of the section, because we're going to display its
             # html, which in general will need all of its children
