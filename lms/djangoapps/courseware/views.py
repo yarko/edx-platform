@@ -32,6 +32,7 @@ from xmodule.modulestore import Location
 from xmodule.modulestore.django import modulestore
 from xmodule.modulestore.exceptions import InvalidLocationError, ItemNotFoundError, NoPathToItem
 from xmodule.modulestore.search import path_to_location
+from datetime import datetime, timedelta
 
 import comment_client
 
@@ -225,6 +226,9 @@ def update_timelimit_module(user, course_id, student_module_cache, timelimit_des
             context['suppress_toplevel_navigation'] = timelimit_descriptor.metadata['suppress_toplevel_navigation']
     return context
 
+courseware_nav_cache = {}
+courseware_section_cache = {}
+
 @login_required
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
@@ -253,7 +257,23 @@ def index(request, course_id, chapter=None, section=None,
      - HTTPresponse
     """
     user = User.objects.prefetch_related("groups").get(id=request.user.id)
-    course = get_course_with_access(user, course_id, 'load', depth=2)
+
+    course = None
+    # cdodge: some caching put here to give some MongoHQ relief
+    if course_id in courseware_nav_cache:
+        (course, timestamp) = courseware_nav_cache[course_id]
+        age = (datetime.now() - timestamp)
+
+        if age.seconds >= 30:
+            course = None
+
+    if course is None:
+        logging.debug('********* CACHE MISS (courseware_nav_cache)')
+        course = get_course_with_access(user, course_id, 'load', depth=2)
+        courseware_nav_cache[course_id] = (course, datetime.now())
+    else:
+        logging.debug('********* CACHE HIT')
+    
     staff_access = has_access(user, course, 'staff')
     registered = registered_for_course(course, user)
     if not registered:
@@ -307,9 +327,23 @@ def index(request, course_id, chapter=None, section=None,
                 # Specifically asked-for section doesn't exist
                 raise Http404
 
-            # cdodge: this looks silly, but let's refetch the section_descriptor with depth=None
-            # which will prefetch the children more efficiently than doing a recursive load
-            section_descriptor = modulestore().get_instance(course.id, section_descriptor.location, depth=None)
+            section_location = section_descriptor.location
+            section_descriptor = None
+            if section_location in courseware_section_cache:
+                (section_descriptor, timestamp) = courseware_section_cache[section_location]
+                age = (datetime.now() - timestamp)
+
+                if age.seconds >= 30:
+                    section_descriptor = None
+
+            if section_descriptor is None:
+                logging.debug('***** CACHE MISS (section_descriptor)')
+                # cdodge: this looks silly, but let's refetch the section_descriptor with depth=None
+                # which will prefetch the children more efficiently than doing a recursive load
+                section_descriptor = modulestore().get_instance(course.id, section_location, depth=None)
+                courseware_section_cache[section_location] = (section_descriptor, datetime.now())
+            else:
+                logging.debug('***** CACHE HIT (section_descriptor)')
 
             # Load all descendants of the section, because we're going to display its
             # html, which in general will need all of its children
