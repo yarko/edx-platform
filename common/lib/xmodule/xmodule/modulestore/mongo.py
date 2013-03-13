@@ -164,12 +164,9 @@ class MongoModuleStore(ModuleStoreBase):
         query = { 
                     '_id.org': location.org,
                     '_id.course': location.course,
-                    '$or': [ 
-                    {"_id.category":"course"}, 
-                    {"_id.category":"chapter"},    
-                    {"_id.category":"sequential"},    
-                    {"_id.category":"vertical"}   
-                ]
+                    '_id.category': {
+                        '$in': [ 'course', 'chapter', 'sequential', 'vertical']
+                    }
                 }
         # we just want the Location, children, and metadata
         record_filter = {'_id':1,'definition.children':1,'metadata':1}
