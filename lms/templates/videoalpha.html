@@ -7,7 +7,7 @@
 %else:
   <div
       id="video_${id}"
-      class="video"
+      class="videoalpha"
       data-streams="${youtube_streams}"
       ${'data-sub="{}"'.format(sub) if sub else ''}
       ${'data-autoplay="{}"'.format(autoplay) if autoplay else ''}
@@ -25,6 +25,7 @@
         <section class="video-player">
           <div id="${id}"></div>
         </section>
+        <section class="video-roof"></section>
         <section class="video-controls"></section>
       </article>
     </div>
