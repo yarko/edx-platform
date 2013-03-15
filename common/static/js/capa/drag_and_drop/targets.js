@@ -3,7 +3,9 @@ define(['logme'], function (logme) {
     return {
         'initializeBaseTargets': initializeBaseTargets,
         'initializeTargetField': initializeTargetField,
-        'destroyTargetField': destroyTargetField
+        'destroyTargetField': destroyTargetField,
+        'drawDummyTargets': drawDummyTargets,
+        'clearDummyTargets': clearDummyTargets
     };
 
     function initializeBaseTargets(state) {
@@ -18,6 +20,9 @@ define(['logme'], function (logme) {
 
     function initializeTargetField(draggableObj) {
         var iconElOffset;
+
+        // TODO: Remove dummy targets.
+        clearDummyTargets(draggableObj);
 
         if (draggableObj.targetField.length === 0) {
             draggableObj.originalConfigObj.target_fields.every(function (targetObj) {
@@ -65,6 +70,51 @@ define(['logme'], function (logme) {
         });
 
         draggableObj.targetField = [];
+    }
+
+    function drawDummyTargets(draggableObj, dontResize) {
+        var borderCss, scaleFactor;
+
+        // TODO.
+
+        if (draggableObj.originalConfigObj.icon.length === 0) {
+            return;
+        }
+
+        borderCss = '';
+        if (draggableObj.state.config.targetOutline === true) {
+            borderCss = 'border: 1px dashed gray; ';
+        }
+
+        if (dontResize !== true) {
+            scaleFactor = draggableObj.iconWidthSmall / draggableObj.iconWidth;
+        } else {
+            scaleFactor = 1;
+        }
+
+        draggableObj.originalConfigObj.target_fields.every(function (obj) {
+            draggableObj.iconEl.append(
+                '<div ' +
+                    'style=" ' +
+                        'display: block; ' +
+                        'position: absolute; ' +
+                        'width: ' + (scaleFactor * obj.w) + 'px; ' +
+                        'height: ' + (scaleFactor * obj.h) + 'px; ' +
+                        'top: ' + (scaleFactor * obj.y) + 'px; ' +
+                        'left: ' + (scaleFactor * obj.x) + 'px; ' +
+                        borderCss +
+                    '" ' +
+                    'class="dummy_target" ' +
+                '></div>'
+            );
+
+            return true;
+        });
+    }
+
+    function clearDummyTargets(draggableObj) {
+        // TODO.
+        draggableObj.iconEl.find('.dummy_target').remove();
     }
 
     function processTarget(state, obj, fromTargetField, draggableObj) {
