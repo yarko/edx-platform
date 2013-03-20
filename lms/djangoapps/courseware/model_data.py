@@ -56,7 +56,7 @@ class ModelDataCache(object):
         self.course_id = course_id
         self.user = user
 
-        if user.is_authenticated():
+        if not user.is_anonymous():
             for scope, fields in self._fields_to_cache().items():
                 for field_object in self._retrieve_fields(scope, fields):
                     self.cache[self._cache_key_from_field_object(scope, field_object)] = field_object
@@ -140,7 +140,7 @@ class ModelDataCache(object):
                 'module_state_key__in',
                 (descriptor.location.url() for descriptor in self.descriptors),
                 course_id=self.course_id,
-                student=self.user.pk,
+                student=self.user,
             )
         elif scope == Scope.content:
             return self._chunked_query(
@@ -164,13 +164,13 @@ class ModelDataCache(object):
                 XModuleStudentPrefsField,
                 'module_type__in',
                 set(descriptor.location.category for descriptor in self.descriptors),
-                student=self.user.pk,
+                student=self.user,
                 field_name__in=set(field.name for field in fields),
             )
         elif scope == Scope.student_info:
             return self._query(
                 XModuleStudentInfoField,
-                student=self.user.pk,
+                student=self.user,
                 field_name__in=set(field.name for field in fields),
             )
         else:
@@ -329,6 +329,9 @@ class LmsKeyValueStore(KeyValueStore):
     def set(self, key, value):
         if key.field_name in self._descriptor_model_data:
             raise InvalidWriteError("Not allowed to overwrite descriptor model data", key.field_name)
+
+        if key.scope.student and self._model_data_cache.user.is_anonymous():
+            return
 
         field_object = self._model_data_cache.find_or_create(key)
 
