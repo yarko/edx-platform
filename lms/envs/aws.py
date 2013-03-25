@@ -26,7 +26,8 @@ if SERVICE_VARIANT:
     CONFIG_PREFIX = SERVICE_VARIANT + "."
 
 
-################### ALWAYS THE SAME ################################
+################################ ALWAYS THE SAME ##############################
+
 DEBUG = False
 TEMPLATE_DEBUG = False
 
@@ -45,7 +46,25 @@ MITX_FEATURES['ENABLE_DISCUSSION_SERVICE'] = True
 # for other warnings.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-################# NON-SECURE ENV CONFIG ##############################
+###################################### CELERY  ################################
+
+# Don't use a connection pool, since connections are dropped by ELB.
+BROKER_POOL_LIMIT = 0
+BROKER_CONNECTION_TIMEOUT = 1
+
+# For the Result Store, use the django cache named 'celery'
+CELERY_RESULT_BACKEND = 'cache'
+CELERY_CACHE_BACKEND = 'celery'
+
+# When the broker is behind an ELB, use a heartbeat to refresh the
+# connection and to detect if it has been dropped.
+BROKER_HEARTBEAT = 10.0
+BROKER_HEARTBEAT_CHECKRATE = 2
+
+# Each worker should only fetch one message at a time
+CELERYD_PREFETCH_MULTIPLIER = 1
+
+########################## NON-SECURE ENV CONFIG ##############################
 # Things like server locations, ports, etc.
 
 with open(ENV_ROOT / CONFIG_PREFIX + "env.json") as env_file:
@@ -81,8 +100,9 @@ COMMENTS_SERVICE_URL = ENV_TOKENS.get("COMMENTS_SERVICE_URL", '')
 COMMENTS_SERVICE_KEY = ENV_TOKENS.get("COMMENTS_SERVICE_KEY", '')
 CERT_QUEUE = ENV_TOKENS.get("CERT_QUEUE", 'test-pull')
 
-############################## SECURE AUTH ITEMS ###############
+############################ SECURE ENV CONFIG ################################
 # Secret things: passwords, access keys, etc.
+
 with open(ENV_ROOT / CONFIG_PREFIX + "auth.json") as auth_file:
     AUTH_TOKENS = json.load(auth_file)
 
@@ -101,7 +121,8 @@ XQUEUE_INTERFACE = AUTH_TOKENS['XQUEUE_INTERFACE']
 MODULESTORE = AUTH_TOKENS.get('MODULESTORE', MODULESTORE)
 CONTENTSTORE = AUTH_TOKENS.get('CONTENTSTORE', CONTENTSTORE)
 
-OPEN_ENDED_GRADING_INTERFACE = AUTH_TOKENS.get('OPEN_ENDED_GRADING_INTERFACE', OPEN_ENDED_GRADING_INTERFACE)
+OPEN_ENDED_GRADING_INTERFACE = AUTH_TOKENS.get('OPEN_ENDED_GRADING_INTERFACE',
+                                               OPEN_ENDED_GRADING_INTERFACE)
 
 PEARSON_TEST_USER = "pearsontest"
 PEARSON_TEST_PASSWORD = AUTH_TOKENS.get("PEARSON_TEST_PASSWORD")
@@ -115,3 +136,14 @@ DATADOG_API = AUTH_TOKENS.get("DATADOG_API")
 # Analytics dashboard server
 ANALYTICS_SERVER_URL = ENV_TOKENS.get("ANALYTICS_SERVER_URL")
 ANALYTICS_API_KEY = AUTH_TOKENS.get("ANALYTICS_API_KEY", "")
+
+# Celery Broker
+CELERY_BROKER_TRANSPORT = ENV_TOKENS.get("CELERY_BROKER_TRANSPORT", "")
+CELERY_BROKER_HOSTNAME = ENV_TOKENS.get("CELERY_BROKER_HOSTNAME", "")
+CELERY_BROKER_USER = AUTH_TOKENS.get("CELERY_BROKER_USER", "")
+CELERY_BROKER_PASSWORD = AUTH_TOKENS.get("CELERY_BROKER_PASSWORD", "")
+
+BROKER_URL = "{0}://{1}:{2}@{3}".format(CELERY_BROKER_TRANSPORT,
+                                        CELERY_BROKER_USER,
+                                        CELERY_BROKER_PASSWORD,
+                                        CELERY_BROKER_HOSTNAME)

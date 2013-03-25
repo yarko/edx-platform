@@ -185,6 +185,14 @@ task :fastlms do
     sh("#{django_admin} runserver --traceback --settings=lms.envs.dev   --pythonpath=.")
 end
 
+desc "Start LMS Celery worker"
+task :lms_worker, [:options] => [:predjango] do |t, args|
+  args.with_defaults(:env => 'dev_with_worker', :options => default_options[:lms])
+  django_admin = ENV['DJANGO_ADMIN_PATH'] || select_executable('django-admin.py', 'django-admin')
+  command = 'celery worker'
+  sh("#{django_admin} #{command} --loglevel=INFO --settings=lms.envs.#{args.env} --pythonpath=. #{args.join(' ')}")
+end
+
 [:lms, :cms].each do |system|
     report_dir = report_dir_path(system)
 
