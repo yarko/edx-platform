@@ -110,21 +110,23 @@ class LoncapaProblem(object):
         self.system = system
         if self.system is None:
             raise Exception()
-        self.seed = seed
 
-        if state:
-            if 'seed' in state:
-                self.seed = state['seed']
-            if 'student_answers' in state:
-                self.student_answers = state['student_answers']
-            if 'correct_map' in state:
-                self.correct_map.set_dict(state['correct_map'])
-            if 'done' in state:
-                self.done = state['done']
+        state = state if state else {}
 
-        # TODO: Does this deplete the Linux entropy pool? Is this fast enough?
-        if not self.seed:
+        # Set seed according to the following priority:
+        #       1. Contained in problem's state
+        #       2. Passed into capa_problem via constructor
+        #       3. Assign from the OS's random number generator
+        self.seed = state.get('seed', seed)
+        if self.seed is None:
             self.seed = struct.unpack('i', os.urandom(4))[0]
+        self.student_answers = state.get('student_answers', {})
+        if 'correct_map' in state:
+            self.correct_map.set_dict(state['correct_map'])
+        self.done = state.get('done', False)
+        self.input_state = state.get('input_state', {})
+
+
 
         # Convert startouttext and endouttext to proper <text></text>
         problem_text = re.sub("startouttext\s*/", "text", problem_text)
