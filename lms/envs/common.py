@@ -589,6 +589,9 @@ INSTALLED_APPS = (
     'djcelery',
     'south',
 
+    # For checking different components
+    'service_status',
+
     # For asset pipelining
     'pipeline',
     'staticfiles',

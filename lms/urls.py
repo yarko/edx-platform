@@ -69,6 +69,8 @@ urlpatterns = ('',
 
     url(r'^heartbeat$', include('heartbeat.urls')),
 
+    url(r'^status/', include('service_status.urls')),
+
     url(r'^(?i)university_profile/WellesleyX$', 'courseware.views.static_university_profile',
         name="static_university_profile", kwargs={'org_id': 'WellesleyX'}),
     url(r'^(?i)university_profile/GeorgetownX$', 'courseware.views.static_university_profile',
