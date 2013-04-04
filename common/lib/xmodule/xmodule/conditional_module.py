@@ -121,7 +121,7 @@ class ConditionalModule(ConditionalFields, XModule):
         })
 
     def handle_ajax(self, dispatch, post):
-        """This is called by courseware.moduleodule_render, to handle
+        """This is called by courseware.module_render, to handle
         an AJAX call.
         """
         if not self.is_condition_satisfied():
@@ -139,16 +139,15 @@ class ConditionalModule(ConditionalFields, XModule):
 
     def get_icon_class(self):
         new_class = 'other'
-        if self.is_condition_satisfied():
-            # HACK: This shouldn't be hard-coded to two types
-            # OBSOLETE: This obsoletes 'type'
-            class_priority = ['video', 'problem']
+        # HACK: This shouldn't be hard-coded to two types
+        # OBSOLETE: This obsoletes 'type'
+        class_priority = ['video', 'problem']
 
-            child_classes = [self.system.get_module(child_descriptor).get_icon_class()
-                        for child_descriptor in self.descriptor.get_children()]
-            for c in class_priority:
-                if c in child_classes:
-                    new_class = c
+        child_classes = [self.system.get_module(child_descriptor).get_icon_class()
+                         for child_descriptor in self.descriptor.get_children()]
+        for c in class_priority:
+            if c in child_classes:
+                new_class = c
         return new_class
 
 
@@ -162,7 +161,6 @@ class ConditionalDescriptor(ConditionalFields, SequenceDescriptor):
 
     stores_state = True
     has_score = False
-
 
     @staticmethod
     def parse_sources(xml_element, system, return_descriptor=False):
