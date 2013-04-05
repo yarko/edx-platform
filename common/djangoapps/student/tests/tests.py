@@ -1,21 +1,38 @@
 """
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
-
-Replace this with more appropriate tests for your application.
+Tests for the student model, which contains our user logic
 """
 import logging
 
 from django.test import TestCase
-from mock import Mock
+from mock import Mock, patch
 
 from student.models import unique_id_for_user
 from student.views import process_survey_link, _cert_info
+from django.contrib.auth.models import User
+from comment_client.utils import settings
+from django.test.utils import override_settings
 
 COURSE_1 = 'edX/toy/2012_Fall'
 COURSE_2 = 'edx/full/6.002_Spring_2012'
 
 log = logging.getLogger(__name__)
+
+
+@override_settings(MITX_FEATURES={'ENABLE_DISCUSSION_SERVICE': True})
+class DiscussionServiceUserTest(TestCase):
+    """
+    Test that saving a user also sends the info to the
+    discussion service aka comment_client aka forum
+    """
+    @patch('comment_client.utils.requests')
+    def test_update_user_information2(self, mock_requests):
+        prefix = settings.PREFIX
+        api_key = settings.API_KEY
+        User.objects.create(username="test", email="aa@b.com")
+        mock_requests.request.assert_called_with('put',
+                                                 '%s/users/1' % prefix,
+                                                 data={'username': 'test', 'api_key': api_key,
+                                                       'external_id': '1', 'email': 'aa@b.com'}, timeout=5)
 
 
 class CourseEndingTest(TestCase):
