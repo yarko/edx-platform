@@ -1,5 +1,6 @@
 """
 Tests for the student model, which contains our user logic
+and also the views for certs, surveys, etc.
 """
 import logging
 
@@ -22,7 +23,7 @@ log = logging.getLogger(__name__)
 class DiscussionServiceUserTest(TestCase):
     """
     Test that saving a user also sends the info to the
-    discussion service aka comment_client aka forum
+    discussion service aka comment_client
     """
     @patch('comment_client.utils.requests')
     def test_update_user_information2(self, mock_requests):
