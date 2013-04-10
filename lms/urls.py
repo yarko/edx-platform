@@ -253,6 +253,10 @@ if settings.COURSEWARE_ENABLED:
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/book-shifted/(?P<page>[^/]*)$',
             'staticbook.views.index_shifted'),
 
+        # Course chat
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/chat$',
+            'courseware.views.chat', name="course_chat"),
+
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/pdfbook/(?P<book_index>[^/]*)/$',
             'staticbook.views.pdf_index', name="pdf_book"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/pdfbook/(?P<book_index>[^/]*)/(?P<page>[^/]*)$',

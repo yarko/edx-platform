@@ -69,6 +69,8 @@ CACHES = {
     }
 }
 
+JABBER_DOMAIN = 'jabber.dev.c2gops.com'
+
 
 XQUEUE_INTERFACE = {
     "url": "https://sandbox-xqueue.edx.org",

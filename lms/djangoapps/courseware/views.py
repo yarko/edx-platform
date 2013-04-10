@@ -40,6 +40,22 @@ log = logging.getLogger("mitx.courseware")
 
 template_imports = {'urllib': urllib}
 
+def chat(request, course_id):
+    """FIXME write a doc string"""
+    user = request.user
+    jabber_base = getattr(settings, 'JABBER_DOMAIN', '')
+    if not jabber_base:
+        raise Http404
+    if user.is_authenticated():
+        context = {
+            'request': request,
+            'course_id': course_id,
+            'jabber_base': jabber_base,
+            'nick': user.username + '@' + jabber_base,
+        }
+        return render_to_response('courseware/chat.html', context)
+    else:
+        return redirect(reverse('courseware_index', course_id))
 
 def user_groups(user):
     """
@@ -287,7 +303,8 @@ def index(request, course_id, chapter=None, section=None,
             'init': '',
             'content': '',
             'staff_access': staff_access,
-            'xqa_server': settings.MITX_FEATURES.get('USE_XQA_SERVER', 'http://xqa:server@content-qa.mitx.mit.edu/xqa')
+            'xqa_server': settings.MITX_FEATURES.get('USE_XQA_SERVER', 'http://xqa:server@content-qa.mitx.mit.edu/xqa'),
+            'course_show_chat': True,
             }
 
         chapter_descriptor = course.get_child_by(lambda m: m.url_name == chapter)
