@@ -85,6 +85,17 @@ MODULESTORE = {
             'default_class': 'xmodule.hidden_module.HiddenDescriptor',
         }
     }
+    'direct': {
+        'ENGINE': 'xmodule.modulestore.mongo.MongoModuleStore',
+        'OPTIONS': {
+            'default_class': 'xmodule.raw_module.RawDescriptor',
+            'host': 'localhost',
+            'db': 'test_xmodule',
+            'collection': 'modulestore',
+            'fs_root': COMMON_TEST_DATA_ROOT,
+            'render_template': 'mitxmako.shortcuts.render_to_string',
+        }
+    }
 }
 
 
