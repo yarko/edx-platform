@@ -56,6 +56,9 @@ class ModuleStoreTestCase(TestCase):
         if 'direct' not in settings.MODULESTORE:
             settings.MODULESTORE['direct'] = settings.MODULESTORE['default']
 
+        if not settings.MODULESTORE['default']['ENGINE'].endswith("MongoModuleStore"):
+            settings.MODULESTORE['default'] = settings.MODULESTORE['direct']
+            
         settings.MODULESTORE['default']['OPTIONS']['collection'] = 'modulestore_%s' % uuid4().hex
         settings.MODULESTORE['direct']['OPTIONS']['collection'] = 'modulestore_%s' % uuid4().hex
         xmodule.modulestore.django._MODULESTORES.clear()

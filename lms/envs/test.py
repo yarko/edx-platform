@@ -84,7 +84,7 @@ MODULESTORE = {
             'data_dir': COMMON_TEST_DATA_ROOT,
             'default_class': 'xmodule.hidden_module.HiddenDescriptor',
         }
-    }
+    },
     'direct': {
         'ENGINE': 'xmodule.modulestore.mongo.MongoModuleStore',
         'OPTIONS': {
