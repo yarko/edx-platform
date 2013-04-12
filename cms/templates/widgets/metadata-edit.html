@@ -2,7 +2,7 @@
   import hashlib
   hlskey = hashlib.md5(module.location.url()).hexdigest()
 %>
-<section class="metadata_edit">
+<section class="metadata_edit" style="display:none;">
   <ul>
     % for field_name, field_value in editable_metadata_fields.items():
     <li>

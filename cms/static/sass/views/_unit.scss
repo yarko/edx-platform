@@ -416,6 +416,37 @@ body.course.unit {
       background: $lightBluishGrey2;
     }
 
+    .component-tab-group {
+      position: relative;
+      display:block;
+      background: #fff;
+      width:100%;
+      //top: 10px;
+      //left: 10px;
+
+      li {
+        float:left;
+      }
+
+      .tab {
+        display: block;
+        height: 24px;
+        padding: 7px 20px 3px;
+        border: 1px solid #a5aaaf;
+        border-radius: 3px 3px 0 0;
+        @include linear-gradient(top, rgba(0, 0, 0, 0) 87%, rgba(0, 0, 0, .06));
+        background-color: #e5ecf3;
+        font-size: 13px;
+        color: #3c3c3c;
+        box-shadow: 1px -1px 1px rgba(0, 0, 0, .05);
+
+        &.current {
+          background: #fff;
+          border-bottom-color: #fff;
+        }
+      }
+    }
+
     .component-editor {
       @include edit-box;
       @include box-shadow(none);
@@ -454,7 +485,12 @@ body.course.unit {
         margin: 15px 8px 0 0;
       }
     }
+
+    .component-settings {
+      //TODO Will go here
+    }
   }
+
 
   .unit-settings {
     .window-contents {
