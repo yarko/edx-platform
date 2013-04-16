@@ -79,7 +79,18 @@ body.course.unit {
       > li {
         position: relative;
         z-index: 10;
-        margin: 20px 40px;
+        //TO-DO -review use of .components, ensure other parts of studio not impacted. 
+        margin: 0;
+        border:1px solid #fff;
+        border-radius: 0;
+        top: -1px;
+
+        &:hover {
+
+          .component-actions {
+            display:block;
+          }
+        }
 
 
 
@@ -378,6 +389,10 @@ body.course.unit {
         .component-actions {
           display: none;
         }
+
+        .component-tab-group {
+          display: block;
+        }
       }
 
       &.component-placeholder {
@@ -388,11 +403,10 @@ body.course.unit {
         position: absolute;
         display: block;
         top: -1px;
-        right: -16px;
+        right: -19px;
         z-index: 10;
         width: 15px;
         height: 100%;
-        border-radius: 0 3px 3px 0;
         border: 1px solid $lightBluishGrey2;
         background: url(../img/white-drag-handles.png) center no-repeat $lightBluishGrey2;
         cursor: move;
@@ -401,7 +415,7 @@ body.course.unit {
     }
 
     .xmodule_display {
-      padding: 40px 20px 20px;
+      padding: 20px 20px 40px 20px;
       overflow-x: auto;
 
       h1 {
@@ -417,15 +431,19 @@ body.course.unit {
     }
 
     .component-tab-group {
-      position: relative;
-      display:block;
-      background: #fff;
+      display:none;
+      background: $lightGrey;
       width:100%;
+      @include clearfix;
+      box-shadow: 0 0 2px rgba(182, 182, 182, 0.75) inset;
+      //@include linear-gradient(top, rgba(0, 0, 0, 0) 87%, rgba(0, 0, 0, .06));
+      border-bottom: 1px solid #a5aaaf;
       //top: 10px;
       //left: 10px;
 
       li {
         float:left;
+        margin: 5px 0px -1px 5px;
       }
 
       .tab {
@@ -441,8 +459,8 @@ body.course.unit {
         box-shadow: 1px -1px 1px rgba(0, 0, 0, .05);
 
         &.current {
-          background: #fff;
-          border-bottom-color: #fff;
+          background: $lightBluishGrey2;
+          border-bottom-color: $lightBluishGrey2;
         }
       }
     }
@@ -451,8 +469,8 @@ body.course.unit {
       @include edit-box;
       @include box-shadow(none);
       display: none;
-      padding: 20px;
-      border-radius: 2px 2px 0 0;
+      padding: 0;
+      border-radius:0;
 
       .metadata_edit {
         margin-bottom: 20px;
@@ -466,6 +484,13 @@ body.course.unit {
           display: inline-block;
           margin-right: 10px;
         }
+      }
+
+      .module-actions {
+        box-shadow: 0 2px 1px rgba(182, 182, 182, 0.75) inset;
+        //TO DO @marco - clean up module-actions, component-item, and component-tab-group dropshadows
+        //@include linear-gradient(top, rgba(0, 0, 0, .06), rgba(0, 0, 0, 0) 87%);
+        background: $lightGrey;
       }
 
       h3 {
@@ -482,7 +507,7 @@ body.course.unit {
 
       .save-button {
         margin-top: 10px;
-        margin: 15px 8px 0 0;
+        margin: 8px 0 8px 8px;
       }
     }
 
@@ -500,6 +525,7 @@ body.course.unit {
     .unit-actions {
       border-bottom: none;
       padding-bottom: 0;
+      //TODO
     }
 
     .published-alert {
@@ -696,14 +722,16 @@ body.course.unit {
 body.unit {
 
   .component {
-    padding-top: 30px;
+    //padding-top: 30px;
 
     .component-actions {
+      display: none;
       @include box-sizing(border-box);
+      @include linear-gradient(top, rgba(0, 0, 0, .06) 87%, rgba(0, 0, 0, 0));
       position: absolute;
       width: 100%;
-      padding: 15px;
-      top: 0;
+      padding: 8px;
+      bottom: 0;
       left: 0;
       border-bottom: 1px solid $lightBluishGrey2;
       background: $lightGrey;
