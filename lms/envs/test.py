@@ -128,6 +128,17 @@ CACHES = {
 # Dummy secret key for dev
 SECRET_KEY = '85920908f28904ed733fe576320db18cabd7b6cd'
 
+######################### CELERY #############################################
+CELERY_ALWAYS_EAGER = True
+BROKER_URL = 'django://'
+INSTALLED_APPS += ('djcelery.transport', )
+CELERY_RESULT_BACKEND = 'database'
+DJKOMBU_POLLING_INTERVAL = 1.0
+MIDDLEWARE_CLASSES = tuple(
+    c for c in MIDDLEWARE_CLASSES
+    if c != 'django.middleware.transaction.TransactionMiddleware')
+
+
 ################################## OPENID ######################################
 MITX_FEATURES['AUTH_USE_OPENID'] = True
 MITX_FEATURES['AUTH_USE_OPENID_PROVIDER'] = True
