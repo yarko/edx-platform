@@ -283,6 +283,9 @@ INSTALLED_APPS = (
     'student',  # misleading name due to sharing with lms
     'course_groups',  # not used in cms (yet), but tests run
 
+    # for seeding forums
+    'django_comment_client',
+
     # tracking
     'track',
 
