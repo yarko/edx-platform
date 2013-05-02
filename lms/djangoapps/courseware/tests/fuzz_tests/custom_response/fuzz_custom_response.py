@@ -9,6 +9,7 @@ import fs.osfs
 import random
 import textwrap
 
+from datetime import datetime
 import sys
 import traceback
 
@@ -120,6 +121,9 @@ def run_fuzz_tests():
 
     iteration_count = 0
 
+    output_filename = 'results_{0}.txt'.format(str(datetime.now()))
+    output_file = open(output_filename, "w")
+
     while True:
         try:
             # Choose a random seed for this test run
@@ -133,15 +137,17 @@ def run_fuzz_tests():
 
             # Record the error, if we got one
             if did_raise_error:
-                print "ERROR {0}: {1}".format(seed, description)
+                output_file.write("\nERROR {0}: {1}\n".format(seed, description))
 
             # Print a status update every 100 iterations
             iteration_count += 1
             if iteration_count % 100 == 0:
-                print "."
+                output_file.write(".")
+                output_file.flush()
 
         except KeyboardInterrupt:
-            print "Stopping tests..."
+            print "Stopping tests at iteration {0}...".format(iteration_count)
+            output_file.close()
             exit(0)
 
 def main():
