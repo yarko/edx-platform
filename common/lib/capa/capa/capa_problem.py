@@ -132,8 +132,13 @@ class LoncapaProblem(object):
         #   input_id string -> InputType object
         self.inputs = {}
 
-        self.extracted_tree = self._extract_html(self.tree)
+        try:
+            self.extracted_tree = self._extract_html(self.tree)
 
+        # If we cannot extract the HTML, then there is something wrong
+        # with the problem definition.  Raise the correct exception.
+        except:
+            raise responsetypes.LoncapaProblemError('Could not extract HTML from problem')
 
     def do_reset(self):
         '''
