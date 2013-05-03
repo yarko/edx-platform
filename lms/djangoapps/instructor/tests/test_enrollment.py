@@ -57,11 +57,11 @@ class TestInstructorEnrollsStudent(LoginEnrollmentTestCase):
         self.logout()
         self.login(self.student2, self.password)
         self.enroll(self.toy)
-        
+
         self.logout()
         self.login(self.student3, self.password)
         self.enroll(self.toy)
-        
+
         self.logout()
         self.login(self.student4, self.password)
         self.enroll(self.toy)
@@ -209,7 +209,7 @@ class TestInstructorEnrollsStudent(LoginEnrollmentTestCase):
 
         course = self.toy
         url = reverse('instructor_dashboard', kwargs={'course_id': course.id})
-        response = self.client.post(url, {'action': 'Enroll multiple students', 'multiple_students': 'test3_1@student.com, test3_2@student.com', 'auto_enroll': 'on', 'email_students': 'on'})        
+        response = self.client.post(url, {'action': 'Enroll multiple students', 'multiple_students': 'test3_1@student.com, test3_2@student.com', 'auto_enroll': 'on', 'email_students': 'on'})
 
         #Check the page output
         self.assertContains(response, '<td>test3_1@student.com</td>')
@@ -219,18 +219,18 @@ class TestInstructorEnrollsStudent(LoginEnrollmentTestCase):
         #Check the outbox
         self.assertEqual(mail.outbox[0].subject, 'You have been enrolled by the instructor in edX/toy/2012_Fall')
         self.assertEqual(len(mail.outbox), 2)
-        
+
     def test_unenrollment_email_on(self):
         '''
         Do email on unenroll test
         '''
-        
+
         # Empty the test outbox
         mail.outbox = []
-        
+
         course = self.toy
         url = reverse('instructor_dashboard', kwargs={'course_id': course.id})
-        response = self.client.post(url, {'action': 'Unenroll multiple students', 'multiple_students': 'student3@test.com, student4@test.com', 'email_students': 'on'})        
+        response = self.client.post(url, {'action': 'Unenroll multiple students', 'multiple_students': 'student3@test.com, student4@test.com', 'email_students': 'on'})
 
         #Check the page output
         self.assertContains(response, '<td>student3@test.com</td>')
@@ -240,7 +240,3 @@ class TestInstructorEnrollsStudent(LoginEnrollmentTestCase):
         #Check the outbox
         self.assertEqual(mail.outbox[0].subject, 'You have been un-enrolled from edX/toy/2012_Fall by the instructor')
         self.assertEqual(len(mail.outbox), 2)
-
-        
-            
-        
