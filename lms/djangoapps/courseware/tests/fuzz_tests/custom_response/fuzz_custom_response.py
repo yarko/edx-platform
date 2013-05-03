@@ -98,6 +98,17 @@ def system_mock():
 
     return system
 
+def answer_ids(problem):
+    """ Given a loncapa problem `problem`, return a list of ID's to be used when
+    submitting answers """
+    nested_ids = problem.get_answer_ids()
+    all_ids = ['1_2_1', '1_2_2', '1_3_1', '1_3_2']
+
+    for sublist in nested_ids:
+        all_ids.extend(sublist)
+
+    return all_ids
+
 NO_ERROR, INVALID_XML, PROBLEM_SPECIFIC_ERROR, UNEXPECTED_ERROR = range(4)
 def execute_test(problem_xml="", problem_seed=1, student_submission=""):
     """ Execute the test using input arguments.
@@ -126,8 +137,8 @@ def execute_test(problem_xml="", problem_seed=1, student_submission=""):
         return (UNEXPECTED_ERROR, traceback.format_exc())
 
     # Submit an answer and try to grade the problem
-    keys = ['1_{0}_1'.format(i) for i in range(2, 15)]
-    values = [student_submission for i in range(2, 15)]
+    keys = answer_ids(problem)
+    values = [student_submission for i in range(len(keys))]
     answers = dict(zip(keys, values))
 
     try:
@@ -155,6 +166,7 @@ def run_fuzz_tests(problems):
     iteration_count = 0
     invalid_xml_count = 0
     problem_error_count = 0
+    unexpected_error_count = 0
 
     # Create a (hopefully unique) file to write outputs to
     output_filename = 'results_{0}.txt'.format(str(datetime.now()))
@@ -174,6 +186,7 @@ def run_fuzz_tests(problems):
             # Record the error, if we got one
             if result == UNEXPECTED_ERROR:
                 output_file.write("\nERROR {0}: {1}\n".format(seed, description))
+                unexpected_error_count += 1
 
             elif result == INVALID_XML:
                 invalid_xml_count += 1
@@ -188,18 +201,35 @@ def run_fuzz_tests(problems):
                 output_file.flush()
 
         except KeyboardInterrupt:
-            msg = "Stopping tests at iteration {0} ({1} xml errors, {2} problem-specific errors) ..."
-            print msg.format(iteration_count, invalid_xml_count, problem_error_count)
+            msg = "Stopping tests at iteration {0} ({1} xml errors, {2} problem-specific errors, {3} unexpected errors) ..."
+            print msg.format(iteration_count, invalid_xml_count, problem_error_count, unexpected_error_count)
             output_file.close()
             exit(0)
 
 PROBLEMS_DIR = "problems"
 def load_existing_problems():
+    """ Recursively walk the problems/ directory, loading XML files as strings.
+    Returns a list of XML strings """
 
     problems = []
+    paths = []
 
-    for path in sorted(os.listdir(PROBLEMS_DIR)):
-        with open(os.path.join(PROBLEMS_DIR, path)) as problem_file:
+    def visit_func(arg, dirname, names):
+        for filename in names:
+            fullpath = os.path.join(dirname, filename)
+            if os.path.isfile(fullpath):
+                (_, ext) = os.path.splitext(filename)
+                if ext == ".xml":
+                    paths.append(fullpath)
+                else:
+                    pass
+            else:
+                pass
+
+    os.path.walk(PROBLEMS_DIR, visit_func, None)
+
+    for path in sorted(paths):
+        with open(path) as problem_file:
             try:
                 problem_str = problem_file.read()
             except:
@@ -209,12 +239,18 @@ def load_existing_problems():
 
     return problems
 
+PROBLEM_TAG = 'customresponse'
+def filter_problems(problems):
+    """ Filter out non custom-response problems """
+    return [xml for xml in problems if PROBLEM_TAG in xml]
+
 def main():
     """ If we have arguments, interpret them as random seeds and print out the inputs.
     Otherwise, run fuzz tests until the user interrupts """
 
     # Pre-load existing problems, which we will mutate later
-    problems = load_existing_problems()
+    # Filter out non-custom response problems
+    problems = filter_problems(load_existing_problems())
 
     if len(sys.argv) > 1:
         for seed in [int(arg) for arg in sys.argv[1:]]:
