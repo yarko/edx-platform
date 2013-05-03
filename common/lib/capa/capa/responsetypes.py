@@ -1717,8 +1717,12 @@ class FormulaResponse(LoncapaResponse):
                 student_variables[str(var)] = value
             # log.debug('formula: instructor_vars=%s, expected=%s' %
             # (instructor_variables,expected))
-            instructor_result = evaluator(instructor_variables, dict(),
-                                          expected, cs=self.case_sensitive)
+            try:
+                instructor_result = evaluator(instructor_variables, dict(),
+                                              expected, cs=self.case_sensitive)
+            except:
+                raise LoncapaProblemError('Instructor result could not be evaluated')
+
             try:
                 # log.debug('formula: student_vars=%s, given=%s' %
                 # (student_variables,given))
