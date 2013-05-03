@@ -1708,10 +1708,14 @@ class FormulaResponse(LoncapaResponse):
         return CorrectMap(self.answer_id, correctness)
 
     def check_formula(self, expected, given, samples):
-        variables = samples.split('@')[0].split(',')
-        numsamples = int(samples.split('@')[1].split('#')[1])
-        sranges = zip(*map(lambda x: map(float, x.split(",")),
-                           samples.split('@')[1].split('#')[0].split(':')))
+
+        try:
+            variables = samples.split('@')[0].split(',')
+            numsamples = int(samples.split('@')[1].split('#')[1])
+            sranges = zip(*map(lambda x: map(float, x.split(",")),
+                               samples.split('@')[1].split('#')[0].split(':')))
+        except:
+            raise LoncapaProblemError('Samples could not be interpreted')
 
         ranges = dict(zip(variables, sranges))
         for i in range(numsamples):
