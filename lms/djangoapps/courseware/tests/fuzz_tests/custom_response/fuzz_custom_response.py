@@ -13,6 +13,7 @@ import traceback
 import string
 import os
 import lxml
+import struct
 
 # Use memcache running locally
 CACHE_SETTINGS = {
@@ -162,7 +163,7 @@ def run_fuzz_tests(problems):
     while True:
         try:
             # Choose a random seed for this test run
-            seed = random.randint(0, 2**16)
+            seed = struct.unpack('i', os.urandom(4))[0]
 
             # Generate random inputs
             inputs = generate_random_inputs(seed, problems)
