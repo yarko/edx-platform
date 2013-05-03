@@ -1009,7 +1009,7 @@ class CustomResponse(LoncapaResponse):
                    ' student answer from %s' % student_answers)
             msg += '\n idset = %s, error = %s' % (idset, err)
             log.error(msg)
-            raise Exception(msg)
+            raise ResponseError(msg)
 
         # global variable in context which holds the Presentation MathML from dynamic math input
         # ordered list of dynamath responses
