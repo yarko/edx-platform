@@ -164,9 +164,13 @@ class LoncapaResponse(object):
 
         # ordered list of answer_id values for this response
         self.answer_ids = [x.get('id') for x in self.inputfields]
+
         if self.max_inputfields == 1:
             # for convenience
-            self.answer_id = self.answer_ids[0]
+            try:
+                self.answer_id = self.answer_ids[0]
+            except IndexError:
+                raise LoncapaProblemError('No input fields found')
 
         # map input_id -> maxpoints
         self.maxpoints = dict()
@@ -1202,7 +1206,10 @@ class CustomResponse(LoncapaResponse):
         if len(self.answer_ids) > 1:
             return self.default_answer_map
         if self.expect:
-            return {self.answer_ids[0]: self.expect}
+            try:
+                return {self.answer_ids[0]: self.expect}
+            except IndexError:
+                raise LoncapaProblemError('No answer ID is defined')
         return self.default_answer_map
 
     def _handle_exec_exception(self, err):
