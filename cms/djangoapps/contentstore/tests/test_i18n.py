@@ -1,7 +1,6 @@
-from unittest import skip
-
+from nose.plugins.skip import SkipTest
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
+from student.tests.factories import UserFactory
 from django.test.client import Client
 
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
@@ -24,14 +23,11 @@ class InternationalizationTest(ModuleStoreTestCase):
         self.password = 'foo'
 
         # Create the use so we can log them in.
-        self.user = User.objects.create_user(self.uname, self.email, self.password)
-
-        # Note that we do not actually need to do anything
-        # for registration if we directly mark them active.
-        self.user.is_active = True
-        # Staff has access to view all courses
-        self.user.is_staff = True
-        self.user.save()
+        self.user = UserFactory.create(username=self.uname,
+                                       email=self.email,
+                                       password=self.password,
+                                       is_active=True,
+                                       is_staff=True)
 
         self.course_data = {
             'template': 'i4x://edx/templates/course/Empty',
@@ -44,7 +40,7 @@ class InternationalizationTest(ModuleStoreTestCase):
         """Test viewing the index page with no courses"""
         self.client = Client()
         self.client.login(username=self.uname, password=self.password)
-        
+
         resp = self.client.get(reverse('index'))
         self.assertContains(resp,
             '<h1 class="title-1">My Courses</h1>',
@@ -55,7 +51,7 @@ class InternationalizationTest(ModuleStoreTestCase):
         """Test viewing the index page with no courses"""
         self.client = Client()
         self.client.login(username=self.uname, password=self.password)
-        
+
         resp = self.client.get(reverse('index'),
                                {},
                                HTTP_ACCEPT_LANGUAGE='en'
@@ -64,24 +60,24 @@ class InternationalizationTest(ModuleStoreTestCase):
         self.assertContains(resp,
             '<h1 class="title-1">My Courses</h1>',
             status_code=200,
-            html=True)        
+            html=True)
 
 
-    # ****
-    # NOTE:
-    # ****
-    #
-    # This test will break when we replace this fake 'test' language
-    # with actual French. This test will need to be updated with
-    # actual French at that time.
-    
-    # Test temporarily disable since it depends on creation of dummy strings
-    @skip
     def test_course_with_accents (self):
         """Test viewing the index page with no courses"""
+        # ****
+        # NOTE:
+        # ****
+        #
+        # This test will break when we replace this fake 'test' language
+        # with actual French. This test will need to be updated with
+        # actual French at that time.
+        # Test temporarily disable since it depends on creation of dummy strings
+        raise SkipTest()
+
         self.client = Client()
         self.client.login(username=self.uname, password=self.password)
-        
+
         resp = self.client.get(reverse('index'),
                                {},
                                HTTP_ACCEPT_LANGUAGE='fr'
@@ -90,8 +86,8 @@ class InternationalizationTest(ModuleStoreTestCase):
         TEST_STRING = u'<h1 class="title-1">' \
                       + u'My \xc7\xf6\xfcrs\xe9s L#' \
                       + u'</h1>'
-        
+
         self.assertContains(resp,
                             TEST_STRING,
                             status_code=200,
-                            html=True)        
+                            html=True)
