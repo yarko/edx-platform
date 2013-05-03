@@ -1,4 +1,5 @@
 from nose.plugins.skip import SkipTest
+
 from django.core.urlresolvers import reverse
 from student.tests.factories import UserFactory
 from django.test.client import Client
