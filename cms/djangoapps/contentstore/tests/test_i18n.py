@@ -5,6 +5,7 @@ from django.test.client import Client
 
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 
+
 class InternationalizationTest(ModuleStoreTestCase):
     """
     Tests to validate Internationalization.
@@ -29,12 +30,11 @@ class InternationalizationTest(ModuleStoreTestCase):
                                        is_active=True,
                                        is_staff=True)
 
-        self.course_data = {
-            'template': 'i4x://edx/templates/course/Empty',
-            'org': 'MITx',
-            'number': '999',
-            'display_name': 'Robot Super Course',
-            }
+        self.course_data = {'template': 'i4x://edx/templates/course/Empty',
+                            'org': 'MITx',
+                            'number': '999',
+                            'display_name': 'Robot Super Course',
+                            }
 
     def test_course_plain_english(self):
         """Test viewing the index page with no courses"""
@@ -43,9 +43,9 @@ class InternationalizationTest(ModuleStoreTestCase):
 
         resp = self.client.get(reverse('index'))
         self.assertContains(resp,
-            '<h1 class="title-1">My Courses</h1>',
-            status_code=200,
-            html=True)
+                            '<h1 class="title-1">My Courses</h1>',
+                            status_code=200,
+                            html=True)
 
     def test_course_explicit_english(self):
         """Test viewing the index page with no courses"""
@@ -58,12 +58,11 @@ class InternationalizationTest(ModuleStoreTestCase):
                                )
 
         self.assertContains(resp,
-            '<h1 class="title-1">My Courses</h1>',
-            status_code=200,
-            html=True)
+                            '<h1 class="title-1">My Courses</h1>',
+                            status_code=200,
+                            html=True)
 
-
-    def test_course_with_accents (self):
+    def test_course_with_accents(self):
         """Test viewing the index page with no courses"""
         # ****
         # NOTE:
