@@ -1723,7 +1723,10 @@ class FormulaResponse(LoncapaResponse):
             student_variables = dict()
             # ranges give numerical ranges for testing
             for var in ranges:
-                value = random.uniform(*ranges[var])
+                try:
+                    value = random.uniform(*ranges[var])
+                except:
+                    raise LoncapaProblemError('Ranges could not be interpreted')
                 instructor_variables[str(var)] = value
                 student_variables[str(var)] = value
             # log.debug('formula: instructor_vars=%s, expected=%s' %
