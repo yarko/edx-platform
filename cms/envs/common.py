@@ -263,4 +263,7 @@ INSTALLED_APPS = (
     'pipeline',
     'staticfiles',
     'static_replace',
+
+    # Discussion forums
+    'django_comment_common',
 )
