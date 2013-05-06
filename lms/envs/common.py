@@ -580,5 +580,6 @@ INSTALLED_APPS = (
     'django.contrib.admin',   # only used in DEBUG mode
 
     # Discussion forums
+    'django_comment_common',
     'django_comment_client',
 )
