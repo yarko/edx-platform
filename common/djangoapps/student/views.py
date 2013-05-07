@@ -76,7 +76,7 @@ def index(request, extra_context={}, user=None):
     '''
 
     # The course selection work is done in courseware.courses.
-    domain = settings.MITX_FEATURES.get('FORCE_UNIVERSITY_DOMAIN')     # normally False
+    domain = settings.MITX_FEATURES.get('FORCE_UNIVERSITY_DOMAIN', None)     # normally initialized False
     # do explicit check, because domain=None is valid
     if domain == False:
         domain = request.META.get('HTTP_HOST')
@@ -1078,13 +1078,13 @@ def accept_name_change(request):
 def _get_news(top=None):
     "Return the n top news items on settings.RSS_URL"
 
-    feed_data = cache.get("students_index_rss_feed_data")
-    if feed_data is None:
-        if hasattr(settings, 'RSS_URL'):
+    if not hasattr(settings, 'RSS_URL'):
+        feed_data = render_to_string("feed.rss", None)
+    else:
+        feed_data = cache.get("students_index_rss_feed_data")
+        if feed_data is None:
             feed_data = urllib.urlopen(settings.RSS_URL).read()
-        else:
-            feed_data = render_to_string("feed.rss", None)
-        cache.set("students_index_rss_feed_data", feed_data, settings.RSS_TIMEOUT)
+	    cache.set("students_index_rss_feed_data", feed_data, settings.RSS_TIMEOUT)
 
     feed = feedparser.parse(feed_data)
     entries = feed['entries'][0:top]  # all entries if top is None

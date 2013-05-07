@@ -14,7 +14,6 @@ from django.shortcuts import redirect
 from django_future.csrf import ensure_csrf_cookie
 from mitxmako.shortcuts import render_to_response, render_to_string
 from urllib import urlencode
-import zendesk
 
 import capa.calc
 import track.views
@@ -37,6 +36,10 @@ def calculate(request):
 
 
 class _ZendeskApi(object):
+    try:
+        import zendesk
+    except ImportError:
+        zendesk = False
     def __init__(self):
         """
         Instantiate the Zendesk API.
@@ -44,7 +47,9 @@ class _ZendeskApi(object):
         All of `ZENDESK_URL`, `ZENDESK_USER`, and `ZENDESK_API_KEY` must be set
         in `django.conf.settings`.
         """
-        self._zendesk_instance = zendesk.Zendesk(
+        if not self.zendesk:
+            return False
+        self._zendesk_instance = self.zendesk.Zendesk(
             settings.ZENDESK_URL,
             settings.ZENDESK_USER,
             settings.ZENDESK_API_KEY,
@@ -58,8 +63,10 @@ class _ZendeskApi(object):
 
         The ticket should have the format specified by the zendesk package.
         """
+        if not self.zendesk:
+            return False
         ticket_url = self._zendesk_instance.create_ticket(data=ticket)
-        return zendesk.get_id_from_url(ticket_url)
+        return self.zendesk.get_id_from_url(ticket_url)
 
     def update_ticket(self, ticket_id, update):
         """
@@ -67,6 +74,8 @@ class _ZendeskApi(object):
 
         The update should have the format specified by the zendesk package.
         """
+        if not self.zendesk:
+            return False
         self._zendesk_instance.update_ticket(ticket_id=ticket_id, data=update)
 
 
@@ -89,6 +98,8 @@ def submit_feedback_via_zendesk(request):
     state. Whether or not the update succeeds, if the user's ticket is
     successfully created, an empty successful response (200) will be returned.
     """
+    if not self.zendesk:
+        return False
     if not settings.MITX_FEATURES.get('ENABLE_FEEDBACK_SUBMISSION', False):
         raise Http404()
     if request.method != "POST":
@@ -155,9 +166,11 @@ def submit_feedback_via_zendesk(request):
             "tags": tags
         }
     }
+    if not self.zendesk:
+    	return False
     try:
         ticket_id = zendesk_api.create_ticket(new_ticket)
-    except zendesk.ZendeskError as err:
+    except self.zendesk.ZendeskError as err:
         log.error("%s", str(err))
         return HttpResponse(status=500)
 
@@ -166,7 +179,7 @@ def submit_feedback_via_zendesk(request):
     ticket_update = {"ticket": {"comment": {"public": False, "body": additional_info_string}}}
     try:
         zendesk_api.update_ticket(ticket_id, ticket_update)
-    except zendesk.ZendeskError as err:
+    except self.zendesk.ZendeskError as err:
         log.error("%s", str(err))
         # The update is not strictly necessary, so do not indicate failure to the user
         pass
