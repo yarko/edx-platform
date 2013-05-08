@@ -789,16 +789,25 @@ def upload_asset(request, org, course, coursename):
     # compute a 'filename' which is similar to the location formatting, we're using the 'filename'
     # nomenclature since we're using a FileSystem paradigm here. We're just imposing
     # the Location string formatting expectations to keep things a bit more consistent
-
-    filename = request.FILES['file'].name
-    mime_type = request.FILES['file'].content_type
-    filedata = request.FILES['file'].read()
+    upload_file = request.FILES['file']
+    filename = upload_file.name
+    mime_type = upload_file.content_type
 
     content_loc = StaticContent.compute_location(org, course, filename)
-    content = StaticContent(content_loc, filename, mime_type, filedata)
+
+    chunked = upload_file.multiple_chunks()
+    if chunked:
+        content = StaticContent(content_loc, filename, mime_type, upload_file.chunks())
+    else:
+        content = StaticContent(content_loc, filename, mime_type, upload_file.read())
+
+    thumbnail_content = None
+    thumbnail_location = None
 
     # first let's see if a thumbnail can be created
-    (thumbnail_content, thumbnail_location) = contentstore().generate_thumbnail(content)
+    (thumbnail_content, thumbnail_location) = contentstore().generate_thumbnail(content,
+                                                                                tempfile_path=None if not chunked else
+                                                                                upload_file.temporary_file_path())
 
     # delete cached thumbnail even if one couldn't be created this time (else the old thumbnail will continue to show)
     del_cached_content(thumbnail_location)
