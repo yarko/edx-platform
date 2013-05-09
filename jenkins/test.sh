@@ -35,8 +35,8 @@ fi
 export PIP_DOWNLOAD_CACHE=/mnt/pip-cache
 
 source /mnt/virtualenvs/"$JOB_NAME"/bin/activate
-pip install -q -r pre-requirements.txt
-yes w | pip install -q -r requirements.txt
+pip install r pre-requirements.txt
+yes w | pip install -r requirements.txt
 
 bundle install
 
