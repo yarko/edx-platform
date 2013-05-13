@@ -544,14 +544,9 @@ def instructor_dashboard(request, course_id):
     elif action == 'Enroll multiple students':
 
         students = request.POST.get('multiple_students', '')
-<<<<<<< HEAD
         auto_enroll = request.POST.get('auto_enroll', False) is not False
         email_students = request.POST.get('email_students', False) is not False
         ret = _do_enroll_students(course, course_id, students, auto_enroll=auto_enroll, email_students=email_students)
-=======
-        auto_enroll = bool(request.POST.get('auto_enroll'))
-        ret = _do_enroll_students(course, course_id, students, auto_enroll=auto_enroll)
->>>>>>> b5b2ed8... Takes care of Victor's comments on the PR.
         datatable = ret['datatable']
 
     elif action == 'Unenroll multiple students':
@@ -1021,20 +1016,15 @@ def _do_enroll_students(course, course_id, students, overload=False, auto_enroll
             if cea:
                 cea[0].auto_enroll = auto_enroll
                 cea[0].save()
-                status[student] = 'user does not exist, enrollment already allowed, pending with auto enrollment ' \
-                    + ('on' if auto_enroll else 'off')
+                status[student] = 'user does not exist, enrollment already allowed, pending with auto enrollment ' + ("off", "on")[auto_enroll]
                 continue
             cea = CourseEnrollmentAllowed(email=student, course_id=course_id, auto_enroll=auto_enroll)
             cea.save()
-<<<<<<< HEAD
             status[student] = 'user does not exist, enrollment allowed, pending with auto enrollment ' + ("off", "on")[auto_enroll] + ("", ", email sent")[email_students]
 
             if email_students:
                 #User is allowed to enroll but has not signed up yet
                 send_mail(subject, allowed_message, settings.DEFAULT_FROM_EMAIL, [student], fail_silently=False)
-=======
-            status[student] = 'user does not exist, enrollment allowed, pending with auto enrollment ' + ('on' if auto_enroll else 'off')
->>>>>>> b5b2ed8... Takes care of Victor's comments on the PR.
             continue
 
         if CourseEnrollment.objects.filter(user=user, course_id=course_id):
@@ -1052,7 +1042,7 @@ def _do_enroll_students(course, course_id, students, overload=False, auto_enroll
             status[student] = 'rejected'
 
     datatable = {'header': ['StudentEmail', 'action']}
-    datatable['data'] = [[x, status[x]] for x in sorted(status)]
+    datatable['data'] = [[x, status[x]] for x in status]
     datatable['title'] = 'Enrollment of students'
 
     def sf(stat):
@@ -1097,12 +1087,9 @@ def _do_unenroll_students(course_id, students, email_students=False):
         try:
             user = User.objects.get(email=student)
         except User.DoesNotExist:
-<<<<<<< HEAD
             if isok and email_students:
                 #User was allowed to join but had not signed up yet
                 send_mail(subject, allowed_message, settings.DEFAULT_FROM_EMAIL, [student], fail_silently=False)
-=======
->>>>>>> b5b2ed8... Takes care of Victor's comments on the PR.
             continue
 
         nce = CourseEnrollment.objects.filter(user=user, course_id=course_id)
@@ -1120,7 +1107,7 @@ def _do_unenroll_students(course_id, students, email_students=False):
                     status[student] = "Error!  Failed to un-enroll"
 
     datatable = {'header': ['StudentEmail', 'action']}
-    datatable['data'] = [[x, status[x]] for x in sorted(status)]
+    datatable['data'] = [[x, status[x]] for x in status]
     datatable['title'] = 'Un-enrollment of students'
 
     data = dict(datatable=datatable)
@@ -1128,23 +1115,13 @@ def _do_unenroll_students(course_id, students, email_students=False):
 
 
 def get_and_clean_student_list(students):
-<<<<<<< HEAD
-=======
-    """
-    Separate out individual student email from the comma, or space separated string.
-
-    In:
-    students: string coming from the input text area
-    Return:
-    students: list of cleaned student emails
-    students_lc: list of lower case cleaned student emails
-    """
->>>>>>> b5b2ed8... Takes care of Victor's comments on the PR.
 
     students = split_by_comma_and_whitespace(students)
     students = [str(s.strip()) for s in students]
-    students = [s for s in students if s != '']
     students_lc = [x.lower() for x in students]
+
+    if '' in students:
+        students.remove('')
 
     return students, students_lc
 
