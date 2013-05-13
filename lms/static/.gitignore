@@ -7,3 +7,5 @@
 application.css
 ie.css
 Gemfile.lock
+/coffee
+/sass

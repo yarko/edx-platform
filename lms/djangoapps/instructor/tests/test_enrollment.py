@@ -11,6 +11,7 @@ from xmodule.modulestore.django import modulestore
 import xmodule.modulestore.django
 from student.models import CourseEnrollment, CourseEnrollmentAllowed
 from django.core import mail
+from instructor.views import get_and_clean_student_list
 
 
 @override_settings(MODULESTORE=TEST_DATA_XML_MODULESTORE)
@@ -240,3 +241,12 @@ class TestInstructorEnrollsStudent(LoginEnrollmentTestCase):
         #Check the outbox
         self.assertEqual(mail.outbox[0].subject, 'You have been un-enrolled from edX/toy/2012_Fall by the instructor')
         self.assertEqual(len(mail.outbox), 2)
+
+    def test_get_and_clean_student_list(self):
+        '''
+        Clean user input test
+        '''
+        
+        string = "abc@test.com, def@test.com ghi@test.com \n \n jkl@test.com      "
+        cleaned_string, cleaned_string_lc = get_and_clean_student_list(string)
+        self.assertEqual(cleaned_string, ['abc@test.com', 'def@test.com', 'ghi@test.com', 'jkl@test.com'])
