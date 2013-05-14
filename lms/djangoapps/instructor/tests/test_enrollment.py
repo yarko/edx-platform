@@ -218,7 +218,7 @@ class TestInstructorEnrollsStudent(LoginEnrollmentTestCase):
         self.assertContains(response, '<td>user does not exist, enrollment allowed, pending with auto enrollment on, email sent</td>')
 
         #Check the outbox
-        self.assertEqual(mail.outbox[0].subject, 'You have been enrolled by the instructor in edX/toy/2012_Fall')
+        self.assertEqual(mail.outbox[0].subject, 'You have been invited to register for edX/toy/2012_Fall')
         self.assertEqual(len(mail.outbox), 2)
 
     def test_unenrollment_email_on(self):
@@ -239,7 +239,7 @@ class TestInstructorEnrollsStudent(LoginEnrollmentTestCase):
         self.assertContains(response, '<td>un-enrolled, email sent</td>')
 
         #Check the outbox
-        self.assertEqual(mail.outbox[0].subject, 'You have been un-enrolled from edX/toy/2012_Fall by the instructor')
+        self.assertEqual(mail.outbox[0].subject, 'You have been un-enrolled from edX/toy/2012_Fall')
         self.assertEqual(len(mail.outbox), 2)
 
     def test_get_and_clean_student_list(self):
