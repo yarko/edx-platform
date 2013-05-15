@@ -51,7 +51,7 @@ EO
 
 info() {
     cat<<EO
-    MITx base dir : $BASE
+    edx base dir : $BASE
     Python virtualenv dir : $PYTHON_DIR
     Ruby RVM dir : $RUBY_DIR
     Ruby ver : $RUBY_VER
@@ -62,33 +62,16 @@ EO
 clone_repos() {
     cd "$BASE"
 
-    if [[ -d "$BASE/mitx/.git" ]]; then
-        output "Pulling mitx"
-        cd "$BASE/mitx"
+    if [[ -d "$BASE/edx-platform/.git" ]]; then
+        output "Pulling edx-platform"
+        cd "$BASE/edx-platform"
         git pull
     else
-        output "Cloning mitx"
-        if [[ -d "$BASE/mitx" ]]; then
-            mv "$BASE/mitx" "${BASE}/mitx.bak.$$"
+        output "Cloning edx-platform"
+        if [[ -d "$BASE/edx-platform" ]]; then
+            mv "$BASE/edx-platform" "${BASE}/edx-platform.bak.$$"
         fi
-        git clone git@github.com:MITx/mitx.git
-    fi
-
-    # By default, dev environments start with a copy of 6.002x
-    cd "$BASE"
-    mkdir -p "$BASE/data"
-    REPO="content-mit-6002x"
-    if [[ -d "$BASE/data/$REPO/.git" ]]; then
-        output "Pulling $REPO"
-        cd "$BASE/data/$REPO"
-        git pull
-    else
-        output "Cloning $REPO"
-        if [[ -d "$BASE/data/$REPO" ]]; then
-            mv "$BASE/data/$REPO" "${BASE}/data/$REPO.bak.$$"
-        fi
-        cd "$BASE/data"
-        git clone git@github.com:MITx/$REPO
+        git clone git@github.com:edx/edx-platform.git
     fi
 }
 
@@ -98,7 +81,7 @@ clone_repos() {
 PROG=${0##*/}
 
 # Adjust this to wherever you'd like to place the codebase
-BASE="${PROJECT_HOME:-$HOME}/mitx_all"
+BASE="${PROJECT_HOME:-$HOME}/edx_all"
 
 # Use a sensible default (~/.virtualenvs) for your Python virtualenvs
 # unless you've already got one set up with virtualenvwrapper.
@@ -161,7 +144,7 @@ done
 
 cat<<EO
 
-  This script will setup a local MITx environment, this
+  This script will setup a local edx environment, this
   includes
 
        * Django
@@ -247,14 +230,14 @@ EO
 esac
 
 
-# Clone MITx repositories
+# Clone edx repositories
 
 clone_repos
 
 
 # Install system-level dependencies
 
-bash $BASE/mitx/install-system-req.sh
+bash $BASE/edx-platform/install-system-req.sh
 
 output "Installing RVM, Ruby, and required gems"
 
@@ -272,6 +255,15 @@ if [ "$HOME/.rvm" != $RUBY_DIR ]; then
 fi
 
 curl -sL get.rvm.io | bash -s -- --version 1.15.7
+
+# Let the repo override the version of Ruby to install
+if [[ -r $BASE/edx-platform/.ruby-version ]]; then
+  RUBY_VER=`cat $BASE/edx-platform/.ruby-version`
+fi
+
+# In order to source the rvm script, we need
+# to have the right version of Ruby installed
+rvm install $RUBY_VER
 
 # Ensure we have RVM available as a shell function so that it can mess
 # with the environment and set everything up properly. The RVM install
@@ -293,11 +285,6 @@ case `uname -s` in
         ;;
 esac
 
-# Let the repo override the version of Ruby to install
-if [[ -r $BASE/mitx/.ruby-version ]]; then
-  RUBY_VER=`cat $BASE/mitx/.ruby-version`
-fi
-
 # Current stable version of RVM (1.19.0) requires the following to build Ruby:
 #
 # autoconf automake libtool pkg-config libyaml libxml2 libxslt libksba openssl
@@ -311,14 +298,14 @@ fi
 # any required libs are missing.
 LESS="-E" rvm install $RUBY_VER --with-readline
 
-# Create the "mitx" gemset
-rvm use "$RUBY_VER@mitx" --create
+# Create the "edx-platform" gemset
+rvm use "$RUBY_VER@edx-platform" --create
 
 output "Installing gem bundler"
 gem install bundler
 
 output "Installing ruby packages"
-bundle install --gemfile $BASE/mitx/Gemfile
+bundle install --gemfile $BASE/edx-platform/Gemfile
 
 
 # Install Python virtualenv
@@ -335,23 +322,26 @@ esac
 # virtualenvwrapper uses the $WORKON_HOME env var to determine where to place
 # virtualenv directories. Make sure it matches the selected $PYTHON_DIR.
 export WORKON_HOME=$PYTHON_DIR
-
+#
 # Load in the mkvirtualenv function if needed
 if [[ `type -t mkvirtualenv` != "function" ]]; then
+  if [ -z `which virtualenvwrapper.sh` ]; then
+      sudo pip install virtualenvwrapper
+  fi
   source `which virtualenvwrapper.sh`
 fi
 
-# Create MITx virtualenv and link it to repo
+# Create edx virtualenv and link it to repo
 # virtualenvwrapper automatically sources the activation script
 if [[ $systempkgs ]]; then
-    mkvirtualenv -a "$BASE/mitx" --system-site-packages mitx || {
+    mkvirtualenv -a "$BASE/edx-platform" --system-site-packages edx-platform || {
       error "mkvirtualenv exited with a non-zero error"
       return 1
     }
 else
     # default behavior for virtualenv>1.7 is
     # --no-site-packages
-    mkvirtualenv -a "$BASE/mitx" mitx || {
+    mkvirtualenv -a "$BASE/edx-platform" edx-platform || {
       error "mkvirtualenv exited with a non-zero error"
       return 1
     }
@@ -395,12 +385,12 @@ case `uname -s` in
         ;;
 esac
 
-output "Installing MITx pre-requirements"
-pip install -r $BASE/mitx/pre-requirements.txt
+output "Installing edx pre-requirements"
+pip install -r $BASE/edx-platform/pre-requirements.txt
 
-output "Installing MITx requirements"
-# Need to be in the mitx dir to get the paths to local modules right
-cd $BASE/mitx
+output "Installing edx requirements"
+# Need to be in the edx-platform dir to get the paths to local modules right
+cd $BASE/edx-platform
 pip install -r requirements.txt
 
 mkdir "$BASE/log" || true
@@ -427,7 +417,7 @@ cat<<END
 
    Then, every time you're ready to work on the project, just run
 
-        $ workon mitx
+        $ workon edx-platform
 
    To initialize Django
 
