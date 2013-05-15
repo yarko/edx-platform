@@ -451,6 +451,34 @@ class JavascriptInput(InputTypeBase):
 registry.register(JavascriptInput)
 
 
+
+#-----------------------------------------------------------------------------
+
+
+class JSInput(InputTypeBase):
+    """
+    Load js ()
+    """
+
+    template = "jsinput.html"
+    tags = ['jsinput']
+
+    @classmethod
+    def get_attributes(cls):
+        """
+        Register the attributes.
+        """
+        return [Attribute('params', None),
+                Attribute('problem_state', None),
+                Attribute('css_file', None),
+                Attribute('html_file', None),
+                Attribute('js_file', None), ]
+
+    def _extra_context(self):
+        if self.
+        
+
+registry.register(JSInput)
 #-----------------------------------------------------------------------------
 
 class TextLine(InputTypeBase):
