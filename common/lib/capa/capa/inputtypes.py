@@ -457,7 +457,31 @@ registry.register(JavascriptInput)
 
 class JSInput(InputTypeBase):
     """
-    Load js ()
+      Inputtype for general javascript inputs. Intended to be used with
+    customresponse.  
+      Loads in a sandboxed iframe to help prevent css and js conflicts between
+    frame and top-level window. 
+    
+    iframe sandbox whitelist:
+        - allow-scripts
+        - allow-popups
+        - allow-forms
+        - allow-pointer-lock
+
+    This in turn means that the iframe cannot directly access the top-level
+    window elements.
+      Example:
+        <jsinput html_file="/static/test.html" gradefn="grade" height="500" width="400"/>
+
+      The goal is to have two distinct ways of writing a jsinput problem. In the
+    first, one specifies the attribute gradefn, which is a function *in
+    html_file*, and which should return the value to grade. This function is
+    called after the "Check" button is pressed, but before the value in the
+    hidden input tag is sent for grading. 
+      In the second form, the html_file is responsible for calling the function
+    "edx_update" every time the value to be sent for grading changes.
+    edx_update then updates the hidden input field.
+
     """
 
     template = "jsinput.html"
@@ -469,13 +493,11 @@ class JSInput(InputTypeBase):
         Register the attributes.
         """
         return [Attribute('params', None),
-                Attribute('problem_state', None),
-                Attribute('css_file', None),
                 Attribute('html_file', None),
-                Attribute('js_file', None), ]
+                Attribute('gradefn', None),
+                Attribute('width', "400"),
+                Attribute('height', "300")]
 
-    def _extra_context(self):
-        if self.
         
 
 registry.register(JSInput)

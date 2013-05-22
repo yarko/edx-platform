@@ -1,7 +1,15 @@
 <section id="inputtype_${id}" class="jsinput">
 
-    <div class="script_placeholder" data-check="${checkfn}" data-src="${script__loader}"/>
-       
+    <%text>
+  <script type="text/javascript">
+     var fn = window.frames[0].jQuery{gradefn} ;
+     var thisinput = document.getElementById("inputtype_${id}");
+     var problem = jQuery(thisinput).closest("section.problem");
+     var checkbutton = jQuery(thisinput).find("section.action").first().;
+     checkbutton.onMouseOver(fn());
+  </script>
+    </%text>
+     
   % if status == 'unsubmitted':
   <div class="unanswered" id="status_${id}">
   % elif status == 'correct':
@@ -12,7 +20,14 @@
   <div class="incorrect" id="status_${id}">
   % endif
 
-    <input type="hidden" name="input_${id}" id="jsinput_${id}" value="${value|h}"/>
+  <iframe name="iframe_${id}" 
+      sandbox="allow-scripts allow-popups allow-same-origin allow-forms allow-pointer-lock"
+      seamless="seamless"
+      src="${html_file}"
+      height="${height}"
+      width="${width}"
+      />
+  <input type="hidden" name="input_${id}" id="input_${id}" value="${value|h}"/>
 
     <p id="answer_${id}" class="answer"></p>
 
