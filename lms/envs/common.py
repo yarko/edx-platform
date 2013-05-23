@@ -113,7 +113,10 @@ MITX_FEATURES = {
     'ENABLE_SERVICE_STATUS': False,
 
     # Toggle to indicate use of a custom theme
-    'USE_CUSTOM_THEME': False
+    'USE_CUSTOM_THEME': False,
+
+    # Enable instructor dash to submit course-level background tasks
+    'ENABLE_COURSE_BACKGROUND_TASKS': True,
 }
 
 # Used for A/B testing
