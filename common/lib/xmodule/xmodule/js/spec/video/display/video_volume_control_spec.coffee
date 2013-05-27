@@ -1,5 +1,5 @@
 # TODO: figure out why failing
-xdescribe 'VideoVolumeControl', ->
+describe 'VideoVolumeControl', ->
   beforeEach ->
     jasmine.stubVideoPlayer @
     $('.volume').remove()
