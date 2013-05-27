@@ -153,3 +153,4 @@ class @VideoCaption extends Subview
       $(window).height() - @$('.video-controls').height()
     else
       @$('.video-wrapper').height()
+      console.log @$('.video-wrapper').height(), 'Height of Wrapper'
