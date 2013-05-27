@@ -47,7 +47,6 @@ jasmine.stubYoutubePlayer = ->
 
 jasmine.stubVideoPlayer = (context, enableParts, createPlayer=true) ->
   enableParts = [enableParts] unless $.isArray(enableParts)
-  window.onTouchBasedDevice = jasmine.createSpy('onTouchBasedDevice')
   suite = context.suite
   currentPartName = suite.description while suite = suite.parentSuite
   enableParts.push currentPartName

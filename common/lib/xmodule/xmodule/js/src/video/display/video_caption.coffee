@@ -37,7 +37,7 @@ class @VideoCaption extends Subview
         @loaded = true
 
         if onTouchBasedDevice()
-          $('.subtitles li').html "Caption will be displayed when you start playing the video."
+          $('.subtitles li').html "<li>Caption will be displayed when you start playing the video.</li>"
         else
           @renderCaption()
 
@@ -153,4 +153,3 @@ class @VideoCaption extends Subview
       $(window).height() - @$('.video-controls').height()
     else
       @$('.video-wrapper').height()
-      console.log @$('.video-wrapper').height(), 'Height of Wrapper'

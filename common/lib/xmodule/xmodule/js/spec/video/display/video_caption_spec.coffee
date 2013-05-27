@@ -1,8 +1,10 @@
 # TODO: figure out why failing
 describe 'VideoCaption', ->
+
   beforeEach ->
-    @player = jasmine.stubVideoPlayer @
-    @caption = @player.caption
+    spyOn(VideoCaption.prototype, 'fetchCaption').andCallThrough()
+    spyOn($, 'getWithPrefix').andCallThrough()
+    window.onTouchBasedDevice = jasmine.createSpy('onTouchBasedDevice').andReturn false
 
   afterEach ->
     YT.Player = undefined
@@ -10,11 +12,12 @@ describe 'VideoCaption', ->
     $('.subtitles').remove()
 
   describe 'constructor', ->
-    beforeEach ->
-      spyOn(@caption, 'fetchCaption')
-      spyOn($, 'getWithPrefix').andCallThrough()
 
     describe 'always', ->
+
+      beforeEach ->
+        @player = jasmine.stubVideoPlayer @
+        @caption = @player.caption
 
       it 'set the youtube id', ->
         expect(@caption.youtubeId).toEqual 'normalSpeedYoutubeId'
@@ -25,7 +28,8 @@ describe 'VideoCaption', ->
       it 'add caption control to video player', ->
         expect($('.video')).toContain 'a.hide-subtitles'
 
-      xit 'fetch the caption', ->
+      it 'fetch the caption', ->
+        expect(@caption.loaded).toBeTruthy()
         expect(@caption.fetchCaption).toHaveBeenCalled()
         expect($.getWithPrefix).toHaveBeenCalledWith @caption.captionURL(), jasmine.any(Function)
 
@@ -43,6 +47,10 @@ describe 'VideoCaption', ->
         expect($('.subtitles')).toHandleWith 'DOMMouseScroll', @caption.onMovement
 
     describe 'when on a non touch-based device', ->
+
+      beforeEach ->
+        @player = jasmine.stubVideoPlayer @
+        @caption = @player.caption
 
       it 'render the caption', ->
         expect($('.subtitles').html()).toMatch new RegExp('''
@@ -63,9 +71,12 @@ describe 'VideoCaption', ->
       it 'set rendered to true', ->
         expect(@caption.rendered).toBeTruthy()
 
-    xdescribe 'when on a touch-based device', ->
+    describe 'when on a touch-based device', ->
+
       beforeEach ->
         window.onTouchBasedDevice.andReturn true
+        @player = jasmine.stubVideoPlayer @
+        @caption = @player.caption
 
       it 'show explaination message', ->
         expect($('.subtitles li')).toHaveHtml "Caption will be displayed when you start playing the video."
@@ -74,11 +85,15 @@ describe 'VideoCaption', ->
         expect(@caption.rendered).toBeFalsy()
 
   describe 'mouse movement', ->
+
     beforeEach ->
+      @player = jasmine.stubVideoPlayer @
+      @caption = @player.caption
       window.setTimeout.andReturn(100)
       spyOn window, 'clearTimeout'
 
     describe 'when cursor is outside of the caption box', ->
+
       beforeEach ->
         $(window).trigger jQuery.Event 'mousemove'
 
@@ -86,6 +101,7 @@ describe 'VideoCaption', ->
         expect(@caption.frozen).toBeFalsy()
 
     describe 'when cursor is in the caption box', ->
+
       beforeEach ->
         $('.subtitles').trigger jQuery.Event 'mouseenter'
 
@@ -140,6 +156,10 @@ describe 'VideoCaption', ->
 
   describe 'search', ->
 
+    beforeEach ->
+      @player = jasmine.stubVideoPlayer @
+      @caption = @player.caption
+
     it 'return a correct caption index', ->
       expect(@caption.search(0)).toEqual 0
       expect(@caption.search(9999)).toEqual 0
@@ -151,7 +171,9 @@ describe 'VideoCaption', ->
   describe 'play', ->
     describe 'when the caption was not rendered', ->
       beforeEach ->
-        # spyOn(window, 'onTouchBasedDevice').andReturn true
+        window.onTouchBasedDevice.andReturn true
+        @player = jasmine.stubVideoPlayer @
+        @caption = @player.caption
         @caption.play()
 
       it 'render the caption', ->
@@ -178,6 +200,8 @@ describe 'VideoCaption', ->
 
   describe 'pause', ->
     beforeEach ->
+      @player = jasmine.stubVideoPlayer @
+      @caption = @player.caption
       @caption.playing = true
       @caption.pause()
 
@@ -185,6 +209,10 @@ describe 'VideoCaption', ->
       expect(@caption.playing).toBeFalsy()
 
   describe 'updatePlayTime', ->
+
+    beforeEach ->
+      @player = jasmine.stubVideoPlayer @
+      @caption = @player.caption
 
     describe 'when the video speed is 1.0x', ->
       beforeEach ->
@@ -230,13 +258,15 @@ describe 'VideoCaption', ->
         expect($('.subtitles li[data-index=1]')).toHaveClass 'current'
 
   describe 'resize', ->
+
     beforeEach ->
+      @player = jasmine.stubVideoPlayer @
+      @caption = @player.caption
       $('.subtitles li[data-index=1]').addClass 'current'
       @caption.resize()
 
     it 'set the height of caption container', ->
-      console.log parseInt($('.subtitles').css('maxHeight')), $('.video-wrapper').height(), 'HEIGHT'
-      expect(parseInt($('.subtitles').css('maxHeight'))).toBeCloseTo $('.video-wrapper').height(), 1
+      expect(parseInt($('.subtitles').css('maxHeight'))).toBeCloseTo $('.video-wrapper').height(), 5
 
     it 'set the height of caption spacing', ->
       expect(parseInt($('.subtitles .spacing:first').css('height'))).toEqual(
@@ -248,6 +278,10 @@ describe 'VideoCaption', ->
       expect($.fn.scrollTo).toHaveBeenCalled()
 
   describe 'scrollCaption', ->
+
+    beforeEach ->
+      @player = jasmine.stubVideoPlayer @
+      @caption = @player.caption
 
     describe 'when frozen', ->
       beforeEach ->
@@ -279,7 +313,10 @@ describe 'VideoCaption', ->
             offset: - ($('.video-wrapper').height() / 2 - $('.subtitles .current:first').height() / 2)
 
   describe 'seekPlayer', ->
+
     beforeEach ->
+      @player = jasmine.stubVideoPlayer @
+      @caption = @player.caption
       @time = null
       $(@caption).bind 'seek', (event, time) => @time = time
 
@@ -301,6 +338,8 @@ describe 'VideoCaption', ->
 
   describe 'toggle', ->
     beforeEach ->
+      @player = jasmine.stubVideoPlayer @
+      @caption = @player.caption
       $('.subtitles li[data-index=1]').addClass 'current'
 
     describe 'when the caption is visible', ->
