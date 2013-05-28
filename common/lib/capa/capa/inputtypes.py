@@ -471,7 +471,11 @@ class JSInput(InputTypeBase):
     This in turn means that the iframe cannot directly access the top-level
     window elements.
       Example:
-        <jsinput html_file="/static/test.html" gradefn="grade" height="500" width="400"/>
+
+        <jsinput html_file="/static/test.html" 
+                 gradefn="grade" 
+                 height="500" 
+                 width="400"/>
 
       The goal is to have two distinct ways of writing a jsinput problem. In the
     first, one specifies the attribute gradefn, which is a function *in
@@ -495,8 +499,8 @@ class JSInput(InputTypeBase):
         return [Attribute('params', None),
                 Attribute('html_file', None),
                 Attribute('gradefn', None),
-                Attribute('width', "400"),
-                Attribute('height', "300")]
+                Attribute('width', "400"),       # iframe width
+                Attribute('height', "300")]      # iframe height
 
         
 
