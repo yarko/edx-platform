@@ -156,6 +156,10 @@ for name, value in ENV_TOKENS.get("CODE_JAIL", {}).items():
 
 COURSES_WITH_UNSAFE_CODE = ENV_TOKENS.get("COURSES_WITH_UNSAFE_CODE", [])
 
+# load segment.io key, provide a dummy if it does not exist
+SEGMENT_IO_LMS_KEY = ENV_TOKENS.get('SEGMENT_IO_LMS_KEY', 'uucyxrdda1')
+MITX_FEATURES['SEGMENT_IO_LMS'] = ENV_TOKENS.get('SEGMENT_IO_LMS', False)
+
 ############################## SECURE AUTH ITEMS ###############
 # Secret things: passwords, access keys, etc.
 

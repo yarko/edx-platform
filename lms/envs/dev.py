@@ -243,3 +243,7 @@ MITX_FEATURES['ENABLE_PEARSON_LOGIN'] = False
 
 ANALYTICS_SERVER_URL = "http://127.0.0.1:9000/"
 ANALYTICS_API_KEY = ""
+
+# segment-io key for dev, and turn it on
+SEGMENT_IO_LMS_KEY = 'd4ynvjnpzu'
+MITX_FEATURES['SEGMENT_IO_LMS'] = True
