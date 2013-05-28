@@ -1,4 +1,3 @@
-# TODO: figure out why failing
 describe 'VideoControl', ->
   beforeEach ->
     window.onTouchBasedDevice = jasmine.createSpy('onTouchBasedDevice').andReturn false

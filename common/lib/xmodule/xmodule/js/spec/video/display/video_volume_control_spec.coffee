@@ -1,4 +1,3 @@
-# TODO: figure out why failing
 describe 'VideoVolumeControl', ->
   beforeEach ->
     jasmine.stubVideoPlayer @

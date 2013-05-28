@@ -1,4 +1,3 @@
-# TODO: figure out why failing
 describe 'Video', ->
   metadata = undefined
 
