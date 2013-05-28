@@ -11,20 +11,6 @@ describe 'VideoControl', ->
       expect($('.video-controls')).toContain
       ['.slider', 'ul.vcr', 'a.play', '.vidtime', '.add-fullscreen'].join(',')
       expect($('.video-controls').find('.vidtime')).toHaveText '0:00 / 0:00'
-      # expect(html).toBe '''
-      #   <div class="slider"></div>
-      #   <div>
-      #     <ul class="vcr">
-      #       <li><a class="video_control play" href="#">Play</a></li>
-      #       <li>
-      #         <div class="vidtime">0:00 / 0:00</div>
-      #       </li>
-      #     </ul>
-      #     <div class="secondary-controls">
-      #       <a href="#" class="add-fullscreen" title="Fill browser">Fill Browser</a>
-      #     </div>
-      #   </div>
-      # '''
 
     it 'bind the playback button', ->
       @control = new window.VideoControl(el: $('.video-controls'))

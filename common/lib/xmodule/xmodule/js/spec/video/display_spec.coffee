@@ -19,7 +19,6 @@ describe 'Video', ->
   afterEach ->
     window.player = undefined
     window.onYouTubePlayerAPIReady = undefined
-    # $('#video_example').parent().remove()
 
   describe 'constructor', ->
     beforeEach ->
