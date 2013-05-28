@@ -10,11 +10,11 @@ end
 # the ENV_TOKENS to the templating context.
 def preprocess_with_mako(filename)
     # simple command-line invocation of Mako engine
-    mako = "from mako.template import Template; from json import loads;" +
+    mako = "from mako.template import Template;" +
            "print Template(filename=\"#{filename}\")" +
            # Total hack. It works because a Python dict literal has
            # the same format as a JSON object.
-           ".render(env=loads('#{ENV_TOKENS.to_json}'));"
+           ".render(env=#{ENV_TOKENS.to_json.gsub("true","True").gsub("false","False")});"
 
     # strip off the .mako extension
     output_filename = filename.chomp(File.extname(filename))
