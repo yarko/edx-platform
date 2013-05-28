@@ -51,11 +51,6 @@ jasmine.stubVideoPlayer = (context, enableParts, createPlayer=true) ->
   currentPartName = suite.description while suite = suite.parentSuite
   enableParts.push currentPartName
 
-  # It tries to call methods of VideoProgressSlider on Spy
-  # for part in ['VideoCaption', 'VideoSpeedControl', 'VideoVolumeControl', 'VideoProgressSlider']
-  #   unless $.inArray(part, enableParts) >= 0
-  #     spyOn window, part
-
   loadFixtures 'video.html'
   jasmine.stubRequests()
   YT.Player = undefined
