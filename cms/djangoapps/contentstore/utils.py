@@ -1,11 +1,14 @@
-from django.conf import settings
-from xmodule.modulestore import Location
-from xmodule.modulestore.django import modulestore
-from xmodule.modulestore.exceptions import ItemNotFoundError
-from django.core.urlresolvers import reverse
 import copy
 import hashlib
 import time
+
+from django.conf import settings
+from django.core.urlresolvers import reverse
+
+from xmodule.modulestore import Location
+from xmodule.modulestore.django import modulestore
+from xmodule.modulestore.exceptions import ItemNotFoundError
+
 
 DIRECT_ONLY_CATEGORIES = ['course', 'chapter', 'sequential', 'about', 'static_tab', 'course_info']
 
@@ -141,6 +144,7 @@ def generate_secret_for_course(course_id):
     secret.update(str(course_id))
     secret.update(str(time.gmtime()))
     return secret.hexdigest()
+
 
 class UnitState(object):
     draft = 'draft'
