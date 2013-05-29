@@ -1,11 +1,12 @@
+from datetime import datetime
+import hashlib
 import logging
-from cStringIO import StringIO
 from math import exp
 from lxml import etree
 from path import path  # NOTE (THK): Only used for detecting presence of syllabus
 import requests
+from cStringIO import StringIO
 import time
-from datetime import datetime
 
 import dateutil.parser
 
@@ -22,6 +23,18 @@ from .fields import Date
 
 
 log = logging.getLogger(__name__)
+
+
+
+def anonymized_user_id(user, course_secret):
+    """
+    Returns an anonymized user ID for exporting to third-party
+    service providers like Qualtrics.
+    """
+    h = hashlib.sha1()
+    h.update(course_secret)
+    h.update(str(user.id))
+    return h.hexdigest()
 
 
 class StringOrDate(Date):
