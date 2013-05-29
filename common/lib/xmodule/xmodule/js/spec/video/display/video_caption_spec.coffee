@@ -269,10 +269,9 @@ describe 'VideoCaption', ->
       expect(parseInt($('.subtitles').css('maxHeight'))).toBeCloseTo $('.video-wrapper').height(), 2
 
     it 'set the height of caption spacing', ->
-      expect(parseInt($('.subtitles .spacing:first').css('height'))).toBeCloseTo(
-        ($('.video-wrapper').height() / 2 - $('.subtitles li:not(.spacing):first').height() / 2), 0)
-      expect(parseInt($('.subtitles .spacing:last').css('height'))).toBeCloseTo(
-        ($('.video-wrapper').height() / 2 - $('.subtitles li:not(.spacing):last').height() / 2), 0)
+      expect(Math.abs(parseInt($('.subtitles .spacing:first').css('height')) - @caption.topSpacingHeight())).toBeLessThan 1
+      expect(Math.abs(parseInt($('.subtitles .spacing:last').css('height')) - @caption.bottomSpacingHeight())).toBeLessThan 1
+
 
     it 'scroll caption to new position', ->
       expect($.fn.scrollTo).toHaveBeenCalled()
