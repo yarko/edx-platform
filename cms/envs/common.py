@@ -319,6 +319,7 @@ INSTALLED_APPS = (
     'track',
 
     # For asset pipelining
+    'mitxmako',
     'pipeline',
     'staticfiles',
     'static_replace',
