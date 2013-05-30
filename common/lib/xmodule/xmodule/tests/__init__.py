@@ -5,6 +5,11 @@ Run like this:
 
     rake test_common/lib/xmodule
 
+Contains next objects:
+
+    1. test_system constructs a test ModuleSystem instance.
+
+    2. tests for calc that should be removed to another file. TODO.
 """
 
 import unittest
