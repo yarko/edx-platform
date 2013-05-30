@@ -37,7 +37,7 @@ class HtmlModuleSubstitutionTestCase(unittest.TestCase):
     def test_substitution_without_anonymous_student_id(self):
         sample_xml = '''
             <html>
-                <p>Hi USER_ID!11!</p>
+                <p>Hi %%USER_ID%%!11!</p>
             </html>
         '''
         module_data = {'data': sample_xml}

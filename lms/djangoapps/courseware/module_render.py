@@ -18,7 +18,6 @@ from django.views.decorators.csrf import csrf_exempt
 from requests.auth import HTTPBasicAuth
 
 from capa.xqueue_interface import XQueueInterface
-from xmodule.course_module import anonymized_user_id
 from courseware.masquerade import setup_masquerade
 from courseware.access import has_access
 from mitxmako.shortcuts import render_to_string
@@ -288,25 +287,6 @@ def get_module_for_descriptor(user, request, descriptor, model_data_cache, cours
                 return True
         return False
 
-    def more_unique_id(user):
-        """
-        Return an anonymized ID for the user. 
-        
-        If the per-course secret is set, use that for hashing, otherwise fall
-        back to the old method of fast hashing without randomness.
-
-        Useful for exporting IDs to third-party service providers (like
-        Qualtrics or SurveyMonkey), without exposing raw user IDs.
-        """
-        course_secret = getattr(descriptor, 'secret', None)
-        if course_secret:
-            unique_id = anonymized_user_id(user, course_secret)
-        else:
-            # if there's no course secret for this course, then fall back to
-            # the old unique_id_for_user implementation
-            unique_id = unique_id_for_user(user)
-        return unique_id
-
     # TODO (cpennington): When modules are shared between courses, the static
     # prefix is going to have to be specific to the module, not the directory
     # that the xml was loaded from
@@ -329,7 +309,7 @@ def get_module_for_descriptor(user, request, descriptor, model_data_cache, cours
                           node_path=settings.NODE_PATH,
                           xblock_model_data=xblock_model_data,
                           publish=publish,
-                          anonymous_student_id=more_unique_id(user),
+                          anonymous_student_id=unique_id_for_user(user),
                           course_id=course_id,
                           open_ended_grading_interface=open_ended_grading_interface,
                           s3_interface=s3_interface,

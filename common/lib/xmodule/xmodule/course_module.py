@@ -25,18 +25,6 @@ from .fields import Date
 log = logging.getLogger(__name__)
 
 
-
-def anonymized_user_id(user, course_secret):
-    """
-    Returns an anonymized user ID for exporting to third-party
-    service providers like Qualtrics.
-    """
-    h = hashlib.sha1()
-    h.update(course_secret)
-    h.update(str(user.id))
-    return h.hexdigest()
-
-
 class StringOrDate(Date):
     def from_json(self, value):
         """

@@ -598,6 +598,20 @@ def unique_id_for_user(user):
     return h.hexdigest()
 
 
+def more_unique_id_for_user(user, course_secret):
+    """
+    Return a *more* unique id for a user, suitable for inserting into
+    e.g. personalized survey links.
+
+    This unique id is based off of a per-course "secret" that's
+    generated at course creation.
+    """
+    h = hashlib.sha1()
+    h.update(course_secret)
+    h.update(str(user.id))
+    return h.hexdigest()
+
+
 ## TODO: Should be renamed to generic UserGroup, and possibly
 # Given an optional field for type of group
 class UserTestGroup(models.Model):

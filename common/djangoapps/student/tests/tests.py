@@ -105,3 +105,19 @@ class CourseEndingTest(TestCase):
                           'show_survey_button': False,
                           'grade': '67'
                           })
+
+
+class GenerateAnonymizedUserIDsTestCase(TestCase):
+    def test_with_different_courses(self):
+        """
+        Different courses and users yield different anonymized IDs.
+        """
+        course_ids = ('edX/toy/2012_Fall', 'edx/full/6.002_Spring_2012')
+        time.gmtime = mock.Mock(return_value=time.gmtime())
+        s1, s2 = (utils.generate_secret_for_course(c_id) for c_id in course_ids)
+        u1, u2 = (UserFactory.build(id=x) for x in (1,2))
+        au1, au2 = (anonymized_user_id(x, s1) for x in (u1, u2))
+        self.assertNotEqual(au1, au2)
+        au1, au2 = (anonymized_user_id(u1, x) for x in (s1, s2))
+        self.assertNotEqual(au1, au2)
+

@@ -27,7 +27,7 @@ from courseware.models import StudentModule, StudentModuleHistory
 
 from django_comment_client.utils import get_discussion_title
 
-from student.models import UserTestGroup, CourseEnrollment
+from student.models import UserTestGroup, CourseEnrollment, more_unique_id_for_user
 from util.cache import cache, cache_if_anonymous
 from xmodule.modulestore import Location
 from xmodule.modulestore.django import modulestore
@@ -354,6 +354,13 @@ def index(request, course_id, chapter=None, section=None,
                 # check here if this page is within a course that has an active timed module running.  If so, then
                 # add in the appropriate timer information to the rendering context:
                 context.update(check_for_active_timelimit_module(request, course_id, course))
+
+            # Upgrade the section module's anonymous_student_id to
+            # one based on a per-course secret if available.
+            course_secret = getattr(course, "secret", None)
+            if course_secret is not None:
+                section_module.system.set('anonymous_student_id',
+                                           more_unique_id_for_user(user, course_secret))
 
             context['content'] = section_module.get_html()
         else:
