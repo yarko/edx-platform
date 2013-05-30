@@ -1,4 +1,5 @@
 (function () {
+<<<<<<< Updated upstream
     var timeout = 120;
 
     // This function should only run once, even if there are multiple jsinputs
@@ -12,6 +13,9 @@
     }
 
     var allElems = [] ;
+=======
+
+>>>>>>> Stashed changes
 
     // Define an class (functional pattern) that will be instantiated for each
     // jsinput element of the DOM
@@ -31,7 +35,11 @@
         that.id = function () { return spec.id ; };
         that.elem = function () { return spec.elem ; };
         that.parent = function () { return getParent(spec.elem);};
+<<<<<<< Updated upstream
         that.problem = function () { 
+=======
+        that.problem = function () {
+>>>>>>> Stashed changes
             return $(elem).closest("section.problem");
         };
 
@@ -54,4 +62,18 @@
         }
     };
 
+<<<<<<< Updated upstream
+=======
+    // This function should only run once, even if there are multiple jsinputs
+    // on a page.
+    if (typeof(_jsinput_loaded) == 'undefined' || _jsinput_loaded === false) {
+        _jsinput_loaded = true;
+        walkDOM();
+
+    } else {
+        return;
+    }
+
+    var allElems = [] ;
+>>>>>>> Stashed changes
 }).call(this);
