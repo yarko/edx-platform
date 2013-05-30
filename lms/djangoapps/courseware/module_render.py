@@ -21,6 +21,7 @@ from capa.xqueue_interface import XQueueInterface
 from xmodule.course_module import anonymized_user_id
 from courseware.masquerade import setup_masquerade
 from courseware.access import has_access
+#from courseware.courses import get_course_with_access
 from mitxmako.shortcuts import render_to_string
 from .models import StudentModule
 from psychometrics.psychoanalyze import make_psychometrics_data_update_handler
@@ -288,7 +289,7 @@ def get_module_for_descriptor(user, request, descriptor, model_data_cache, cours
                 return True
         return False
 
-    def more_unique_id(user):
+    def more_unique_id(user, course_id):
         """
         Return an anonymized ID for the user. 
         
@@ -298,13 +299,21 @@ def get_module_for_descriptor(user, request, descriptor, model_data_cache, cours
         Useful for exporting IDs to third-party service providers (like
         Qualtrics or SurveyMonkey), without exposing raw user IDs.
         """
-        course_secret = getattr(descriptor, 'secret', None)
+        course = get_course_with_access(user, course_id, 'load', depth=2)
+        course_secret = getattr(course, 'secret', None)
         if course_secret:
             unique_id = anonymized_user_id(user, course_secret)
+            log.warning("COURSE SECRET FOUND - " + str(course_secret))
+            log.warning("Anonymized ID: " + str(unique_id))
+            log.warning("Old Unique ID: " + str(unique_id_for_user(user)))
+            log.warning("COURSE DESCRIPTOR - " + str(course_id))
+            log.warning("COURSE descriptor/location/course - " + str(course.location.course))
         else:
             # if there's no course secret for this course, then fall back to
             # the old unique_id_for_user implementation
             unique_id = unique_id_for_user(user)
+            log.warning("NO course_secret FOUND")
+            log.warning("COURSE DESCRIPTOR - " + str(course_id))
         return unique_id
 
     # TODO (cpennington): When modules are shared between courses, the static
@@ -329,7 +338,7 @@ def get_module_for_descriptor(user, request, descriptor, model_data_cache, cours
                           node_path=settings.NODE_PATH,
                           xblock_model_data=xblock_model_data,
                           publish=publish,
-                          anonymous_student_id=more_unique_id(user),
+                          anonymous_student_id=more_unique_id(user, course_id),
                           course_id=course_id,
                           open_ended_grading_interface=open_ended_grading_interface,
                           s3_interface=s3_interface,
