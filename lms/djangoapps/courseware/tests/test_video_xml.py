@@ -58,7 +58,9 @@ class VideoFactory(object):
         return module
 
 
-class VideoModuleUnitTest(LogicTest):
+class VideoModuleLogicTest(LogicTest):
+    """Tests for logic of Video Xmodule."""
+
     descriptor_class = VideoDescriptor
 
     raw_model_data = {
@@ -91,7 +93,9 @@ class VideoModuleUnitTest(LogicTest):
         self.assertEqual(output, (247, 47079))
 
 
-class VideoModuleItegrationTest(unittest.TestCase):
+class VideoModuleUnitTest(unittest.TestCase):
+    """Unit tests for Video Xmodule."""
+
     def test_video_constructor(self):
         """Make sure that all parameters extracted correclty from xml"""
         module = VideoFactory.create()
