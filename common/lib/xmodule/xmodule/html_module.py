@@ -33,7 +33,16 @@ class HtmlModule(HtmlFields, XModule):
 
     def get_html(self):
         # Replace magic field if possible to do so (e.g., not in CMS view)
-        if self.system.anonymous_student_id:
+        anon_id = self.system.get("more_anonymous_student_id") #or \
+                  #self.system.get("anonymous_student_id")
+        if anon_id:
+        #if self.system.more_anonymous_student_id:
+            #log.warning("  DEBUG  more anonymous " + self.system.more_anonymous_student_id)
+            #return self.data.replace("%%USER_ID%%", str(self.system.more_anonymous_student_id))
+            log.warning("  DEBUG  more anonymous " + anon_id)
+            return self.data.replace("%%USER_ID%%", str(anon_id))
+        else:
+            log.warning("  DEBUG  anonymous " + self.system.anonymous_student_id)
             return self.data.replace("%%USER_ID%%", str(self.system.anonymous_student_id))
         return self.data
 

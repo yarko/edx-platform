@@ -12,6 +12,7 @@ class HtmlModuleSubstitutionTestCase(unittest.TestCase):
     descriptor = Mock()
 
     def test_substitution_works(self):
+        """%%USER_ID%% is substituted with anonymous_student_id"""
         sample_xml = '''
             <html>
                 <p>Hi %%USER_ID%%!11!</p>
@@ -22,8 +23,8 @@ class HtmlModuleSubstitutionTestCase(unittest.TestCase):
         module = HtmlModule(module_system, self.location, self.descriptor, module_data)
         self.assertEqual(module.get_html(), sample_xml.replace("%%USER_ID%%", module_system.anonymous_student_id))
 
-
     def test_substitution_without_magic_string(self):
+        """USER_ID without percenting is not substituted with anonymous_student_id"""
         sample_xml = '''
             <html>
                 <p>Hi USER_ID!11!</p>
@@ -35,6 +36,7 @@ class HtmlModuleSubstitutionTestCase(unittest.TestCase):
 
 
     def test_substitution_without_anonymous_student_id(self):
+        """%%USER_ID%% is not substituted if anonymous_student_id is unset."""
         sample_xml = '''
             <html>
                 <p>Hi %%USER_ID%%!11!</p>

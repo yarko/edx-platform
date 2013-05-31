@@ -735,6 +735,7 @@ class ModuleSystem(object):
                  publish=None,
                  node_path="",
                  anonymous_student_id='',
+                 more_anonymous_student_id='',
                  course_id=None,
                  open_ended_grading_interface=None,
                  s3_interface=None,
@@ -776,6 +777,10 @@ class ModuleSystem(object):
 
         anonymous_student_id - Used for tracking modules with student id
 
+        more_anonymous_student_id - More anonymous than anonymous_student_id; a
+                         course-specific id for the student if the course has a
+                         per-course secret set, otherwise the anonymous_student_id
+
         course_id - the course_id containing this module
 
         publish(event) - A function that allows XModules to publish events (such as grade changes)
@@ -802,6 +807,7 @@ class ModuleSystem(object):
         self.replace_urls = replace_urls
         self.node_path = node_path
         self.anonymous_student_id = anonymous_student_id
+        self.more_anonymous_student_id = more_anonymous_student_id
         self.course_id = course_id
         self.user_is_staff = user is not None and user.is_staff
         self.xblock_model_data = xblock_model_data

@@ -1,5 +1,4 @@
 from datetime import datetime
-import hashlib
 import logging
 from math import exp
 from lxml import etree

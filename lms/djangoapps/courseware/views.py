@@ -27,7 +27,7 @@ from courseware.models import StudentModule, StudentModuleHistory
 
 from django_comment_client.utils import get_discussion_title
 
-from student.models import UserTestGroup, CourseEnrollment, more_unique_id_for_user
+from student.models import UserTestGroup, CourseEnrollment, more_unique_id_for_user, unique_id_for_user
 from util.cache import cache, cache_if_anonymous
 from xmodule.modulestore import Location
 from xmodule.modulestore.django import modulestore
@@ -359,8 +359,14 @@ def index(request, course_id, chapter=None, section=None,
             # one based on a per-course secret if available.
             course_secret = getattr(course, "secret", None)
             if course_secret is not None:
-                section_module.system.set('anonymous_student_id',
+                log.warning("  DEBUG  " + str(course_secret) )
+                section_module.system.set('more_anonymous_student_id',
                                            more_unique_id_for_user(user, course_secret))
+                log.warning("  DEBUG  " + str(section_module.system.get('more_anonymous_student_id') ) )
+            else:
+                section_module.system.set('more_anonymous_student_id', unique_id_for_user(user))
+                log.warning("  DEBUG  NO SECRET SET " + str(section_module.system.get('more_anonymous_student_id')) )
+            log.warning("  DEBUG  after setting secret " + section_module.system.get('more_anonymous_student_id'))
 
             context['content'] = section_module.get_html()
         else:
