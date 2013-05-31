@@ -777,6 +777,37 @@ class CodeResponseTest(ResponseTest):
             self.assertEquals(answers_converted['1_3_1'], ['answer1', 'answer2', 'answer3'])
             self.assertEquals(answers_converted['1_4_1'], [fp.name, fp.name])
 
+    def test_message_cleanup(self):
+        """
+        Test if update_score is properly sanitizing the response from the
+        graders, and ignoring invalid messages.
+        """
+
+        answer_ids = sorted(self.problem.get_question_answers())
+
+        # CodeResponse requires internal CorrectMap state. Build it now in the queued state
+        # CodeResponse requires internal CorrectMap state. Build it now in the unqueued state
+        cmap = CorrectMap()
+        for answer_id in answer_ids:
+            cmap.update(CorrectMap(answer_id=answer_id, queuestate=None))
+
+
+        response = lambda m: json.dumps({'correct': True, 'score': 1, 'msg': m})
+
+        self.problem.correct_map = CorrectMap()
+        self.problem.correct_map.update(cmap)
+
+        import ipdb; ipdb.set_trace()
+        new_map = self.problem.update_score(response('<p>hello</p>'), queuekey=0)
+
+        print 'hi'
+        print new_map
+
+
+        assert False
+
+
+
 
 class ChoiceResponseTest(ResponseTest):
     from response_xml_factory import ChoiceResponseXMLFactory
