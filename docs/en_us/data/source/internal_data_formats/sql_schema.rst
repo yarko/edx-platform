@@ -402,7 +402,7 @@ A row in this table maps a student's real user ID to an anonymous ID generated t
 
 
 `hash_id`
-----
+---------
    The user ID generated to obfuscate the student's identity.
 
 `user_id`
