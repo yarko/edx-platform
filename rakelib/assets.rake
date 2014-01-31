@@ -1,9 +1,6 @@
 # Theming constants
 
 USE_CUSTOM_THEME = ENV_TOKENS.has_key?('FEATURES') && ENV_TOKENS['FEATURES']['USE_CUSTOM_THEME']
-# puts "USE_CUSTOM_THEME: #{ENV_TOKENS['FEATURES']['USE_CUSTOM_THEME']}"
-# puts "ENV_TOKENS: #{ENV_TOKENS}"
-# puts "FEATURES: #{ENV_TOKENS.has_key?('FEATURES')}"
 if USE_CUSTOM_THEME
     THEME_NAME = ENV_TOKENS['THEME_NAME']
     THEME_ROOT = File.join(ENV_ROOT, "themes", THEME_NAME)
@@ -30,7 +27,8 @@ end
 def coffee_cmd(watch=false, debug=false)
     brew_paths = ["lms/", "cms/", "common/"]
     if USE_CUSTOM_THEME
-      brew_paths << THEME_ROOT
+      # put theme path first just to be safe;
+      brew_paths.unshift(THEME_ROOT)
     end
 
     if watch && Launchy::Application.new.host_os_family.darwin?
