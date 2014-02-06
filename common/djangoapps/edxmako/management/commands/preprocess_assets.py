@@ -9,6 +9,7 @@ template extension (e.g., .mako for Mako templates). Currently Mako
 is the only template engine supported.
 """
 import os
+import sys
 
 from django.core.management.base import NoArgsCommand
 from django.conf import settings
@@ -29,6 +30,8 @@ class Command(NoArgsCommand):
         settings file, looking for asset template files (indicated by
         a file extension like .mako).
         """
+        print >> sys.stderr, "handle_noargs: options: [", options, "]"
+        print >> sys.stderr, "handle_noargs: STATICFILES_DIRS: [", getattr(settings, "STATICFILES_DIRS", []), "]"
         for staticfiles_dir in getattr(settings, "STATICFILES_DIRS", []):
             # Cribbed from the django-staticfiles app at:
             # https://github.com/jezdez/django-staticfiles/blob/develop/staticfiles/finders.py#L52
