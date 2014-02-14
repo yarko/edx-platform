@@ -4,6 +4,7 @@ Helper functions for loading environment settings.
 import os
 import sys
 import json
+import re
 from lazy import lazy
 from path import path
 
@@ -13,12 +14,25 @@ class Env(object):
     Load information about the execution environment.
     """
 
-    # Root of the git repository (edx-platform)
-    REPO_ROOT = path(__file__).dirname().dirname().dirname()
+    def __init__():
+        # Root of the git repository (edx-platform)
+        REPO_ROOT = path(__file__).dirname().dirname().dirname()
 
-    # Service variant (lms, cms, etc.) configured with an environment variable
-    # We use this to determine which envs.json file to load.
-    SERVICE_VARIANT = os.environ.get('SERVICE_VARIANT', None)
+        # Service variant (lms, cms, etc.) configured with an environment variable
+        # We use this to determine which envs.json file to load.
+        SERVICE_VARIANT = os.environ.get('SERVICE_VARIANT', None)
+        # If service variant not configured in env, then pass the correct
+        # environment for lms / cms
+        if not SERVICE_VARIANT:  # this will intentionally catch "";
+            # ignore command line environments, e.g.  "paver var=val"
+            clean_args = [x for x in sys.argv[1:] if x.find('=')<0]
+            # consider only words remaining (parse out separators)
+            p = re.compile(r'\W+')
+            clean_args = p.split(' '.join(clean_args))
+            # if lms or cms is among command line words, use it's env
+            SERVICE_VARIANT = 'lms' if 'lms' in clean_args \
+                        else 'cms' if ('cms' in clean_args) or ('studio' in clean_args) \
+                        else SERVICE_VARIANT
 
     @lazy
     def env_tokens(self):
